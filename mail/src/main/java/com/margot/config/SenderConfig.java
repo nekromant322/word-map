@@ -1,7 +1,9 @@
 package com.margot.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,30 +12,24 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
+@RequiredArgsConstructor
+@EnableConfigurationProperties(SenderProperties.class)
 public class SenderConfig {
 
-    @Value("${spring.mail.host}")
-    private String hostFromConfig;
-
-    @Value("${spring.mail.username}")
-    private String mailFromConfig;
-
-    @Value("${spring.mail.password}")
-    private String passwordFromConfig;
     @Bean
-    public JavaMailSender getJavaMailSender() {
+    public JavaMailSender getJavaMailSender(SenderProperties senderProperties) {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(hostFromConfig);
-        mailSender.setPort(587);
+        mailSender.setHost(senderProperties.getHost());
+        mailSender.setPort(senderProperties.getPort());
 
-        mailSender.setUsername(mailFromConfig);
-        mailSender.setPassword(passwordFromConfig);
+        mailSender.setUsername(senderProperties.getUsername());
+        mailSender.setPassword(senderProperties.getPassword());
 
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+        props.put("mail.transport.protocol", senderProperties.getProperties().getMail().getTransport().getProtocol());
+        props.put("mail.smtp.auth", senderProperties.getProperties().getMail().getSmtp().isAuth());
+        props.put("mail.smtp.starttls.enable", senderProperties.getProperties().getMail().getStarttls().isEnable());
+//        props.put("mail.debug", "true");
 
         return mailSender;
     }

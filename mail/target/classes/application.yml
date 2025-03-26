@@ -6,6 +6,8 @@ spring:
     password: ${EMAIL_PASSWORD}
     properties:
       mail:
+        transport:
+          protocol: smtp
         smtp:
           auth: true
         starttls:
