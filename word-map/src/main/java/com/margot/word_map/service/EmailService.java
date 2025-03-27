@@ -1,5 +1,6 @@
 package com.margot.word_map.service;
 
+import com.margot.word_map.config.SenderProperties;
 import com.margot.word_map.dto.ConfirmEmailRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,20 +17,27 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
-    private String emailClient;
+    private final SenderProperties senderProperties;
+
+    @Value("${auth.confirm-by-email}")
+    private Boolean needConfirm;
 
     public void sendConfirmEmail(ConfirmEmailRequest request) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(request.getEmail());
         message.setSubject("confirm code to word-map game");
         message.setText(request.getVerificationCode());
-        message.setFrom(emailClient);
+        message.setFrom(senderProperties.getUsername());
 
-        try {
-            javaMailSender.send(message);
-        } catch (MailException e) {
-            log.warn("send message to email {} error", request.getEmail(), e);
+        if (needConfirm) {
+            try {
+                javaMailSender.send(message);
+                log.info("send confirm code message to email {}", request.getEmail());
+            } catch (MailException e) {
+                log.warn("send message to email {} error", request.getEmail(), e);
+            }
+        } else {
+            System.out.println("send confirm code message to email: " + request.getEmail());
         }
     }
 }
