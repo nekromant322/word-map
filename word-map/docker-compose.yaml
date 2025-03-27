@@ -18,10 +18,10 @@ services:
     depends_on:
       - database
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME_DOCKER}
-      SPRING_DATASOURCE_USERNAME: ${DB_LOGIN_DOCKER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD_DOCKER}
-      ENVIRONMENT: ${ENVIRONMENT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_LOGIN}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      ENVIRONMENT: dev
     ports:
       - "2507:8080"
 
