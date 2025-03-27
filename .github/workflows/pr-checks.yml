@@ -1,0 +1,27 @@
+name: Run tests and verify checkstyle
+
+on:
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn -B package -f word-map/pom.xml -Dspring.liquibase.enabled=false
+
+      - name: Run tests with H2
+        run: mvn test -f word-map/pom.xml -Dspring.datasource.url=jdbc:h2:mem:testdb -Dspring.datasource.driver-class-name=org.h2.Driver
+
+      - name: Verify checkstyle
+        run: mvn verify -f word-map/pom.xml -DskipTests
