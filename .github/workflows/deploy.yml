@@ -9,3 +9,56 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v3
+
+      - name: Создание .env файла
+        run: |
+          echo "DB_NAME_DOCKER=${{ secrets.DB_NAME_DOCKER }}" > .env
+          echo "DB_LOGIN_DOCKER=${{ secrets.DB_LOGIN_DOCKER }}" >> .env
+          echo "DB_PASSWORD_DOCKER=${{ secrets.DB_PASSWORD_DOCKER }}" >> .env
+          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> .env
+          cat .env
+
+      - name: Копирование docker-compose.yaml
+        run: |
+          cp word-map/docker-compose.yaml .
+
+      - name: Логин в Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Сборка Docker-образа
+        run: |
+          echo "Сборка Docker-образа..."
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/megokolos/word_map_game:001 -f word-map/Dockerfile .
+          echo "Сборка завершена."
+
+      - name: Пуш Docker-образа на Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/megokolos/word_map_game:001
+
+      - name: Copy docker-compose and env file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "docker-compose.yaml,.env"
+          target: "/home/${{ secrets.SERVER_USER }}/"
+          overwrite: true
+
+      - name: Деплой на сервере
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            docker-compose -f /home/kolos/docker-compose.yaml --env-file /home/kolos/.env config
+            docker-compose -f /home/kolos/docker-compose.yaml down
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/megokolos/word_map_game:001
+            docker-compose -f /home/kolos/docker-compose.yaml --env-file /home/kolos/.env up -d
+            docker image prune -f
