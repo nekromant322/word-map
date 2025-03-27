@@ -4,9 +4,9 @@ services:
     container_name: my_postgres
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME_DOCKER}
-      POSTGRES_USER: ${DB_LOGIN_DOCKER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD_DOCKER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_LOGIN}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5120:5432"
     volumes:
