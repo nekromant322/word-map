@@ -22,7 +22,7 @@ jobs:
 
       - name: Тесты без Liquibase
         run: |
-          export ENABLE_LIQUIBASE=false
+          export SPRING_LIQUIBASE_ENABLED=false
           mvn test -f word-map/pom.xml
 
       - name: Test and verify checkstyle
