@@ -1,4 +1,4 @@
-package com.margot.dto;
+package com.margot.word_map.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

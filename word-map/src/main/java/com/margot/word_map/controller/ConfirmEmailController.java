@@ -1,7 +1,7 @@
-package com.margot.controller;
+package com.margot.word_map.controller;
 
-import com.margot.dto.ConfirmEmailRequest;
-import com.margot.service.EmailService;
+import com.margot.word_map.dto.ConfirmEmailRequest;
+import com.margot.word_map.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,4 +1,4 @@
-package com.margot.config;
+package com.margot.word_map.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

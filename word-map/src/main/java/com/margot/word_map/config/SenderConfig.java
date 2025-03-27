@@ -1,8 +1,6 @@
-package com.margot.config;
+package com.margot.word_map.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +27,6 @@ public class SenderConfig {
         props.put("mail.transport.protocol", senderProperties.getProperties().getMail().getTransport().getProtocol());
         props.put("mail.smtp.auth", senderProperties.getProperties().getMail().getSmtp().isAuth());
         props.put("mail.smtp.starttls.enable", senderProperties.getProperties().getMail().getStarttls().isEnable());
-//        props.put("mail.debug", "true");
 
         return mailSender;
     }

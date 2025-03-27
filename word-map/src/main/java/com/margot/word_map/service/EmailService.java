@@ -1,6 +1,6 @@
-package com.margot.service;
+package com.margot.word_map.service;
 
-import com.margot.dto.ConfirmEmailRequest;
+import com.margot.word_map.dto.ConfirmEmailRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
