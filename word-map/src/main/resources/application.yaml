@@ -20,7 +20,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
   mail:
-    host: smtp.gmail.com
+    host: mail.hosting.reg.ru
     port: 587
     username: ${EMAIL_USERNAME}
     password: ${EMAIL_PASSWORD}
