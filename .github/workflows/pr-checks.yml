@@ -18,12 +18,10 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Maven
-        run: mvn -B package --file word-map/pom.xml
+        run: mvn -B package -f word-map/pom.xml -Dspring.liquibase.enabled=false
 
-      - name: Тесты без Liquibase
-        run: |
-          export SPRING_LIQUIBASE_ENABLED=false
-          mvn test -f word-map/pom.xml
+      - name: Run tests with H2
+        run: mvn test -f word-map/pom.xml -Dspring.datasource.url=jdbc:h2:mem:testdb -Dspring.datasource.driver-class-name=org.h2.Driver
 
-      - name: Test and verify checkstyle
-        run: mvn verify -f word-map/pom.xml
+      - name: Verify checkstyle
+        run: mvn verify -f word-map/pom.xml -DskipTests

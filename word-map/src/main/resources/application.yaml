@@ -18,4 +18,4 @@ spring:
         enabled: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    enabled: ${SPRING_LIQUIBASE_ENABLED:true}
+    enabled: true
