@@ -26,7 +26,7 @@ public class EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(request.getEmail());
         message.setSubject("confirm code to word-map game");
-        message.setText(request.getVerificationCode());
+        message.setText("Ваш код подтверждения для входа в word-map: " + request.getVerificationCode());
         message.setFrom(senderProperties.getUsername());
 
         if (needConfirm) {
