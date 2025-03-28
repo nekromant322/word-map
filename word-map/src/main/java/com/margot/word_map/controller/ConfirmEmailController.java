@@ -20,4 +20,3 @@ public class ConfirmEmailController {
         emailService.sendConfirmEmail(request);
     }
 }
-
