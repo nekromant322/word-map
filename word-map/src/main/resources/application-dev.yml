@@ -1,0 +1,18 @@
+spring:
+  mail:
+    host: localhost
+    port: 12345
+    username: test
+    password: test
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: false
+        starttls:
+          enable: false
+          required: false
+
+auth:
+  confirm-by-email: false
