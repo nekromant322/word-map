@@ -1,15 +1,19 @@
 databaseChangeLog:
   - changeSet:
-      id: 001
-      author: Alex_Kolosov
+      id: create-table-admins
+      author: bahertylop
       changes:
+        - createSequence:
+            sequenceName: admins_id_seq
+            startValue: 1
+            incrementBy: 1
         - createTable:
-            tableName: some_table_name
+            tableName: admins
             columns:
               - column:
                   name: id
                   type: BIGINT
-                  autoIncrement: true
+                  defaultValueComputed: "nextval('admins_id_seq')"
                   constraints:
                     primaryKey: true
                     nullable: false

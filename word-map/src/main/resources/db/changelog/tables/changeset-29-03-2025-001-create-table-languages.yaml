@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-languages
+      author: bahertylop
+      changes:
+        - createSequence:
+            sequenceName: languages_id_seq
+            startValue: 1
+            incrementBy: 1
+        - createTable:
+            tableName: languages
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  defaultValueComputed: "nextval('languages_id_seq')"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: prefix
+                  type: VARCHAR
+              - column:
+                  name: name
+                  type: VARCHAR
