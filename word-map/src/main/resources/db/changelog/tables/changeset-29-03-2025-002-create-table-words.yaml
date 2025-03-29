@@ -52,7 +52,7 @@ databaseChangeLog:
             baseColumnNames: id_language
             referencedTableName: languages
             referencedColumnNames: id
-            constraintName: fk_words_created_by
+            constraintName: fk_words_language
             onDelete: CASCADE
         - addForeignKeyConstraint:
             baseTableName: words
