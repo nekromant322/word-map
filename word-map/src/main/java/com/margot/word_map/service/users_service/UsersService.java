@@ -17,5 +17,4 @@ public interface UsersService {
 
     @Transactional
     void delete(Long id);
-
 }
