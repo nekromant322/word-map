@@ -20,7 +20,6 @@ public class UsersServiceImpl implements UsersService {
     @Autowired
     private UsersRepository usersRepository;
 
-
     @Override
     public User findById(Long id) {
         Optional<User> user = usersRepository.findById(id);
@@ -61,6 +60,5 @@ public class UsersServiceImpl implements UsersService {
     public void delete(Long id) {
         usersRepository.deleteById(id);
     }
-
 
 }

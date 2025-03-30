@@ -17,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
-
 @Service
 public class AuthService {
 
@@ -36,8 +35,6 @@ public class AuthService {
         this.confirmRepository = confirmRepository;
         this.adminRepository = adminRepository;
     }
-
-
 
     public ConfirmResponse sendVerificationCode(String email) {
         Admin admin = adminRepository.findByEmail(email).orElse(null);

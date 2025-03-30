@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ConfirmRepository extends JpaRepository<Confirm, Long> {
     Optional<Confirm> findByUserIdAndCode(Long userId, Integer code);
+
     Optional<Confirm> findByUserId(Long userId);
 }
