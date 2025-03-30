@@ -13,7 +13,6 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  defaultValueComputed: "nextval('words_id_seq')"
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -30,7 +29,7 @@ databaseChangeLog:
                   name: id_language
                   type: BIGINT
                   constraints:
-                    nullable: false
+                    nullable: true
               - column:
                   name: date_creation
                   type: DATETIME

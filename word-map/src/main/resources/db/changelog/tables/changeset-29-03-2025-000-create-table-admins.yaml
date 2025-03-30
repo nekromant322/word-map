@@ -13,7 +13,6 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
-                  defaultValueComputed: "nextval('admins_id_seq')"
                   constraints:
                     primaryKey: true
                     nullable: false

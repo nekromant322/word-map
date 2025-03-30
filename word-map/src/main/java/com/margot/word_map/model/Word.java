@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +17,8 @@ import java.time.LocalDateTime;
 public class Word {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "words_id_seq")
+    @SequenceGenerator(name = "words_id_seq", sequenceName = "words_id_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "word")
@@ -31,7 +31,7 @@ public class Word {
     private Integer wordLength;
 
     @ManyToOne
-    @JoinColumn(name = "id_language", nullable = false)
+    @JoinColumn(name = "id_language")
     private Language language;
 
     @Column(name = "date_creation")
@@ -45,6 +45,6 @@ public class Word {
     private User createdBy;
 
     @ManyToOne
-    @JoinColumn(name = "id_edition")
+    @JoinColumn(name = "id_edited")
     private User editedBy;
 }

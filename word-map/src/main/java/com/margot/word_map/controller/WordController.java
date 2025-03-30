@@ -5,15 +5,22 @@ import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.service.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.util.List;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dictionary")
 public class WordController {
+
+    private final WordService wordService;
 
     @PostMapping("/list")
     public DictionaryListResponse findWordsByFilter(DictionaryListRequest request) {
@@ -22,33 +29,28 @@ public class WordController {
 
     @GetMapping("/{word}")
     public DictionaryWordResponse getWordInfo(@PathVariable String word) {
-        return DictionaryWordResponse.builder().build();
+        return wordService.getWordInfo(word);
     }
 
     @PostMapping("/word")
-    public void createNewWord(@RequestBody CreateWordRequest request) {
-        // создание нового слова
+    public void createNewWord(@RequestBody @Validated CreateWordRequest request) {
+        wordService.createNewWord(request);
     }
 
     @PutMapping("/word")
     public void updateWord(@RequestBody UpdateWordRequest request) {
-        // логирование в конфле
-//        При редактировании записи, найти id = id и выполнить запись параметров:
-//        word = word
-//        description = description
-//        lenght = количеству знаков в word
-//        edited_at = текущей дате
-//        id_edited = id пользователя из DB admins
+        wordService.updateWordInfo(request);
     }
 
     @DeleteMapping("/word/{id}")
     public void deleteWord(@PathVariable Long id) {
-//        При успешном выполнении операции необходимо выполнить логирование:
-//        {time}: DELETE WORD Пользователь {email} удалил слово {word}.
+        wordService.deleteWord(id);
     }
 
     @GetMapping("/word/list")
-    public List<DictionaryWordResponse> getAllWords() {
-        return List.of();
+    public ResponseEntity<StreamingResponseBody> getAllWords() throws IOException {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(wordService.getAllWords());
     }
 }
