@@ -33,6 +33,7 @@ spring:
         starttls:
           enable: true
           required: true
-
+jwt:
+  secret: ${JWT_SECRET}
 auth:
   confirm-by-email: true
