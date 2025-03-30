@@ -63,6 +63,7 @@ public class JwtService {
             throw new RuntimeException("Invalid JWT token", e);
         }
     }
+
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }

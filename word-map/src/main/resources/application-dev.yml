@@ -13,6 +13,7 @@ spring:
         starttls:
           enable: false
           required: false
-
 auth:
   confirm-by-email: false
+jwt:
+  secret: "test-secret-123"
