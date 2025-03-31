@@ -17,7 +17,7 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    references: users(id)
+                    references: admins(id)
                     foreignKeyName: fk_refresh_tokens_users
                     deleteCascade: true
               - column:
