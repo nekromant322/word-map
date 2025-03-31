@@ -33,6 +33,10 @@ spring:
         starttls:
           enable: true
           required: true
-
+jwt:
+  secret: ${JWT_SECRET}
+  expiration:
+    access-token-expiration: 15m
+    refresh-token-expiration: 14d
 auth:
   confirm-by-email: true
