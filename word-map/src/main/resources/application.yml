@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_DB}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
@@ -11,14 +11,14 @@ spring:
         show_sql: true
         format_sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
   mvc:
     hiddenmethod:
       filter:
         enabled: true
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    enabled: true
+    enabled: false
   mail:
     host: mail.hosting.reg.ru
     port: 587
