@@ -36,6 +36,7 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   expiration:
-    days: 14d
+    access-token-expiration: 15m
+    refresh-token-expiration: 14d
 auth:
   confirm-by-email: true

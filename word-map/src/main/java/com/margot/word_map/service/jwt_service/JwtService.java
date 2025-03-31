@@ -19,17 +19,27 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    @Value("${jwt.expiration.days}")
-    private Duration expirationInDays;
+    @Value("${jwt.expiration.access-token-expiration}")
+    private Duration accessTokenExpiration;
+    @Value("${jwt.expiration.refresh-token-expiration}")
+    private Duration refreshTokenExpiration;
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, Duration expiration) {
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(Date.from(Instant.now().plus(expirationInDays)))
+                .expiration(Date.from(Instant.now().plus(expiration)))
                 .signWith(getKey())
                 .compact();
+    }
+
+    public String generateAccessToken(String email, String role) {
+        return generateToken(email, role, accessTokenExpiration);
+    }
+
+    public String generateRefreshToken(String email) {
+        return generateToken(email, null, refreshTokenExpiration);
     }
 
     private SecretKey getKey() {

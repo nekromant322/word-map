@@ -2,8 +2,7 @@ package com.margot.word_map.service.users_service;
 
 import com.margot.word_map.model.User;
 import com.margot.word_map.repository.UsersRepository;
-import com.margot.word_map.service.jwt_service.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,32 +11,21 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UsersServiceImpl implements UsersService {
 
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UsersRepository usersRepository;
+    private final UsersRepository usersRepository;
 
     @Override
     public User findById(Long id) {
-        Optional<User> user = usersRepository.findById(id);
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new  UsernameNotFoundException("User with id=" + id + " not found");
-        }
+        return usersRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User with id=" + id + " not found"));
     }
 
     @Override
     public User findByEmail(String email) {
-        Optional<User> user = usersRepository.findByEmail(email);
-        if (user.isPresent()) {
-            return user.get();
-        } else {
-            throw new  UsernameNotFoundException("User with email=" + email + " not found");
-        }
+        return usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email=" + email + " not found"));
     }
 
     @Override

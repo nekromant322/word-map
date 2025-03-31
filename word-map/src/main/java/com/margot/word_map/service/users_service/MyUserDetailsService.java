@@ -5,20 +5,18 @@ import com.margot.word_map.model.User;
 import com.margot.word_map.model.UserPrincipal;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.UsersRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UsersRepository usersRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
+    private final UsersRepository usersRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
