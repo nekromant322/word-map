@@ -35,5 +35,7 @@ spring:
           required: true
 jwt:
   secret: ${JWT_SECRET}
+  expiration:
+    days: 14d
 auth:
   confirm-by-email: true

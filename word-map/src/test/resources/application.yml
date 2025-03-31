@@ -28,3 +28,5 @@ auth:
     confirm-by-email: false
 jwt:
   secret: "test-secret-123"
+  expiration:
+    days: 14d
