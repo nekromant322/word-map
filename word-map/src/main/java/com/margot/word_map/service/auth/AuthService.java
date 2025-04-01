@@ -1,8 +1,8 @@
 package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
-import com.margot.word_map.dto.ConfirmResponse;
-import com.margot.word_map.dto.TokenResponse;
+import com.margot.word_map.dto.response.ConfirmResponse;
+import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.*;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;

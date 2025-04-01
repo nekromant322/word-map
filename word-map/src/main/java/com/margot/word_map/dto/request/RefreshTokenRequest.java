@@ -1,4 +1,4 @@
-package com.margot.word_map.dto;
+package com.margot.word_map.dto.request;
 
 import lombok.Data;
 

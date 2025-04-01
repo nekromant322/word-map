@@ -1,8 +1,8 @@
 package com.margot.word_map.controller;
 
-import com.margot.word_map.dto.ConfirmRequest;
-import com.margot.word_map.dto.ConfirmResponse;
-import com.margot.word_map.dto.TokenResponse;
+import com.margot.word_map.dto.request.ConfirmRequest;
+import com.margot.word_map.dto.response.ConfirmResponse;
+import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.service.auth.AuthService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
