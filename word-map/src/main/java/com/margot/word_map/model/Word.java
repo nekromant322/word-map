@@ -1,15 +1,13 @@
 package com.margot.word_map.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -41,9 +39,9 @@ public class Word {
 
     @ManyToOne
     @JoinColumn(name = "id_creation")
-    private User createdBy;
+    private Admin createdBy;
 
     @ManyToOne
     @JoinColumn(name = "id_edited")
-    private User editedBy;
+    private Admin editedBy;
 }

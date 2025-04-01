@@ -8,10 +8,12 @@ import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordMapper;
+import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -36,8 +38,8 @@ public class WordService {
         }));
     }
 
-    public void createNewWord(CreateWordRequest request) {
-        // получить админа с контекста авторизации и присунуть в word
+    public void createNewWord(UserDetails userDetails, CreateWordRequest request) {
+        Admin admin = (Admin) userDetails;
 
         wordRepository.getWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
@@ -50,16 +52,19 @@ public class WordService {
                             .description(request.getDescription())
                             .wordLength(request.getWord().length())
                             .dateCreation(LocalDateTime.now())
+                            .createdBy(admin)
                             .build();
 
                     wordRepository.save(word);
+                    log.info("CREATE WORD Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
                 }
         );
     }
 
     @Transactional
-    public void updateWordInfo(UpdateWordRequest request) {
-        // получить админа с контекста и засунуть в editedBy
+    public void updateWordInfo(UserDetails userDetails, UpdateWordRequest request) {
+        Admin admin = (Admin) userDetails;
+
         Optional<Word> wordByNameOp = wordRepository.getWordByWord(request.getWord());
         if (wordByNameOp.isPresent() && !wordByNameOp.get().getId().equals(request.getId())) {
             log.info("word {} already exists", request.getWord());
@@ -78,19 +83,18 @@ public class WordService {
         wordToUpdate.setDescription(request.getDescription());
         wordToUpdate.setWordLength(request.getWord().length());
         wordToUpdate.setDateEdited(LocalDateTime.now());
-        // добавить админа которым сделана замена
+        wordToUpdate.setEditedBy(admin);
         wordRepository.save(wordToUpdate);
     }
 
-    public void deleteWord(Long id) {
-        // получить пользователя с контекста
+    public void deleteWord(UserDetails userDetails, Long id) {
+        Admin admin = (Admin) userDetails;
 
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new WordNotFoundException("Word with id " + id + " not found"));
 
         wordRepository.delete(word);
-        // здесь почту пользователя или id добавить
-        log.info("DELETE WORD Пользователь {} удалил слово {}.", id, word.getWord());
+        log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
     }
 
     public StreamingResponseBody getAllWords() {
