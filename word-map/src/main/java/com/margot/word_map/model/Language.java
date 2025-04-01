@@ -15,8 +15,7 @@ import lombok.NoArgsConstructor;
 public class Language {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "languages_id_seq")
-    @SequenceGenerator(name = "languages_id_seq", sequenceName = "languages_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "prefix")

@@ -17,8 +17,7 @@ import java.time.LocalDateTime;
 public class Word {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "words_id_seq")
-    @SequenceGenerator(name = "words_id_seq", sequenceName = "words_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "word")
