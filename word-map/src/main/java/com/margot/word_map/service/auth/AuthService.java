@@ -7,13 +7,10 @@ import com.margot.word_map.model.*;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
 import com.margot.word_map.repository.RefreshTokenRepository;
-import com.margot.word_map.repository.UsersRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,7 +27,6 @@ import java.util.Optional;
 @Validated
 public class AuthService {
 
-    private final UsersRepository usersRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
     private final ConfirmRepository confirmRepository;
@@ -38,66 +34,54 @@ public class AuthService {
     private final MessageSource messageSource;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Value("${confirm.code-expiration-time}")
+    private Integer confirmCodeExpirationTime;
+
     public ConfirmResponse sendVerificationCode(String email) {
         Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
-        Optional<User> optionalUser = usersRepository.findByEmail(email);
 
-        if (optionalAdmin.isEmpty() && optionalUser.isEmpty()) {
+        if (optionalAdmin.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
         }
 
-        Admin admin = optionalAdmin.orElse(null);
-        User user = optionalUser.orElse(null);
-
-        if ((admin != null && !admin.getAccess()) || (user != null && !user.getAccess())) {
+        Admin admin = optionalAdmin.get();
+        if (!admin.getAccess()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, getMessage("error.user.not_access"));
         }
 
-        Integer code = generateRandomCode();
-        Long userId = admin != null ? admin.getId() : user.getId();
-
-        Confirm confirm = confirmRepository.findByUserId(userId)
-                .orElseGet(() -> new Confirm(code, userId));
-
-        confirm.setCode(code);
+        Integer confirmCode = generateRandomCode();
+        Confirm confirm = confirmRepository.findByUserId(admin.getId())
+                .orElseGet(() -> new Confirm(confirmCode, admin.getId()));
+        confirm.setCode(confirmCode);
         confirm.setCreatedAt(LocalDateTime.now());
-        confirm.setExpirationTime(LocalDateTime.now().plusSeconds(300));
-
+        confirm.setExpirationTime(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
         Confirm savedConfirm = confirmRepository.save(confirm);
 
-        emailService.sendConfirmEmail(new ConfirmEmailRequest(email, code.toString()));
+        emailService.sendConfirmEmail(new ConfirmEmailRequest(email, confirmCode.toString()));
 
-        return new ConfirmResponse(savedConfirm.getId(), savedConfirm.getExpirationTime());
+        return new ConfirmResponse(savedConfirm.getId(), confirmCodeExpirationTime);
     }
 
     @Transactional
-    public TokenResponse verifyCodeAndGenerateToken(
-            @Email(
-                    regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-                    message = "Invalid email format. Example: example@mail.com") @NotBlank String email,
-            @NotBlank @Size(min = 6, max = 6) String codeStr) {
-
+    public TokenResponse verifyCodeAndGenerateToken(String email, String codeStr) {
         Integer code = parseCode(codeStr);
 
-        Admin admin = adminRepository.findByEmail(email).orElse(null);
-        User user = (admin == null) ? usersRepository.findByEmail(email).orElse(null) : null;
-
-        if (admin == null && user == null) {
+        Optional<Admin> admin = adminRepository.findByEmail(email);
+        if (admin.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
         }
 
-        Long userId = (admin != null) ? admin.getId() : user.getId();
-        Confirm confirm = confirmRepository.findByUserIdAndCode(userId, code)
+        Long adminId = admin.get().getId();
+        Confirm confirm = confirmRepository.findByUserIdAndCode(adminId, code)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         getMessage("error.confirm.not_found")));
 
         validateConfirmCode(confirm, code);
 
-        String role = (admin != null) ? Role.ADMIN.name() : Role.USER.name();
         confirmRepository.delete(confirm);
 
-        String accessToken = jwtService.generateAccessToken(email, role);
-        String refreshToken = generateAndSaveRefreshToken(userId, email);
+        String accessToken = jwtService.generateAccessToken(email, Role.ADMIN.name());
+        String refreshToken = generateAndSaveRefreshToken(adminId, email);
 
         return new TokenResponse(accessToken, refreshToken);
     }
@@ -112,7 +96,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
         }
 
-        String email = usersRepository.findById(storedToken.getUserId()).get().getEmail();
+        String email = adminRepository.findById(storedToken.getUserId()).get().getEmail();
         String role = jwtService.extractRole(refreshToken);
 
         String newAccessToken = jwtService.generateAccessToken(email, role);

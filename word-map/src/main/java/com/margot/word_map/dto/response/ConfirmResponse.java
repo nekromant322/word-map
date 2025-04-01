@@ -9,5 +9,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ConfirmResponse {
     private Long confirmID;
-    private LocalDateTime lifetime;
+    private Integer lifetime;
 }

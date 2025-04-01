@@ -22,21 +22,17 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/login/{email}")
-    public ResponseEntity<ConfirmResponse> sendCode(@PathVariable @Email(
+    public ConfirmResponse sendCode(@PathVariable @Email(
             regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
             message = "Invalid email format. Example: example@mail.com")
                                                     @NotBlank String email) {
-        ConfirmResponse response = authService.sendVerificationCode(email);
-        return ResponseEntity.ok(response);
+        return authService.sendVerificationCode(email);
     }
 
     @PostMapping("/confirm")
-    public ResponseEntity<TokenResponse> verifyCode(
-            @RequestBody ConfirmRequest confirmRequest) {
-        TokenResponse tokenResponse =
-                authService.verifyCodeAndGenerateToken(confirmRequest.getEmail(), confirmRequest.getCode());
-
-        return ResponseEntity.ok(tokenResponse);
+    public TokenResponse verifyCode(
+            @RequestBody @Validated ConfirmRequest confirmRequest) {
+        return authService.verifyCodeAndGenerateToken(confirmRequest.getEmail(), confirmRequest.getCode());
     }
 
     @PostMapping("/refresh")
