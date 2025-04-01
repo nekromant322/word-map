@@ -3,10 +3,6 @@ databaseChangeLog:
       id: create-table-words
       author: bahertylop
       changes:
-        - createSequence:
-            sequenceName: words_id_seq
-            startValue: 1
-            incrementBy: 1
         - createTable:
             tableName: words
             columns:
@@ -30,6 +26,9 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: true
+                    references: languages(id)
+                    foreignKeyName: fk_words_languages
+                    deleteCascade: false
               - column:
                   name: date_creation
                   type: DATETIME
@@ -41,29 +40,14 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: true
+                    references: admins(id)
+                    foreignKeyName: fk_words_admins_created_by
+                    deleteCascade: false
               - column:
                   name: id_edited
                   type: BIGINT
                   constraints:
                     nullable: true
-        - addForeignKeyConstraint:
-            baseTableName: words
-            baseColumnNames: id_language
-            referencedTableName: languages
-            referencedColumnNames: id
-            constraintName: fk_words_language
-            onDelete: CASCADE
-        - addForeignKeyConstraint:
-            baseTableName: words
-            baseColumnNames: id_creation
-            referencedTableName: admins
-            referencedColumnNames: id
-            constraintName: fk_words_created_by
-            onDelete: SET NULL
-        - addForeignKeyConstraint:
-            baseTableName: words
-            baseColumnNames: id_edited
-            referencedTableName: admins
-            referencedColumnNames: id
-            constraintName: fk_words_updated_by
-            onDelete: SET NULL
+                    references: admins(id)
+                    foreignKeyName: fk_words_admins_edited_by
+                    deleteCascade: false
