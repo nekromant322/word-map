@@ -1,4 +1,4 @@
-package com.margot.word_map.service.users_service;
+package com.margot.word_map.service.users;
 
 import com.margot.word_map.model.User;
 import com.margot.word_map.repository.UsersRepository;

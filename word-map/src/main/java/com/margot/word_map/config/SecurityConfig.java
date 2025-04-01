@@ -1,7 +1,7 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.jwt.JwtFilter;
-import com.margot.word_map.service.users_service.MyUserDetailsService;
+import com.margot.word_map.service.users.MyUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.margot.word_map.service.auth_service;
+package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.ConfirmResponse;
@@ -8,8 +8,8 @@ import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
 import com.margot.word_map.repository.RefreshTokenRepository;
 import com.margot.word_map.repository.UsersRepository;
-import com.margot.word_map.service.email_service.EmailService;
-import com.margot.word_map.service.jwt_service.JwtService;
+import com.margot.word_map.service.email.EmailService;
+import com.margot.word_map.service.jwt.JwtService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

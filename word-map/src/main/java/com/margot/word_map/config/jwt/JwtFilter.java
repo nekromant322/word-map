@@ -1,7 +1,7 @@
 package com.margot.word_map.config.jwt;
 
-import com.margot.word_map.service.jwt_service.JwtService;
-import com.margot.word_map.service.users_service.MyUserDetailsService;
+import com.margot.word_map.service.jwt.JwtService;
+import com.margot.word_map.service.users.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

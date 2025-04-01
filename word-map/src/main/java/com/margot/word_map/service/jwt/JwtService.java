@@ -1,4 +1,4 @@
-package com.margot.word_map.service.jwt_service;
+package com.margot.word_map.service.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
