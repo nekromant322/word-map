@@ -10,3 +10,24 @@ spring:
       ddl-auto: none
   liquibase:
     enabled: false
+  mail:
+    host: localhost
+    port: 12345
+    username: test
+    password: test
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: false
+        starttls:
+          enable: false
+          required: false
+jwt:
+  secret: "test-secret-123"
+  expiration:
+    access-token-expiration: 15m
+    refresh-token-expiration: 14d
+auth:
+  confirm-by-email: false

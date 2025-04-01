@@ -1,4 +1,4 @@
-package com.margot.word_map.service;
+package com.margot.word_map.service.email_service;
 
 import com.margot.word_map.config.SenderProperties;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;

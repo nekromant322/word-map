@@ -13,6 +13,10 @@ spring:
         starttls:
           enable: false
           required: false
-
+jwt:
+  secret: "test-secret-123"
+  expiration:
+    access-token-expiration: 15m
+    refresh-token-expiration: 14d
 auth:
   confirm-by-email: false
