@@ -1,6 +1,6 @@
 package com.margot.word_map.controller;
 
-import com.margot.word_map.model.User;
+import com.margot.word_map.model.Admin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class WordsOfferController {
 
     @PostMapping("/offer")
-    public ResponseEntity<String> offerWord(@RequestParam String word, @AuthenticationPrincipal User user) {
+    public ResponseEntity<String> offerWord(@RequestParam String word, @AuthenticationPrincipal Admin admin) {
         // создаем репозиторий для новых слов, а
         // потом метод который возвращает слова, если все хорошо, то сохраняем в общую таблицу
         // и удаляем из временной таблицы офферов

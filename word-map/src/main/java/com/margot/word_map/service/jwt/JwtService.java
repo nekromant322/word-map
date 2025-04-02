@@ -1,5 +1,7 @@
 package com.margot.word_map.service.jwt;
 
+import com.margot.word_map.exception.InvalidTokenException;
+import com.margot.word_map.exception.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

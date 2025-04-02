@@ -1,8 +1,6 @@
 package com.margot.word_map.exception.handler;
 
-import com.margot.word_map.exception.LanguageNotFoundException;
-import com.margot.word_map.exception.WordAlreadyExists;
-import com.margot.word_map.exception.WordNotFoundException;
+import com.margot.word_map.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -56,5 +54,23 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<Map<String, String>> handleTokenExpiredException(TokenExpiredException e) {
+        log.warn("Expired JWT token: {}", e.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Token expired");
+        errorResponse.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidTokenException(InvalidTokenException e) {
+        log.warn("Invalid JWT token: {}", e.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Invalid token");
+        errorResponse.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 }

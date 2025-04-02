@@ -1,11 +1,11 @@
 package com.margot.word_map.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margot.word_map.dto.TokenResponse;
+import com.margot.word_map.dto.response.TokenResponse;
+import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Role;
-import com.margot.word_map.model.User;
-import com.margot.word_map.repository.UsersRepository;
-import com.margot.word_map.service.jwt_service.JwtService;
+import com.margot.word_map.repository.AdminRepository;
+import com.margot.word_map.service.jwt.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +22,7 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final UsersRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -30,14 +30,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setRole(Role.USER);
-            return userRepository.save(newUser);
+        Admin admin = adminRepository.findByEmail(email).orElseGet(() -> {
+            Admin newAdmin = new Admin();
+            newAdmin.setEmail(email);
+            newAdmin.setRole(Role.USER);
+            return adminRepository.save(newAdmin);
         });
 
-        String accessToken = jwtService.generateAccessToken(email, user.getRole().name());
+        String accessToken = jwtService.generateAccessToken(email, admin.getRole().name());
         String refreshToken = jwtService.generateRefreshToken(email);
 
         String jsonResponse = new ObjectMapper().writeValueAsString(new TokenResponse(accessToken, refreshToken));
