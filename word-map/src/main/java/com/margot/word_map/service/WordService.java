@@ -13,12 +13,14 @@ import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -97,19 +99,33 @@ public class WordService {
         log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
     }
 
+    @Transactional(readOnly = true)
     public StreamingResponseBody getAllWords() {
         return outputStream -> {
             try (JsonGenerator generator = new ObjectMapper().getFactory().createGenerator(outputStream)) {
                 generator.writeStartArray();
-                wordRepository.findAll().stream()
-                        .map(w -> new DictionaryWordResponse(w.getId(), w.getWord(), w.getDescription()))
-                        .forEach(word -> {
-                            try {
-                                generator.writeObject(word);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+
+                int page = 0;
+                int pageSize = 1000;
+
+                while (true) {
+                    Pageable pageable = PageRequest.of(page, pageSize);
+                    Page<Word> wordPage = wordRepository.findAll(pageable);
+
+                    if (wordPage.isEmpty()) {
+                        break;
+                    }
+                    for (Word word : wordPage) {
+                        generator.writeObject(new DictionaryWordResponse(
+                                word.getId(),
+                                word.getWord(),
+                                word.getDescription()
+                        ));
+                        System.out.println(word.getId());
+                    }
+
+                    page++;
+                }
                 generator.writeEndArray();
             }
         };

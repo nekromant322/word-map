@@ -7,6 +7,7 @@ import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.service.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,6 +57,7 @@ public class WordController {
     public ResponseEntity<StreamingResponseBody> getAllWords() throws IOException {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json") // Указываем имя файла
                 .body(wordService.getAllWords());
     }
 }
