@@ -121,7 +121,6 @@ public class WordService {
                                 word.getWord(),
                                 word.getDescription()
                         ));
-                        System.out.println(word.getId());
                     }
 
                     page++;
