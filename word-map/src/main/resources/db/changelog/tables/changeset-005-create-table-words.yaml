@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-words
+      author: bahertylop
+      changes:
+        - createTable:
+            tableName: words
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: word
+                  type: VARCHAR
+              - column:
+                  name: description
+                  type: VARCHAR
+              - column:
+                  name: word_length
+                  type: INT
+              - column:
+                  name: id_language
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    references: languages(id)
+                    foreignKeyName: fk_words_languages
+                    deleteCascade: false
+              - column:
+                  name: date_creation
+                  type: DATETIME
+              - column:
+                  name: date_edited
+                  type: DATETIME
+              - column:
+                  name: id_creation
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    references: admins(id)
+                    foreignKeyName: fk_words_admins_created_by
+                    deleteCascade: false
+              - column:
+                  name: id_edited
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    references: admins(id)
+                    foreignKeyName: fk_words_admins_edited_by
+                    deleteCascade: false

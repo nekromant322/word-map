@@ -1,4 +1,4 @@
-package com.margot.word_map.dto;
+package com.margot.word_map.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ConfirmEmailRequest {
+public class SymbolPosition {
 
-    private String email;
+    private Integer number;
 
-    private String verificationCode;
+    private Character letter;
 }

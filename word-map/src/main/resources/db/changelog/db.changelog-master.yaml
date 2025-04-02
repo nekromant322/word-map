@@ -1,7 +1,11 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/change-log-v1.yaml
+      file: db/changelog/tables/changeset-001-create-table-admins.yaml
   - include:
-      file: db/changelog/change-log-v2.yaml
+      file: db/changelog/tables/changeset-002-create-table-confirm.yaml
   - include:
-      file: db/changelog/change-log-v3.yaml
+      file: db/changelog/tables/changeset-003-create-table-refresh-tokens.yaml
+  - include:
+      file: db/changelog/tables/changeset-004-create-table-languages.yaml
+  - include:
+      file: db/changelog/tables/changeset-005-create-table-words.yaml

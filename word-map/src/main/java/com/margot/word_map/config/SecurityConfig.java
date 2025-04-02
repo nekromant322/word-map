@@ -1,7 +1,7 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.jwt.JwtFilter;
-import com.margot.word_map.service.users_service.MyUserDetailsService;
+import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    private final MyUserDetailsService myUserDetailsService;
+    private final AdminDetailsService myUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/dictionary/**").authenticated()
                         .requestMatchers("/**").authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

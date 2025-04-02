@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 005
+      id: create-table-refresh-tokens
       author: Alex_Kolosov
       changes:
         - createTable:
