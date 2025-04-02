@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-admins-roles
+      author: bahertylop
+      changes:
+        - createTable:
+            tableName: admins_roles
+            columns:
+              - column:
+                  name: admin_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_admins_admins_roles
+                    references: admins(id)
+                    deleteCascade: true
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_roles_admins_roles
+                    references: roles(id)
+                    deleteCascade: true
+        - addPrimaryKey:
+            tableName: admins_roles
+            columnNames: admin_id, role_id
+            constraintName: pk_admins_roles

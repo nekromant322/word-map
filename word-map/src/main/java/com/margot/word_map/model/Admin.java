@@ -8,7 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -35,14 +36,20 @@ public class Admin implements UserDetails {
     @Column(nullable = false)
     private Boolean access;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NonNull
-    private Role role;
+    @ManyToMany
+    @JoinTable(
+            name = "admins_roles",
+            joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id" )
+
+    )
+    private Set<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+        return roles.stream()
+                .map((x) -> new SimpleGrantedAuthority("ROLE_" + x.getRole()))
+                .collect(Collectors.toSet());
     }
 
     @Override

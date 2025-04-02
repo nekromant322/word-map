@@ -9,3 +9,9 @@ databaseChangeLog:
       file: db/changelog/tables/changeset-004-create-table-languages.yaml
   - include:
       file: db/changelog/tables/changeset-005-create-table-words.yaml
+  - include:
+      file: db/changelog/tables/changeset-006-create-table-roles.yaml
+  - include:
+      file: db/changelog/tables/changeset-007-create-table-admins-roles.yaml
+  - include:
+      file: db/changelog/tables/changeset-008-delete-column-role-admins-table.yaml
