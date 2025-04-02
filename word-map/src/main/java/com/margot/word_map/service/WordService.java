@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,13 +107,10 @@ public class WordService {
                 int page = 0;
                 int pageSize = 1000;
 
-                while (true) {
-                    Pageable pageable = PageRequest.of(page, pageSize);
-                    Page<Word> wordPage = wordRepository.findAll(pageable);
+                Page<Word> wordPage;
+                do {
+                    wordPage = wordRepository.findAll(PageRequest.of(page, pageSize));
 
-                    if (wordPage.isEmpty()) {
-                        break;
-                    }
                     for (Word word : wordPage) {
                         generator.writeObject(new DictionaryWordResponse(
                                 word.getId(),
@@ -124,7 +120,7 @@ public class WordService {
                     }
 
                     page++;
-                }
+                } while (!wordPage.isLast());
                 generator.writeEndArray();
             }
         };
