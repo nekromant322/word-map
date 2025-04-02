@@ -1,6 +1,8 @@
 package com.margot.word_map.service.jwt_service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -72,8 +74,10 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-        } catch (Exception e) {
-            throw new RuntimeException("Invalid JWT token", e);
+        } catch (ExpiredJwtException e) {
+            throw new TokenExpiredException("JWT token has expired", e);
+        } catch (JwtException e) {
+            throw new InvalidTokenException("Invalid JWT token", e);
         }
     }
 

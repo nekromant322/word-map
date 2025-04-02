@@ -4,6 +4,7 @@ import com.margot.word_map.dto.ConfirmRequest;
 import com.margot.word_map.dto.ConfirmResponse;
 import com.margot.word_map.dto.TokenResponse;
 import com.margot.word_map.service.auth_service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/auth")
@@ -49,6 +52,16 @@ public class AuthController {
 
         TokenResponse tokenResponse = authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    @GetMapping("/google-login")
+    public void googleLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
+    }
+
+    @GetMapping("/yandex-login")
+    public void yandexLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/yandex");
     }
 }
 
