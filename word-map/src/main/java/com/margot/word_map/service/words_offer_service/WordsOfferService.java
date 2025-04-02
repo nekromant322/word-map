@@ -1,6 +1,8 @@
 package com.margot.word_map.service.words_offer_service;
 
+import com.margot.word_map.model.Word;
 import com.margot.word_map.model.WordOffer;
+import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.repository.WordsOfferRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +33,7 @@ public class WordsOfferService {
 
     @Transactional
     public void approve(Long id) {
-
+        WordOffer wordOffer = wordsOfferRepository.findById(id).get();
         wordOffer.setApproved(true);
         wordOffer.setChecked(true);
         wordsOfferRepository.save(wordOffer);
@@ -41,6 +43,7 @@ public class WordsOfferService {
 
     @Transactional
     public void reject(Long id) {
+        WordOffer wordOffer = wordsOfferRepository.findById(id).get();
         wordOffer.setApproved(false);
         wordOffer.setChecked(true);
         wordsOfferRepository.save(wordOffer);

@@ -61,3 +61,5 @@ jwt:
     refresh-token-expiration: 14d
 auth:
   confirm-by-email: true
+confirm:
+  code-expiration-time: 300

@@ -1,7 +1,7 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.jwt.JwtFilter;
-import com.margot.word_map.service.users_service.MyUserDetailsService;
+import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-    private final MyUserDetailsService myUserDetailsService;
+    private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/dictionary/**").authenticated()
                         .requestMatchers("/**").authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler))
