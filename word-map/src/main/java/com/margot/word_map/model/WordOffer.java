@@ -8,6 +8,9 @@ import lombok.*;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Builder
 @Table(name = "word_offer")
 public class WordOffer {
 
@@ -17,6 +20,11 @@ public class WordOffer {
 
     @NonNull
     private String word;
+
+    @NonNull
+    private String description;
+
+    private Long userId;
 
     private Boolean approved = false;
 
