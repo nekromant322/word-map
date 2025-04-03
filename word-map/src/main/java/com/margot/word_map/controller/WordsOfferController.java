@@ -2,8 +2,6 @@ package com.margot.word_map.controller;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
-import com.margot.word_map.model.Admin;
-import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.service.words_offer_service.WordsOfferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
