@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
-@Table(name = "word_offer")
+@Table(name = "words_offer")
 public class WordOffer {
 
     @Id
@@ -24,6 +24,7 @@ public class WordOffer {
     @NonNull
     private String description;
 
+    @NonNull
     private Long userId;
 
     private Boolean approved = false;

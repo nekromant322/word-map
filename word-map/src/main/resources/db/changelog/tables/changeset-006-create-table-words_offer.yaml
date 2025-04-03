@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-words-offer-table
+      author: Alex_Kolosov
+      changes:
+        - createTable:
+            tableName: words_offer
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: word
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: approved
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: checked
+                  type: BOOLEAN
+                  defaultValueBoolean: false

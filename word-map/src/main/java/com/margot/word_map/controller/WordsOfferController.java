@@ -16,23 +16,26 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/words")
+@RequestMapping("/wordsOffer")
 public class WordsOfferController {
 
     private final WordsOfferService wordsOfferService;
 
+    //Потом поменяем на User с Admin
     @PostMapping("/offer")
-    public ResponseEntity<String> offerWord(@RequestBody CreateWordRequest word, @AuthenticationPrincipal Admin admin) {
+    public ResponseEntity<String> offerWord(@RequestBody CreateWordRequest word,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        Admin user = (Admin) userDetails;
         if (wordsOfferService.findByWordInTableWords(word.getWord())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Такое слово уже существует");
         } else if (wordsOfferService.findByWordInTableWordsOffer(word.getWord())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Такое слово уже было предложено");
         }
-        wordsOfferService.save(new WordOffer(word.getWord(), word.getDescription()));
+        wordsOfferService.save(new WordOffer(word.getWord(), word.getDescription(), user.getId()));
         return ResponseEntity.ok("Слово принято на рассмотрение");
     }
 
-    @GetMapping("/check")
+    @GetMapping("/admin/check")
     public ResponseEntity<StreamingResponseBody> checkOffers() {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

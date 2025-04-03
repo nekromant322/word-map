@@ -63,7 +63,7 @@ public class WordsOfferService {
         };
     }
 
-    //Потом добавим еще и юзера, чтобы считать сколько слов добавил
+    //Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
     public void approve(UserDetails userDetails, Long id) {
         WordOffer wordOffer = wordsOfferRepository.findById(id).get();
