@@ -13,9 +13,4 @@ public class WordOfferResponse {
     private Long id;
 
     private String word;
-
-    public WordOfferResponse(WordOffer wordOffer) {
-        this.id = wordOffer.getId();
-        this.word = wordOffer.getWord();
-    }
 }

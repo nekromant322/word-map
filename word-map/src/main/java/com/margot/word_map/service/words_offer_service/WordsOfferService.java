@@ -1,9 +1,10 @@
 package com.margot.word_map.service.words_offer_service;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
+import com.margot.word_map.exception.WordAlreadyExists;
+import com.margot.word_map.exception.WordNotFoundException;
+import com.margot.word_map.mapper.WordOfferMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.repository.WordRepository;
@@ -12,11 +13,12 @@ import com.margot.word_map.service.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,28 @@ public class WordsOfferService {
         wordsOfferRepository.save(wordOffer);
     }
 
+    public void isAlreadyExist(CreateWordRequest wordRequest) {
+        if (findByWordInTableWords(wordRequest.getWord())) {
+            throw new WordAlreadyExists("слово " + wordRequest.getWord() + " уже есть");
+        } else if (findByWordInTableWordsOffer(wordRequest.getWord())) {
+            throw new WordAlreadyExists("Такое слово уже было предложено");
+        }
+    }
+
+    @Transactional
+    public void processWordOffer(CreateWordRequest request, UserDetails userDetails) {
+        Admin user = (Admin) userDetails;
+        isAlreadyExist(request);
+
+        WordOffer wordOffer = WordOffer.builder()
+                .word(request.getWord())
+                .description(request.getDescription())
+                .userId(user.getId())
+                .build();
+
+        wordsOfferRepository.save(wordOffer);
+    }
+
     public boolean findByWordInTableWords(String word) {
         return wordRepository.findWordByWord(word).isPresent();
     }
@@ -41,32 +65,19 @@ public class WordsOfferService {
         return wordsOfferRepository.findByWord(word).isPresent();
     }
 
-    public StreamingResponseBody getAllWordsOffersNotChecked() {
-        return outputStream -> {
-            try (JsonGenerator generator = new ObjectMapper().getFactory().createGenerator(outputStream)) {
-                generator.writeStartArray();
-
-                int page = 0;
-                int pageSize = 20;
-
-                Page<WordOffer> wordsOfferPage;
-                do {
-                    wordsOfferPage = wordsOfferRepository.findAllByCheckedIsFalse(PageRequest.of(page, pageSize));
-
-                    for (WordOffer wordOffer : wordsOfferPage) {
-                        generator.writeObject(new WordOfferResponse(wordOffer));
-                    }
-                    page++;
-                } while (!wordsOfferPage.isLast());
-                generator.writeEndArray();
-            }
-        };
+    public Page<WordOfferResponse> getAllWordsOffersNotChecked(Pageable pageable) {
+        return wordsOfferRepository.findAllByCheckedIsFalse(pageable)
+                .map(WordOfferMapper::toResponse);
     }
 
     //Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
     public void approve(UserDetails userDetails, Long id) {
-        WordOffer wordOffer = wordsOfferRepository.findById(id).get();
+        Optional<WordOffer> wordOfferOptional = wordsOfferRepository.findById(id);
+        if (wordOfferOptional.isEmpty()) {
+            throw new WordNotFoundException("word offer with " + id + " not found");
+        }
+        WordOffer wordOffer = wordOfferOptional.get();
         wordService.createNewWord(userDetails, new CreateWordRequest(wordOffer.getWord(), wordOffer.getDescription()));
 
         wordOffer.setApproved(true);
@@ -78,7 +89,11 @@ public class WordsOfferService {
     public void reject(UserDetails userDetails, Long id) {
         Admin admin = (Admin) userDetails;
 
-        WordOffer wordOffer = wordsOfferRepository.findById(id).get();
+        Optional<WordOffer> wordOfferOptional = wordsOfferRepository.findById(id);
+        if (wordOfferOptional.isEmpty()) {
+            throw new WordNotFoundException("word offer with " + id + " not found");
+        }
+        WordOffer wordOffer = wordOfferOptional.get();
         wordOffer.setApproved(false);
         wordOffer.setChecked(true);
         wordsOfferRepository.save(wordOffer);
