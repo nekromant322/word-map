@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,4 +23,8 @@ public class RoleService {
     }
 
     public List<Role> getRoles() { return roleRepository.findAll(); }
+
+    public Optional<Role> getRoleByRole(Role.ROLE role) {
+        return roleRepository.findRoleByRole(role);
+    }
 }

@@ -3,8 +3,9 @@ package com.margot.word_map.controller;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RoleDto;
 import com.margot.word_map.dto.request.CreateAdminRequest;
-import com.margot.word_map.dto.request.DeleteAdminRoleRequest;
+import com.margot.word_map.dto.request.AdminRoleRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
+import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.AdminService;
 import com.margot.word_map.service.RoleService;
 import jakarta.validation.constraints.Max;
@@ -45,8 +46,13 @@ public class RoleModelController {
         adminService.createAdmin(request);
     }
 
+    @PutMapping
+    public void addAdminRole(@RequestBody @Validated AdminRoleRequest request) {
+        adminService.addAdminRole(request);
+    }
+
     @DeleteMapping
-    public void deleteAdminRole(@RequestBody @Validated DeleteAdminRoleRequest request) {
+    public void deleteAdminRole(@RequestBody @Validated AdminRoleRequest request) {
         adminService.deleteAdminRole(request);
     }
 }

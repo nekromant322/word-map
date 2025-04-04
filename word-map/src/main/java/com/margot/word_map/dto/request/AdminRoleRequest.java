@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeleteAdminRoleRequest {
+public class AdminRoleRequest {
 
     @NotNull(message = "Id админа не может быть null")
     private Long adminId;

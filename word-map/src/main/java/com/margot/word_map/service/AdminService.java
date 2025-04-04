@@ -1,13 +1,10 @@
 package com.margot.word_map.service;
 
 import com.margot.word_map.dto.AdminDto;
+import com.margot.word_map.dto.request.AdminRoleRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
-import com.margot.word_map.dto.request.DeleteAdminRoleRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.exception.AdminAlreadyExistsException;
-import com.margot.word_map.exception.AdminNotFoundException;
-import com.margot.word_map.exception.NotRightRoleLevelException;
-import com.margot.word_map.exception.RoleNotBelongToAdminException;
+import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Role;
@@ -20,12 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -93,7 +88,32 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
-    public void deleteAdminRole(DeleteAdminRoleRequest request) {
+    public void addAdminRole(AdminRoleRequest request) {
+        Admin admin = adminRepository.findById(request.getAdminId()).orElseThrow(() -> {
+            log.info("admin with id {} not found", request.getAdminId());
+            return new AdminNotFoundException("admin with id " + request.getAdminId() + " not found");
+        });
+
+        // проверка на то, что админ
+        if (admin.getRoles().size() == 1 && admin.getRoles().stream().map(Role::getRole).toList().get(0).equals(Role.ROLE.ADMIN)) {
+            return;
+        }
+
+        Role roleToAdd = roleService.getRoleByRole(request.getRole()).orElseThrow(() -> {
+            log.info("role {} not found", request.getRole().name());
+            return new RoleNotFoundException("role " + request.getRole().name() + " not found");
+        });
+
+        if (!roleToAdd.getLevel().equals(Role.LEVEL.SETTING)) {
+            log.info("try to add setting role");
+            throw new NotRightRoleLevelException("try to add setting role");
+        }
+
+        admin.getRoles().add(roleToAdd);
+        adminRepository.save(admin);
+    }
+
+    public void deleteAdminRole(AdminRoleRequest request) {
         Admin admin = adminRepository.findById(request.getAdminId()).orElseThrow(() -> {
             log.info("admin with id {} not found", request.getAdminId());
             return new AdminNotFoundException("admin with id " + request.getAdminId() + " not found");
