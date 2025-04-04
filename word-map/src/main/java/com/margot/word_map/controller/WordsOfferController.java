@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +18,19 @@ public class WordsOfferController {
 
     private final WordsOfferService wordsOfferService;
 
-    //Потом поменяем на User с Admin
     @PostMapping("/offer")
-    public ResponseEntity<String> offerWord(@RequestBody CreateWordRequest word,
+    public void offerWord(@RequestBody CreateWordRequest word,
                                             @AuthenticationPrincipal UserDetails userDetails) {
 
         wordsOfferService.processWordOffer(word, userDetails);
-        return ResponseEntity.ok("Слово принято на рассмотрение");
     }
 
     @GetMapping("/admin/check")
-    public ResponseEntity<Page<WordOfferResponse>> checkOffers(
+    public Page<WordOfferResponse> checkOffers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(wordsOfferService.getAllWordsOffersNotChecked(pageable));
+        return wordsOfferService.getAllWordsOffersNotChecked(pageable);
     }
 
     @PostMapping("/admin/approve/{id}")

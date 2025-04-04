@@ -29,6 +29,7 @@ public class WordsOfferService {
     private final WordsOfferRepository wordsOfferRepository;
     private final WordService wordService;
     private final WordRepository wordRepository;
+    private final WordOfferMapper wordOfferMapper;
 
     @Transactional
     public void save(WordOffer wordOffer) {
@@ -43,6 +44,7 @@ public class WordsOfferService {
         }
     }
 
+    //Изменим админа на юзера
     @Transactional
     public void processWordOffer(CreateWordRequest request, UserDetails userDetails) {
         Admin user = (Admin) userDetails;
@@ -67,7 +69,7 @@ public class WordsOfferService {
 
     public Page<WordOfferResponse> getAllWordsOffersNotChecked(Pageable pageable) {
         return wordsOfferRepository.findAllByCheckedIsFalse(pageable)
-                .map(WordOfferMapper::toResponse);
+                .map(wordOfferMapper::toResponse);
     }
 
     //Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг

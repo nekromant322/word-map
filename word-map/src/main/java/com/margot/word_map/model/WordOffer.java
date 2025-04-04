@@ -18,13 +18,10 @@ public class WordOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
     private String word;
 
-    @NonNull
     private String description;
 
-    @NonNull
     private Long userId;
 
     private Boolean approved = false;

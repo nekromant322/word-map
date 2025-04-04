@@ -2,10 +2,16 @@ package com.margot.word_map.mapper;
 
 import com.margot.word_map.dto.response.WordOfferResponse;
 import com.margot.word_map.model.WordOffer;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WordOfferMapper {
 
-    public static WordOfferResponse toResponse(WordOffer wordOffer) {
-        return new WordOfferResponse(wordOffer.getId(), wordOffer.getWord());
+    public WordOfferResponse toResponse(WordOffer wordOffer) {
+        return WordOfferResponse.builder()
+                .id(wordOffer.getId())
+                .word(wordOffer.getWord())
+                .description(wordOffer.getDescription())
+                .build();
     }
 }
