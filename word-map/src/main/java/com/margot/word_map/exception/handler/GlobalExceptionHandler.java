@@ -1,5 +1,6 @@
 package com.margot.word_map.exception.handler;
 
+import com.margot.word_map.exception.AdminNotFoundException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
@@ -57,4 +58,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(AdminNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleAdminNotFoundException(AdminNotFoundException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "admin not found");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponses);
+    }
+
 }

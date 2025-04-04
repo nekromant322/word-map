@@ -36,7 +36,7 @@ public class Admin implements UserDetails {
     @Column(nullable = false)
     private Boolean access;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "admins_roles",
             joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
@@ -47,9 +47,7 @@ public class Admin implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map((x) -> new SimpleGrantedAuthority("ROLE_" + x.getRole()))
-                .collect(Collectors.toSet());
+        return roles;
     }
 
     @Override

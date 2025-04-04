@@ -1,0 +1,16 @@
+id|role|level|description
+1|ADMIN|AVAILABLE|Доступен весь функционал
+2|WORD_FIND|AVAILABLE|Поиск слов
+3|WORD_DELETE|SETTING|Очищение словаря
+4|DICT_CHANGE|SETTING|Управление словарем: добавление, редактирование
+5|DICT_DOWNLOAD|FORBIDDEN|Скачивание словаря
+6|RATING_CHECK|AVAILABLE|Просмотр рейтинга
+7|RATING_MANAGEMENT|SETTING|Управление рейтингами: изменение никнейма игрока, изменение очков, удаление игрока, бан игрока
+8|RATING_CLEAN|FORBIDDEN|Очистка рейтингов
+9|WORLD_CHECK|AVAILABLE|Просмотр миров
+10|WORLD_MANAGEMENT|SETTING|Управление мирами: создание нового, архивирование, удаление мира
+11|ROLES_CHECK|FORBIDDEN|Просмотр пользователей
+12|ROLES_MANAGEMENT|FORBIDDEN|Управление пользователями: создание новых, изменение прав, ограничение доступа
+13|EVENTS_CHECK|AVAILABLE|Просмотр событий
+14|EVENTS_MANAGEMENT|SETTING|Управление событиями: создание новых условий, создание событий из группы условий, изменение условий и событий
+15|LOGS_CHECK|FORBIDDEN|Просмотр логов

@@ -80,7 +80,7 @@ public class AuthService {
 
         confirmRepository.delete(confirm);
 
-        String accessToken = jwtService.generateAccessToken(email, Role.RoleNames.ADMIN.name());
+        String accessToken = jwtService.generateAccessToken(email, Role.ROLE.ADMIN.name());
         String refreshToken = generateAndSaveRefreshToken(adminId, email);
 
         return new TokenResponse(accessToken, refreshToken);
