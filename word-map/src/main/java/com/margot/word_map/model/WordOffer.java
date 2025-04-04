@@ -9,7 +9,6 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
 @Builder
 @Table(name = "words_offer")
 public class WordOffer {
@@ -24,7 +23,9 @@ public class WordOffer {
 
     private Long userId;
 
+    @Builder.Default
     private Boolean approved = false;
 
+    @Builder.Default
     private Boolean checked = false;
 }
