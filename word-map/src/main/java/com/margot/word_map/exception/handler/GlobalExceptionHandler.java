@@ -1,6 +1,7 @@
 package com.margot.word_map.exception.handler;
 
 import com.margot.word_map.exception.*;
+import com.margot.word_map.model.Role;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -72,4 +73,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
     }
 
+    @ExceptionHandler(RoleNotBelongToAdminException.class)
+    public ResponseEntity<Map<String, String>> handleRoleNotBelongToAdminException(RoleNotBelongToAdminException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "role not belong to admin");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
+
+    @ExceptionHandler(NotRightRoleLevelException.class)
+    public ResponseEntity<Map<String, String>> handleNotRightRoleLevelException(NotRightRoleLevelException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "not right role level");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
 }
