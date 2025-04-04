@@ -2,12 +2,14 @@ package com.margot.word_map.controller;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RoleDto;
+import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.service.AdminService;
 import com.margot.word_map.service.RoleService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class RoleModelController {
 
     @GetMapping
     public List<RoleDto> getRoles() {
-        return roleService.getRoles();
+        return roleService.getRolesDto();
     }
 
     @GetMapping("/admins")
@@ -35,5 +37,10 @@ public class RoleModelController {
     @GetMapping("/admins/{id}")
     public AdminDto getAdmin(@PathVariable Long id) {
         return adminService.getAdminById(id);
+    }
+
+    @PostMapping("/admins")
+    public void createAdmin(@RequestBody @Validated CreateAdminRequest request) {
+        adminService.createAdmin(request);
     }
 }

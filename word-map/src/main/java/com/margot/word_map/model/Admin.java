@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "admins")
 public class Admin implements UserDetails {
 

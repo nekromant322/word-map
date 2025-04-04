@@ -1,5 +1,5 @@
 id|role|level|description
-1|ADMIN|AVAILABLE|Доступен весь функционал
+1|ADMIN|FORBIDDEN|Доступен весь функционал
 2|WORD_FIND|AVAILABLE|Поиск слов
 3|WORD_DELETE|SETTING|Очищение словаря
 4|DICT_CHANGE|SETTING|Управление словарем: добавление, редактирование

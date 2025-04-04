@@ -1,9 +1,6 @@
 package com.margot.word_map.exception.handler;
 
-import com.margot.word_map.exception.AdminNotFoundException;
-import com.margot.word_map.exception.LanguageNotFoundException;
-import com.margot.word_map.exception.WordAlreadyExists;
-import com.margot.word_map.exception.WordNotFoundException;
+import com.margot.word_map.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -65,6 +62,14 @@ public class GlobalExceptionHandler {
         errorResponses.put("error", "admin not found");
         errorResponses.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponses);
+    }
+
+    @ExceptionHandler(AdminAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleAdminAlreadyExistsException(AdminAlreadyExistsException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "admin already exists");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
     }
 
 }

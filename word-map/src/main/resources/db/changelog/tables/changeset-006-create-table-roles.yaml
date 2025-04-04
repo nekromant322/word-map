@@ -16,6 +16,8 @@ databaseChangeLog:
               - column:
                   name: role
                   type: VARCHAR
+                  constraints:
+                    unique: true
               - column:
                   name: level
                   type: VARCHAR
