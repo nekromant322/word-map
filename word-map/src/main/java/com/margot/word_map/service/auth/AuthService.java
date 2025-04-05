@@ -10,6 +10,7 @@ import com.margot.word_map.repository.RefreshTokenRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -80,7 +82,12 @@ public class AuthService {
 
         confirmRepository.delete(confirm);
 
-        String accessToken = jwtService.generateAccessToken(email, Role.ROLE.ADMIN.name());
+        String accessToken = jwtService.generateAccessToken(
+                email,
+                admin.get().getRoles().stream()
+                        .map(Role::getRole)
+                        .toList()
+        );
         String refreshToken = generateAndSaveRefreshToken(adminId, email);
 
         return new TokenResponse(accessToken, refreshToken);
@@ -96,10 +103,17 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
         }
 
-        String email = adminRepository.findById(storedToken.getUserId()).get().getEmail();
-        String role = jwtService.extractRole(refreshToken);
+        Admin admin = adminRepository.findById(storedToken.getUserId()).orElseThrow(() -> {
+            log.info("user with id {} not found", storedToken.getUserId());
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
+        });
 
-        String newAccessToken = jwtService.generateAccessToken(email, role);
+        String newAccessToken = jwtService.generateAccessToken(
+                admin.getEmail(),
+                admin.getRoles().stream()
+                        .map(Role::getRole)
+                        .toList()
+        );
 
         return new TokenResponse(newAccessToken, refreshToken);
     }
