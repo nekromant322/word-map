@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/tables/changeset-008-create-table-admins-roles.yaml
   - include:
       file: db/changelog/tables/changeset-009-delete-column-role-admins-table.yaml
+  - include:
+      file: db/changelog/data/changeset-010-insert-data-to-table-roles.yaml
