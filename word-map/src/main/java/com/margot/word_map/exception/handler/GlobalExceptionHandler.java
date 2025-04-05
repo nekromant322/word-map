@@ -88,4 +88,12 @@ public class GlobalExceptionHandler {
         errorResponses.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
     }
+
+    @ExceptionHandler(MismatchAdminTypeException.class)
+    public ResponseEntity<Map<String, String>> handleMismatchAdminTypeException(MismatchAdminTypeException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "not right role level");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
 }

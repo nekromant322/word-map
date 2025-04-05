@@ -2,6 +2,7 @@ package com.margot.word_map.controller;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RoleDto;
+import com.margot.word_map.dto.request.ChangeAdminTypeRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.AdminRoleRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
@@ -54,5 +55,10 @@ public class RoleModelController {
     @DeleteMapping
     public void deleteAdminRole(@RequestBody @Validated AdminRoleRequest request) {
         adminService.deleteAdminRole(request);
+    }
+
+    @PostMapping("/admin/change")
+    public void changeAdminType(@RequestBody ChangeAdminTypeRequest request) {
+        adminService.changeAdminType(request);
     }
 }

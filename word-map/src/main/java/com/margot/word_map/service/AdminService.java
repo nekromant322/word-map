@@ -3,6 +3,7 @@ package com.margot.word_map.service;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminType;
 import com.margot.word_map.dto.request.AdminRoleRequest;
+import com.margot.word_map.dto.request.ChangeAdminTypeRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.exception.*;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -150,6 +153,27 @@ public class AdminService {
         }
 
         adminRoles.remove(requestRole);
+        adminRepository.save(admin);
+    }
+
+    public void changeAdminType(ChangeAdminTypeRequest request) {
+        Admin admin = adminRepository.findById(request.getAdminId()).orElseThrow(() -> {
+            log.info("admin with id {} not found", request.getAdminId());
+            return new AdminNotFoundException("admin with id " + request.getAdminId() + " not found");
+        });
+
+        if (request.getType() == AdminType.ADMIN && admin.getRoles().stream().noneMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
+            admin.setRoles(new ArrayList<>(Collections.singletonList(roleService.getRoleByRole(Role.ROLE.ADMIN).orElseThrow(() -> {
+                log.warn("ROLE ADMIN not found");
+                return new RoleNotFoundException("ROLE ADMIN not found");
+            }))));
+        } else if (request.getType() == AdminType.MODERATOR && admin.getRoles().stream().anyMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
+            admin.setRoles(roleService.getRolesByLevel(Role.LEVEL.AVAILABLE));
+        } else {
+            log.info("adminType and roles matched");
+            throw new MismatchAdminTypeException("adminType and roles matched");
+        }
+
         adminRepository.save(admin);
     }
 }

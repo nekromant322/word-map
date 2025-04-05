@@ -24,6 +24,10 @@ public class RoleService {
 
     public List<Role> getRoles() { return roleRepository.findAll(); }
 
+    public List<Role> getRolesByLevel(Role.LEVEL level) {
+        return roleRepository.findRolesByLevel(level);
+    }
+
     public Optional<Role> getRoleByRole(Role.ROLE role) {
         return roleRepository.findRoleByRole(role);
     }
