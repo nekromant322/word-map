@@ -6,7 +6,6 @@ import com.margot.word_map.dto.request.ChangeAdminTypeRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.AdminRoleRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.AdminService;
 import com.margot.word_map.service.RoleService;
 import jakarta.validation.constraints.Max;

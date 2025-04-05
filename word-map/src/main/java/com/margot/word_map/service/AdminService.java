@@ -140,11 +140,13 @@ public class AdminService {
         });
 
         List<Role> adminRoles = admin.getRoles();
-        Role requestRole = adminRoles.stream().filter(x -> x.getRole().equals(request.getRole())).findFirst().orElseThrow(() -> {
-            // нет такой роли у админа
-            log.info("admin {} not have role {}", admin.getEmail(), request.getRole().name());
-            return new RoleNotBelongToAdminException("admin not have role " + request.getRole());
-        });
+        Role requestRole = adminRoles.stream()
+                .filter(x -> x.getRole().equals(request.getRole()))
+                .findFirst().orElseThrow(() -> {
+                    // нет такой роли у админа
+                    log.info("admin {} not have role {}", admin.getEmail(), request.getRole().name());
+                    return new RoleNotBelongToAdminException("admin not have role " + request.getRole());
+                });
 
         // удалять можно только роли уровня SETTING
         if (!requestRole.getLevel().equals(Role.LEVEL.SETTING)) {
@@ -162,12 +164,17 @@ public class AdminService {
             return new AdminNotFoundException("admin with id " + request.getAdminId() + " not found");
         });
 
-        if (request.getType() == AdminType.ADMIN && admin.getRoles().stream().noneMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
-            admin.setRoles(new ArrayList<>(Collections.singletonList(roleService.getRoleByRole(Role.ROLE.ADMIN).orElseThrow(() -> {
-                log.warn("ROLE ADMIN not found");
-                return new RoleNotFoundException("ROLE ADMIN not found");
-            }))));
-        } else if (request.getType() == AdminType.MODERATOR && admin.getRoles().stream().anyMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
+        if (request.getType() == AdminType.ADMIN &&
+                admin.getRoles().stream().noneMatch(role -> role.getRole() == Role.ROLE.ADMIN)
+        ) {
+            admin.setRoles(new ArrayList<>(Collections.singletonList(
+                    roleService.getRoleByRole(Role.ROLE.ADMIN).orElseThrow(() -> {
+                        log.warn("ROLE ADMIN not found");
+                        return new RoleNotFoundException("ROLE ADMIN not found");
+                    })
+            )));
+        } else if (request.getType() == AdminType.MODERATOR &&
+                admin.getRoles().stream().anyMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
             admin.setRoles(roleService.getRolesByLevel(Role.LEVEL.AVAILABLE));
         } else {
             log.info("adminType and roles matched");
