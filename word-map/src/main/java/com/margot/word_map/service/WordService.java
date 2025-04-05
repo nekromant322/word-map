@@ -33,7 +33,7 @@ public class WordService {
     private final WordMapper wordMapper;
 
     public DictionaryWordResponse getWordInfo(String word) {
-        return wordMapper.toDictionaryWordResponse(wordRepository.getWordByWord(word).orElseThrow(() -> {
+        return wordMapper.toDictionaryWordResponse(wordRepository.findWordByWord(word).orElseThrow(() -> {
             log.info("word not found {}", word);
             return new WordNotFoundException("word " + word + " not found");
         }));
@@ -42,7 +42,7 @@ public class WordService {
     public void createNewWord(UserDetails userDetails, CreateWordRequest request) {
         Admin admin = (Admin) userDetails;
 
-        wordRepository.getWordByWord(request.getWord()).ifPresentOrElse(
+        wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
                     log.info("word {} already exists", request.getWord());
                     throw new WordAlreadyExists("word " + word.getWord() + " already exists");
@@ -66,7 +66,7 @@ public class WordService {
     public void updateWordInfo(UserDetails userDetails, UpdateWordRequest request) {
         Admin admin = (Admin) userDetails;
 
-        Optional<Word> wordByNameOp = wordRepository.getWordByWord(request.getWord());
+        Optional<Word> wordByNameOp = wordRepository.findWordByWord(request.getWord());
         if (wordByNameOp.isPresent() && !wordByNameOp.get().getId().equals(request.getId())) {
             log.info("word {} already exists", request.getWord());
             throw new WordAlreadyExists("word " + request.getWord() + " already exists with another id");
@@ -118,7 +118,6 @@ public class WordService {
                                 word.getDescription()
                         ));
                     }
-
                     page++;
                 } while (!wordPage.isLast());
                 generator.writeEndArray();

@@ -111,7 +111,7 @@ public class AuthService {
         RefreshToken token = new RefreshToken();
         token.setUserId(userId);
         token.setToken(refreshToken);
-        token.setExpirationTime(LocalDateTime.now().plusDays(30));
+        token.setExpirationTime(LocalDateTime.now().plusDays(14));
 
         refreshTokenRepository.save(token);
         return refreshToken;

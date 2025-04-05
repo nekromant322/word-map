@@ -10,8 +10,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/tables/changeset-005-create-table-words.yaml
   - include:
-      file: db/changelog/tables/changeset-006-create-table-roles.yaml
+      file: db/changelog/tables/changeset-006-create-table-words-offer.yaml
   - include:
-      file: db/changelog/tables/changeset-007-create-table-admins-roles.yaml
+      file: db/changelog/tables/changeset-007-create-table-roles.yaml
   - include:
-      file: db/changelog/tables/changeset-008-delete-column-role-admins-table.yaml
+      file: db/changelog/tables/changeset-008-create-table-admins-roles.yaml
+  - include:
+      file: db/changelog/tables/changeset-009-delete-column-role-admins-table.yaml
