@@ -3,18 +3,19 @@ package com.margot.word_map.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "admins")
 public class Admin implements UserDetails {
 
@@ -35,14 +36,18 @@ public class Admin implements UserDetails {
     @Column(nullable = false)
     private Boolean access;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NonNull
-    private Role role;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "admins_roles",
+            joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id" )
+
+    )
+    private List<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+        return roles;
     }
 
     @Override

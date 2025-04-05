@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: delete-table-role-admins-table
+      author: bahertylop
+      preConditions:
+        - onFail: CONTINUE
+        - columnExists:
+            tableName: admins
+            columnName: role
+      changes:
+        - dropColumn:
+            tableName: admins
+            columnName: role

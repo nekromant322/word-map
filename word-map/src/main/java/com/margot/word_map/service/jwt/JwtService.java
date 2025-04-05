@@ -2,6 +2,7 @@ package com.margot.word_map.service.jwt;
 
 import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.exception.TokenExpiredException;
+import com.margot.word_map.model.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -16,6 +17,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Service
@@ -28,18 +30,18 @@ public class JwtService {
     @Value("${jwt.expiration.refresh-token-expiration}")
     private Duration refreshTokenExpiration;
 
-    public String generateToken(String email, String role, Duration expiration) {
+    public String generateToken(String email, List<Role.ROLE> roles, Duration expiration) {
         return Jwts.builder()
                 .subject(email)
-                .claim("role", role)
+                .claim("roles", roles)
                 .issuedAt(new Date())
                 .expiration(Date.from(Instant.now().plus(expiration)))
                 .signWith(getKey())
                 .compact();
     }
 
-    public String generateAccessToken(String email, String role) {
-        return generateToken(email, role, accessTokenExpiration);
+    public String generateAccessToken(String email, List<Role.ROLE> roles) {
+        return generateToken(email, roles, accessTokenExpiration);
     }
 
     public String generateRefreshToken(String email) {

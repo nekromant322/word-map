@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/dictionary/**").authenticated()
-                        .requestMatchers("/wordsOffer/offer").authenticated()
+                        .requestMatchers("/roles/**").authenticated()
                         .requestMatchers("/wordsOffer/**").authenticated()
                         .requestMatchers("/**").authenticated())
 //                .oauth2Login(oauth2 -> oauth2

@@ -1,0 +1,133 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-roles
+      author: bahertylop
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: role, value: ADMIN }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: Доступен весь функционал }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: role, value: WORD_FIND }
+              - column: { name: level, value: AVAILABLE }
+              - column: { name: description, value: Поиск слов }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 3 }
+              - column: { name: role, value: WORD_DELETE }
+              - column: { name: level, value: SETTING }
+              - column: { name: description, value: Очищение словаря }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 4 }
+              - column: { name: role, value: DICT_CHANGE }
+              - column: { name: level, value: SETTING }
+              - column: { name: description, value: "Управление словарем: добавление, редактирование" }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 5 }
+              - column: { name: role, value: DICT_DOWNLOAD }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: Скачивание словаря }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 6 }
+              - column: { name: role, value: RATING_CHECK }
+              - column: { name: level, value: AVAILABLE }
+              - column: { name: description, value: Просмотр рейтинга }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 7 }
+              - column: { name: role, value: RATING_MANAGEMENT }
+              - column: { name: level, value: SETTING }
+              - column: { name: description, value: "Управление рейтингами: изменение никнейма игрока, изменение очков, удаление игрока, бан игрока" }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 8 }
+              - column: { name: role, value: RATING_CLEAN }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: Очистка рейтингов }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 9 }
+              - column: { name: role, value: WORLD_CHECK }
+              - column: { name: level, value: AVAILABLE }
+              - column: { name: description, value: Просмотр миров }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 10 }
+              - column: { name: role, value: WORLD_MANAGEMENT }
+              - column: { name: level, value: SETTING }
+              - column: { name: description, value: "Управление мирами: создание нового, архивирование, удаление мира" }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 11 }
+              - column: { name: role, value: ROLES_CHECK }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: Просмотр пользователей }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 12 }
+              - column: { name: role, value: ROLES_MANAGEMENT }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: "Управление пользователями: создание новых, изменение прав, ограничение доступа" }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 13 }
+              - column: { name: role, value: EVENTS_CHECK }
+              - column: { name: level, value: AVAILABLE }
+              - column: { name: description, value: Просмотр событий }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 14 }
+              - column: { name: role, value: EVENTS_MANAGEMENT }
+              - column: { name: level, value: SETTING }
+              - column: { name: description, value: "Управление событиями: создание новых условий, создание событий из группы условий, изменение условий и событий" }
+
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: id, valueNumeric: 15 }
+              - column: { name: role, value: LOGS_CHECK }
+              - column: { name: level, value: FORBIDDEN }
+              - column: { name: description, value: Просмотр логов }
+
+  - changeSet:
+      id: update-roles-id-sequence
+      author: bahertylop
+      changes:
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: ALTER SEQUENCE roles_id_seq RESTART WITH 16;

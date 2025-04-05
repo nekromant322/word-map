@@ -57,6 +57,46 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
+    @ExceptionHandler(AdminNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleAdminNotFoundException(AdminNotFoundException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "admin not found");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponses);
+    }
+
+    @ExceptionHandler(AdminAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleAdminAlreadyExistsException(AdminAlreadyExistsException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "admin already exists");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
+
+    @ExceptionHandler(RoleNotBelongToAdminException.class)
+    public ResponseEntity<Map<String, String>> handleRoleNotBelongToAdminException(RoleNotBelongToAdminException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "role not belong to admin");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
+
+    @ExceptionHandler(NotRightRoleLevelException.class)
+    public ResponseEntity<Map<String, String>> handleNotRightRoleLevelException(NotRightRoleLevelException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "not right role level");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
+
+    @ExceptionHandler(MismatchAdminTypeException.class)
+    public ResponseEntity<Map<String, String>> handleMismatchAdminTypeException(MismatchAdminTypeException e) {
+        Map<String, String> errorResponses = new HashMap<>();
+        errorResponses.put("error", "not right role level");
+        errorResponses.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
+    }
+
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<Map<String, String>> handleTokenExpiredException(TokenExpiredException e) {
         log.warn("Expired JWT token: {}", e.getMessage());
