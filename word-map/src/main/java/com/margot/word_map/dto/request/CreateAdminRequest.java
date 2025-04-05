@@ -1,5 +1,6 @@
 package com.margot.word_map.dto.request;
 
+import com.margot.word_map.dto.AdminType;
 import com.margot.word_map.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,10 +32,5 @@ public class CreateAdminRequest {
     private AdminType adminType;
 
     @NotNull(message = "Роли не могут быть пустыми")
-    private Set<Role.ROLE> roles;
-
-    public enum AdminType {
-        ADMIN,
-        MODERATOR
-    }
+    private List<Role.ROLE> roles;
 }

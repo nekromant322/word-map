@@ -1,6 +1,7 @@
 package com.margot.word_map.service;
 
 import com.margot.word_map.dto.AdminDto;
+import com.margot.word_map.dto.AdminType;
 import com.margot.word_map.dto.request.AdminRoleRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -60,24 +62,7 @@ public class AdminService {
             throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
         }
 
-        List<Role> roles = roleService.getRoles();
-
-        Set<Role> adminRoles = new HashSet<>();
-
-        if (request.getAdminType().equals(CreateAdminRequest.AdminType.ADMIN)) {
-            adminRoles.add(roles.stream().filter(x -> x.getRole().equals(Role.ROLE.ADMIN)).findFirst().get());
-        } else {
-            List<Role> availableRoles = roles.stream()
-                    .filter(x -> x.getLevel().equals(Role.LEVEL.AVAILABLE))
-                    .toList();
-            List<Role> settingRoles = roles.stream()
-                    .filter(x -> x.getLevel().equals(Role.LEVEL.SETTING))
-                    .filter(x -> request.getRoles().contains(x.getRole()))
-                    .toList();
-
-            adminRoles.addAll(availableRoles);
-            adminRoles.addAll(settingRoles);
-        }
+        List<Role> adminRoles = resolveAdminRoles(request.getRoles(), request.getAdminType());
 
         Admin admin = Admin.builder()
                 .email(request.getEmail())
@@ -88,6 +73,31 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
+    private List<Role> resolveAdminRoles(List<Role.ROLE> rolesToAdmin, AdminType adminType) {
+        List<Role> roles = roleService.getRoles();
+
+        List<Role> adminRoles = new LinkedList<>();
+
+        if (adminType.equals(AdminType.ADMIN)) {
+            adminRoles.add(roles.stream().filter(x -> x.getRole().equals(Role.ROLE.ADMIN)).findFirst().orElseThrow(() -> {
+                log.warn("role {} not found", Role.ROLE.ADMIN);
+                return new RoleNotFoundException("role " + Role.ROLE.ADMIN + " not found");
+            }));
+        } else {
+            List<Role> availableRoles = roles.stream()
+                    .filter(x -> x.getLevel().equals(Role.LEVEL.AVAILABLE))
+                    .toList();
+            List<Role> settingRoles = roles.stream()
+                    .filter(x -> x.getLevel().equals(Role.LEVEL.SETTING))
+                    .filter(x -> rolesToAdmin.contains(x.getRole()))
+                    .toList();
+
+            adminRoles.addAll(availableRoles);
+            adminRoles.addAll(settingRoles);
+        }
+        return adminRoles;
+    }
+    
     public void addAdminRole(AdminRoleRequest request) {
         Admin admin = adminRepository.findById(request.getAdminId()).orElseThrow(() -> {
             log.info("admin with id {} not found", request.getAdminId());
