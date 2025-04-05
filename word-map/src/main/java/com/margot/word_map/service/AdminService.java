@@ -19,10 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -79,10 +77,14 @@ public class AdminService {
         List<Role> adminRoles = new LinkedList<>();
 
         if (adminType.equals(AdminType.ADMIN)) {
-            adminRoles.add(roles.stream().filter(x -> x.getRole().equals(Role.ROLE.ADMIN)).findFirst().orElseThrow(() -> {
-                log.warn("role {} not found", Role.ROLE.ADMIN);
-                return new RoleNotFoundException("role " + Role.ROLE.ADMIN + " not found");
-            }));
+            adminRoles.add(roles.stream()
+                    .filter(x -> x.getRole().equals(Role.ROLE.ADMIN))
+                    .findFirst()
+                    .orElseThrow(() -> {
+                        log.warn("role {} not found", Role.ROLE.ADMIN);
+                        return new RoleNotFoundException("role " + Role.ROLE.ADMIN + " not found");
+                    })
+            );
         } else {
             List<Role> availableRoles = roles.stream()
                     .filter(x -> x.getLevel().equals(Role.LEVEL.AVAILABLE))
@@ -97,7 +99,7 @@ public class AdminService {
         }
         return adminRoles;
     }
-    
+
     public void addAdminRole(AdminRoleRequest request) {
         Admin admin = adminRepository.findById(request.getAdminId()).orElseThrow(() -> {
             log.info("admin with id {} not found", request.getAdminId());
@@ -105,9 +107,14 @@ public class AdminService {
         });
 
         // проверка на то, что админ
-        if (admin.getRoles().size() == 1 && admin.getRoles().stream().map(Role::getRole).toList().get(0).equals(Role.ROLE.ADMIN)) {
+        if (admin.getRoles().stream()
+                .anyMatch(role -> role.getRole() == Role.ROLE.ADMIN)) {
             return;
         }
+
+        if (admin.getRoles().stream().anyMatch(role -> role.getRole() == request.getRole())) {
+            return;
+        };
 
         Role roleToAdd = roleService.getRoleByRole(request.getRole()).orElseThrow(() -> {
             log.info("role {} not found", request.getRole().name());
@@ -129,20 +136,20 @@ public class AdminService {
             return new AdminNotFoundException("admin with id " + request.getAdminId() + " not found");
         });
 
-        List<Role> adminRoles = new java.util.ArrayList<>(admin.getRoles().stream().toList());
+        List<Role> adminRoles = admin.getRoles();
         Role requestRole = adminRoles.stream().filter(x -> x.getRole().equals(request.getRole())).findFirst().orElseThrow(() -> {
             // нет такой роли у админа
             log.info("admin {} not have role {}", admin.getEmail(), request.getRole().name());
             return new RoleNotBelongToAdminException("admin not have role " + request.getRole());
         });
 
+        // удалять можно только роли уровня SETTING
         if (!requestRole.getLevel().equals(Role.LEVEL.SETTING)) {
             log.info("try to delete not setting role");
             throw new NotRightRoleLevelException("try to delete not setting role");
         }
 
         adminRoles.remove(requestRole);
-        admin.setRoles(new HashSet<>(adminRoles));
         adminRepository.save(admin);
     }
 }

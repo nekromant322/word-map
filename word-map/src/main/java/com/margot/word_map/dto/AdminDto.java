@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,5 +25,5 @@ public class AdminDto {
 
     private Boolean access;
 
-    private Set<RoleDto> adminRoles;
+    private List<RoleDto> adminRoles;
 }
