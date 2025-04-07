@@ -6,6 +6,7 @@ import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
         name = "AuthController",
         description = "Контроллер для авторизации админов",
         externalDocs = @ExternalDocumentation(
-                description = "Документация в confluence",
+                description = "Документация в Confluence",
                 url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/152535064/MS+-+auth"
         )
 )
@@ -45,6 +46,7 @@ public class AuthController {
     public ConfirmResponse sendCode(@PathVariable @Email(
             regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
             message = "Invalid email format. Example: example@mail.com")
+            @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
                                                     @NotBlank String email) {
         return authService.sendVerificationCode(email);
     }
@@ -56,12 +58,12 @@ public class AuthController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152338453/POST+auth+confirm"
-
             )
     )
     @PostMapping("/confirm")
     public TokenResponse verifyCode(
-            @RequestBody @Validated ConfirmRequest confirmRequest) {
+            @RequestBody @Validated ConfirmRequest confirmRequest
+    ) {
         return authService.verifyCodeAndGenerateToken(confirmRequest.getEmail(), confirmRequest.getCode());
     }
 
@@ -74,7 +76,9 @@ public class AuthController {
     )
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refreshToken(
-            @CookieValue(value = "refreshToken", required = false) String refreshToken) {
+            @Parameter(description = "кука со значением refresh токена")
+            @CookieValue(value = "refreshToken", required = false) String refreshToken
+    ) {
         if (refreshToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Refresh token is missing");

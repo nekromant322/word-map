@@ -5,6 +5,7 @@ import com.margot.word_map.dto.response.WordOfferResponse;
 import com.margot.word_map.service.words_offer_service.WordsOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +17,11 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(
         name = "WordsOfferController",
-        description = "Контроллер для предложений слов пользователями и проверки админом"
+        description = "Контроллер для предложений слов пользователями и проверки админом",
+        externalDocs = @ExternalDocumentation(
+                description = "документация в Confluence",
+                url = "документация для предложений слов еще не описана"
+        )
 )
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +38,7 @@ public class WordsOfferController {
     )
     @PostMapping("/offer")
     public void offerWord(@RequestBody CreateWordRequest word,
-                                            @AuthenticationPrincipal UserDetails userDetails) {
-
+                          @AuthenticationPrincipal UserDetails userDetails) {
         wordsOfferService.processWordOffer(word, userDetails);
     }
 
@@ -46,7 +50,9 @@ public class WordsOfferController {
     )
     @GetMapping("/admin/check")
     public Page<WordOfferResponse> checkOffers(
+            @Parameter(description = "номер страницы", example = "2")
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "количество элементов на странице", example = "20")
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return wordsOfferService.getAllWordsOffersNotChecked(pageable);
@@ -60,7 +66,8 @@ public class WordsOfferController {
     )
     @PostMapping("/admin/approve/{id}")
     public void approveWord(@AuthenticationPrincipal UserDetails userDetails,
-                                              @PathVariable Long id) {
+                            @Parameter(description = "id предложения", example = "12")
+                            @PathVariable Long id) {
         wordsOfferService.approve(userDetails, id);
     }
 
@@ -72,7 +79,8 @@ public class WordsOfferController {
     )
     @PostMapping("/admin/reject/{id}")
     public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,
-                                             @PathVariable Long id) {
+                           @Parameter(description = "id предложения", example = "12")
+                           @PathVariable Long id) {
         wordsOfferService.reject(userDetails, id);
     }
 }

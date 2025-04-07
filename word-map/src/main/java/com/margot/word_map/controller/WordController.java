@@ -8,6 +8,7 @@ import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.service.WordService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +47,7 @@ public class WordController {
             )
     )
     @PostMapping("/list")
-    public DictionaryListResponse findWordsByFilter(DictionaryListRequest request) {
+    public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
         return DictionaryListResponse.builder().build();
     }
 
@@ -59,7 +60,9 @@ public class WordController {
             )
     )
     @GetMapping("/word/{word}")
-    public DictionaryWordResponse getWordInfo(@PathVariable String word) {
+    public DictionaryWordResponse getWordInfo(
+            @Parameter(description = "искомое слово", example = "word")
+            @PathVariable String word) {
         return wordService.getWordInfo(word);
     }
 
@@ -101,6 +104,7 @@ public class WordController {
     )
     @DeleteMapping("/word/{id}")
     public void deleteWord(@AuthenticationPrincipal UserDetails userDetails,
+                           @Parameter(description = "id слова", example = "12")
                            @PathVariable Long id) {
         wordService.deleteWord(userDetails, id);
     }
