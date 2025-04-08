@@ -9,6 +9,8 @@ import com.margot.word_map.service.WordService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +48,12 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152436778/POST+dictionary+list"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слова получены успешно"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+            }
     )
     @PostMapping("/list")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
@@ -59,7 +66,13 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "180781076/GET+dictionary+word+word"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content()),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+            }
     )
     @GetMapping("/word/{word}")
     public DictionaryWordResponse getWordInfo(
@@ -74,7 +87,12 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "180813845/CREATE+dictionary+word"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
     )
     @PostMapping("/word")
     public void createNewWord(@AuthenticationPrincipal UserDetails userDetails,
@@ -88,7 +106,14 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "180781097/POST+dictionary+word"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слово обновлено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Слово с новым названием уже существует"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
     )
     @PutMapping("/word")
     public void updateWord(@AuthenticationPrincipal UserDetails userDetails,
@@ -102,7 +127,13 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "180977731/DELETE+dictionary+word+id"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слово удалено успешно"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
     )
     @DeleteMapping("/word/{id}")
     public void deleteWord(@AuthenticationPrincipal UserDetails userDetails,
@@ -118,7 +149,12 @@ public class WordController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "180944985/GET+dictionary+word+list"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Успешная выгрузка слов"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+            }
     )
     @GetMapping("/word/list")
     public ResponseEntity<StreamingResponseBody> getAllWords() throws IOException {

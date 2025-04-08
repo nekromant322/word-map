@@ -6,6 +6,8 @@ import com.margot.word_map.service.words_offer_service.WordsOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +38,14 @@ public class WordsOfferController {
             summary = "Метод для предложения слова",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Слово предложено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже предложено", content = @Content()),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует", content = @Content()),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+            }
     )
     @PostMapping("/offer")
     public void offerWord(@RequestBody CreateWordRequest word,
@@ -48,7 +57,13 @@ public class WordsOfferController {
             summary = "Метод для просмотра предложений",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Предложения получены успешно"),
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах", content = @Content()),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+            }
     )
     @GetMapping("/admin/check")
     public Page<WordOfferResponse> checkOffers(
@@ -64,7 +79,15 @@ public class WordsOfferController {
             summary = "Метод для принятия предложения",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Предложение принято успешно"),
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
     )
     @PostMapping("/admin/approve/{id}")
     public void approveWord(@AuthenticationPrincipal UserDetails userDetails,
@@ -77,7 +100,14 @@ public class WordsOfferController {
             summary = "Метод для отказа предложения",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Предложения отклонено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
+                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
     )
     @PostMapping("/admin/reject/{id}")
     public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,

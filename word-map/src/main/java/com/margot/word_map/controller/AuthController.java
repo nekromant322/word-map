@@ -7,12 +7,13 @@ import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,7 +41,12 @@ public class AuthController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152567831/GET+auth+login+email"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Код успешно отправлен"),
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content()),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content())
+            }
     )
     @GetMapping("/login/{email}")
     public ConfirmResponse sendCode(@PathVariable @Email(
@@ -58,7 +64,12 @@ public class AuthController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152338453/POST+auth+confirm"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Код подтвержден"),
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content()),
+                    @ApiResponse(responseCode = "404", description = "Код не найден", content = @Content())
+            }
     )
     @PostMapping("/confirm")
     public TokenResponse verifyCode(
@@ -72,10 +83,16 @@ public class AuthController {
             description = "Обновление access токена с помощью refresh токена",
             externalDocs = @ExternalDocumentation(
                     description = "Метод не задокументирован в Confluence"
-            )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Access токен успешно обновлен"),
+                    @ApiResponse(responseCode = "401", description = "Не указан refresh токен", content = @Content()),
+                    @ApiResponse(responseCode = "401", description = "Невалидный refresh токен", content = @Content()),
+                    @ApiResponse(responseCode = "401", description = "Устаревший refresh токен", content = @Content())
+            }
     )
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refreshToken(
+    public TokenResponse refreshToken(
             @Parameter(description = "кука со значением refresh токена")
             @CookieValue(value = "refreshToken", required = false) String refreshToken
     ) {
@@ -84,8 +101,7 @@ public class AuthController {
                     "Refresh token is missing");
         }
 
-        TokenResponse tokenResponse = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(tokenResponse);
+        return authService.refreshAccessToken(refreshToken);
     }
 
     /*
