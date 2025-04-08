@@ -9,6 +9,7 @@ import com.margot.word_map.service.WordService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,7 @@ import java.io.IOException;
                         "152436742/MS+-+dictionary"
         )
 )
+@SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dictionary")

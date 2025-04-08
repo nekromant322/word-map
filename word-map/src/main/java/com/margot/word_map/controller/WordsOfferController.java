@@ -6,6 +6,7 @@ import com.margot.word_map.service.words_offer_service.WordsOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
                 url = "документация для предложений слов еще не описана"
         )
 )
+@SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/wordsOffer")

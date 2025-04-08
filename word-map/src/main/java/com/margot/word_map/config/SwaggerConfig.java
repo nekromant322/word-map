@@ -2,7 +2,10 @@ package com.margot.word_map.config;
 
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -19,9 +22,18 @@ import io.swagger.v3.oas.annotations.info.Info;
         externalDocs = @ExternalDocumentation(
                 description = "GitHub Repository",
                 url = "https://github.com/nekromant322/word-map/tree/main"
-        )
+        ),
+        servers = {
+                @Server(url = "http://localhost:8080", description = "Local Server"),
+                @Server(url = "http://word-map.ru", description = "Production Server")
+        }
 )
-
+@SecurityScheme(
+        name = "JWT",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SwaggerConfig {
     // Конфигурация для Swagger
 }
