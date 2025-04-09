@@ -86,6 +86,7 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
+    @Transactional
     public TokenResponse refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -102,6 +103,11 @@ public class AuthService {
         String newAccessToken = jwtService.generateAccessToken(email, role);
 
         return new TokenResponse(newAccessToken, refreshToken);
+    }
+
+    @Transactional
+    public void deleteRefreshTokenByUserId(Long userId) {
+        refreshTokenRepository.deleteByUserId(userId);
     }
 
     private String generateAndSaveRefreshToken(Long userId, String email) {
