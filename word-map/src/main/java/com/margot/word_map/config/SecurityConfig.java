@@ -24,7 +24,7 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final AdminDetailsService myUserDetailsService;
-//    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,8 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/wordsOffer/offer").authenticated()
                         .requestMatchers("/wordsOffer/**").authenticated()
                         .requestMatchers("/**").authenticated())
-//                .oauth2Login(oauth2 -> oauth2
-//                        .successHandler(oAuth2LoginSuccessHandler))
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
