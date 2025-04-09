@@ -3,6 +3,8 @@ package com.margot.word_map.service.auth;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
+import com.margot.word_map.exception.InvalidTokenException;
+import com.margot.word_map.exception.TokenExpiredException;
 import com.margot.word_map.model.*;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
@@ -88,12 +90,11 @@ public class AuthService {
 
     public TokenResponse refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        getMessage("error.token.invalid")));
+                .orElseThrow(() -> new InvalidTokenException("invalid refresh token"));
 
         if (storedToken.getExpirationTime().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(storedToken);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
+            throw new TokenExpiredException("refresh token expired");
         }
 
         String email = adminRepository.findById(storedToken.getUserId()).get().getEmail();

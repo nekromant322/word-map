@@ -1,4 +1,4 @@
-package com.margot.word_map.controller;
+package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;

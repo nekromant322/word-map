@@ -1,4 +1,4 @@
-package com.margot.word_map.controller;
+package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.DictionaryListRequest;

@@ -57,23 +57,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(TokenExpiredException.class)
-    public ResponseEntity<Map<String, String>> handleTokenExpiredException(TokenExpiredException e) {
-        log.warn("Expired JWT token: {}", e.getMessage());
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Token expired");
-        errorResponse.put("message", e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-    }
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidTokenException(InvalidTokenException e) {
-        log.warn("Invalid JWT token: {}", e.getMessage());
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Invalid token");
-        errorResponse.put("message", e.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
-    }
+//    @ExceptionHandler(TokenExpiredException.class)
+//    public ResponseEntity<Map<String, String>> handleTokenExpiredException(TokenExpiredException e) {
+//        log.warn("Expired JWT token: {}", e.getMessage());
+//        Map<String, String> errorResponse = new HashMap<>();
+//        errorResponse.put("error", "Token expired");
+//        errorResponse.put("message", e.getMessage());
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+//    }
+//
+//    @ExceptionHandler(InvalidTokenException.class)
+//    public ResponseEntity<Map<String, String>> handleInvalidTokenException(InvalidTokenException e) {
+//        log.warn("Invalid JWT token: {}", e.getMessage());
+//        Map<String, String> errorResponse = new HashMap<>();
+//        errorResponse.put("error", "Invalid token");
+//        errorResponse.put("message", e.getMessage());
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
+//    }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(UsernameNotFoundException e) {
