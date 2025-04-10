@@ -9,6 +9,7 @@ import com.margot.word_map.repository.ConfirmRepository;
 import com.margot.word_map.repository.RefreshTokenRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
+import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -33,6 +34,7 @@ public class AuthService {
     private final AdminRepository adminRepository;
     private final MessageSource messageSource;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${confirm.code-expiration-time}")
     private Integer confirmCodeExpirationTime;
@@ -80,47 +82,7 @@ public class AuthService {
 
         confirmRepository.delete(confirm);
 
-        String accessToken = jwtService.generateAccessToken(email, Role.ADMIN.name());
-        String refreshToken = generateAndSaveRefreshToken(adminId, email);
-
-        return new TokenResponse(accessToken, refreshToken);
-    }
-
-    @Transactional
-    public TokenResponse refreshAccessToken(String refreshToken) {
-        RefreshToken storedToken = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        getMessage("error.token.invalid")));
-
-        if (storedToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            refreshTokenRepository.delete(storedToken);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
-        }
-
-        String email = adminRepository.findById(storedToken.getUserId()).get().getEmail();
-        String role = jwtService.extractRole(refreshToken);
-
-        String newAccessToken = jwtService.generateAccessToken(email, role);
-
-        return new TokenResponse(newAccessToken, refreshToken);
-    }
-
-    @Transactional
-    public void deleteRefreshTokenByUserId(Long userId) {
-        refreshTokenRepository.deleteByUserId(userId);
-    }
-
-    private String generateAndSaveRefreshToken(Long userId, String email) {
-        refreshTokenRepository.deleteByUserId(userId);
-
-        String refreshToken = jwtService.generateRefreshToken(email);
-        RefreshToken token = new RefreshToken();
-        token.setUserId(userId);
-        token.setToken(refreshToken);
-        token.setExpirationTime(LocalDateTime.now().plusDays(14));
-
-        refreshTokenRepository.save(token);
-        return refreshToken;
+        return refreshTokenService.generateToken(email, admin.get());
     }
 
     private Integer parseCode(String codeStr) {
