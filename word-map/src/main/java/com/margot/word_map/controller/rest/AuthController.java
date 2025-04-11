@@ -123,7 +123,7 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails instanceof Admin admin) {
-            authService.deleteRefreshTokenByUserId(admin.getId());
+            authService.logout(admin.getId());
         } else {
             // toDo раскомментить когда будет юзер
 //            User user = (User) userDetails;

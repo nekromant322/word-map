@@ -3,8 +3,7 @@ package com.margot.word_map.service.auth;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.exception.InvalidTokenException;
-import com.margot.word_map.exception.TokenExpiredException;
+import com.margot.word_map.exception.*;
 import com.margot.word_map.model.*;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
@@ -13,16 +12,11 @@ import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Locale;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,22 +27,17 @@ public class AuthService {
     private final EmailService emailService;
     private final ConfirmRepository confirmRepository;
     private final AdminRepository adminRepository;
-    private final MessageSource messageSource;
     private final RefreshTokenService refreshTokenService;
 
     @Value("${confirm.code-expiration-time}")
     private Integer confirmCodeExpirationTime;
 
     public ConfirmResponse sendVerificationCode(String email) {
-        Optional<Admin> optionalAdmin = adminRepository.findByEmail(email);
+        Admin admin = adminRepository.findByEmail(email).orElseThrow(
+                () -> new AdminNotFoundException("admin with email " + email + "not found"));
 
-        if (optionalAdmin.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
-        }
-
-        Admin admin = optionalAdmin.get();
         if (!admin.getAccess()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, getMessage("error.user.not_access"));
+            throw new AdminNotAccessException("admin has not access");
         }
 
         Integer confirmCode = generateRandomCode();
@@ -68,15 +57,12 @@ public class AuthService {
     public TokenResponse verifyCodeAndGenerateToken(String email, String codeStr) {
         Integer code = parseCode(codeStr);
 
-        Optional<Admin> admin = adminRepository.findByEmail(email);
-        if (admin.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
-        }
+        Admin admin = adminRepository.findByEmail(email).orElseThrow(
+                () -> new AdminNotFoundException("admin with email " + email + "not found"));
 
-        Long adminId = admin.get().getId();
+        Long adminId = admin.getId();
         Confirm confirm = confirmRepository.findByUserIdAndCode(adminId, code)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        getMessage("error.confirm.not_found")));
+                .orElseThrow(InvalidConfirmCodeException::new);
 
         validateConfirmCode(confirm, code);
 
@@ -91,20 +77,17 @@ public class AuthService {
     @Transactional
     public TokenResponse refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        getMessage("error.token.invalid")));
+                .orElseThrow(() -> new InvalidTokenException("invalid refresh token"));
 
         if (storedToken.getExpirationTime().isBefore(LocalDateTime.now())) {
             refreshTokenService.deleteRefreshToken(storedToken);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
+            throw new TokenExpiredException("refresh token expired");
         }
 
-        Optional<Admin> admin = adminRepository.findById(storedToken.getUserId());
-        if (admin.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
-        }
+        Admin admin = adminRepository.findById(storedToken.getUserId()).orElseThrow(
+                () -> new AdminNotFoundException("admin with id " + storedToken.getUserId() + " not found"));
 
-        String email = admin.get().getEmail();
+        String email = admin.getEmail();
         String role = jwtService.extractRole(refreshToken);
         String newAccessToken = jwtService.generateAccessToken(email, role);
 
@@ -123,28 +106,24 @@ public class AuthService {
         try {
             return Integer.parseInt(codeStr);
         } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, getMessage("error.code.invalid"));
+            throw new InvalidConfirmCodeException();
         }
     }
 
     private void validateConfirmCode(Confirm confirm, Integer code) {
         if (!confirm.getCode().equals(code)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, getMessage("error.code.mismatch"));
+            throw new InvalidConfirmCodeException();
         }
         if (confirm.getExpirationTime().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, getMessage("error.code.expired"));
+            throw new InvalidConfirmCodeException();
         }
-    }
-
-    private String getMessage(String code) {
-        return messageSource.getMessage(code, null, Locale.getDefault());
     }
 
     private Integer generateRandomCode() {
         return (int) (Math.random() * 900000) + 100000;
     }
-    
-    public void deleteRefreshTokenByUserId(Long id) {
+
+    public void logout(Long id) {
         refreshTokenService.deleteRefreshTokenByUserId(id);
     }
 }
