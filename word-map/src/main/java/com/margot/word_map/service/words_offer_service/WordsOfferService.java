@@ -37,10 +37,9 @@ public class WordsOfferService {
     }
 
     public void isAlreadyExist(CreateWordRequest wordRequest) {
-        if (findByWordInTableWords(wordRequest.getWord())) {
-            throw new WordAlreadyExists("слово " + wordRequest.getWord() + " уже есть");
-        } else if (findByWordInTableWordsOffer(wordRequest.getWord())) {
-            throw new WordAlreadyExists("Такое слово уже было предложено");
+        if (findByWordInTableWords(wordRequest.getWord()) ||
+                findByWordInTableWordsOffer(wordRequest.getWord())) {
+            throw new WordAlreadyExists("word " + wordRequest.getWord() + " already exists");
         }
     }
 

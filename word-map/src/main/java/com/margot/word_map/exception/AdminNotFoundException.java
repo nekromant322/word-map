@@ -4,12 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class WordNotFoundException extends BaseException {
+public class AdminNotFoundException extends BaseException {
 
-    public WordNotFoundException() {
+    public AdminNotFoundException() {
     }
 
-    public WordNotFoundException(String message) {
+    public AdminNotFoundException(String message) {
         super(message);
     }
 }
