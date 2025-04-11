@@ -1,5 +1,6 @@
 package com.margot.word_map.controller.rest;
 
+import com.margot.word_map.dto.CommonErrorDto;
 import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
@@ -9,7 +10,9 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,8 +50,10 @@ public class AuthController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Код успешно отправлен"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content())
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @GetMapping("/login/{email}")
@@ -70,8 +75,10 @@ public class AuthController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Код подтвержден"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content()),
-                    @ApiResponse(responseCode = "404", description = "Код не найден", content = @Content())
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Код не найден",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PostMapping("/confirm")
@@ -89,9 +96,12 @@ public class AuthController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Access токен успешно обновлен"),
-                    @ApiResponse(responseCode = "401", description = "Не указан refresh токен", content = @Content()),
-                    @ApiResponse(responseCode = "401", description = "Невалидный refresh токен", content = @Content()),
-                    @ApiResponse(responseCode = "401", description = "Устаревший refresh токен", content = @Content())
+                    @ApiResponse(responseCode = "401", description = "Не указан refresh токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Невалидный refresh токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Устаревший refresh токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PostMapping("/refresh")
@@ -116,8 +126,10 @@ public class AuthController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешный выход"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content())
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PostMapping("/logout")

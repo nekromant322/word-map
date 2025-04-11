@@ -1,5 +1,6 @@
 package com.margot.word_map.controller.rest;
 
+import com.margot.word_map.dto.CommonErrorDto;
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,8 +53,10 @@ public class WordController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Слова получены успешно"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PostMapping("/list")
@@ -69,9 +73,12 @@ public class WordController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content()),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @GetMapping("/word/{word}")
@@ -89,9 +96,13 @@ public class WordController {
                             "180813845/CREATE+dictionary+word"
             ),
             responses = {
-                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+                    @ApiResponse(responseCode = "200", description = "Слово успешно добавлено"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PostMapping("/word")
@@ -109,10 +120,14 @@ public class WordController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Слово обновлено успешно"),
-                    @ApiResponse(responseCode = "400", description = "Слово с новым названием уже существует"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+                    @ApiResponse(responseCode = "400", description = "Слово с новым названием уже существует",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @PutMapping("/word")
@@ -130,9 +145,12 @@ public class WordController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Слово удалено успешно"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @DeleteMapping("/word/{id}")
@@ -152,8 +170,10 @@ public class WordController {
             ),
             responses = {
                     @ApiResponse(responseCode = "200", description = "Успешная выгрузка слов"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации",
+                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
             }
     )
     @GetMapping("/word/list")
