@@ -5,7 +5,6 @@ import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.auth.AuthService;
-import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +36,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthController {
 
     private final AuthService authService;
-    private final RefreshTokenService refreshTokenService;
 
     @Operation(
             summary = "Заявка на вход по почте",
@@ -106,7 +104,7 @@ public class AuthController {
                     "Refresh token is missing");
         }
 
-        return refreshTokenService.refreshAccessToken(refreshToken);
+        return authService.refreshAccessToken(refreshToken);
     }
 
     @Operation(
@@ -125,7 +123,7 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails instanceof Admin admin) {
-            refreshTokenService.deleteRefreshTokenByUserId(admin.getId());
+            authService.deleteRefreshTokenByUserId(admin.getId());
         } else {
             // toDo раскомментить когда будет юзер
 //            User user = (User) userDetails;

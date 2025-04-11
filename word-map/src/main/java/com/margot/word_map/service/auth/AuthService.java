@@ -6,7 +6,6 @@ import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.*;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
-import com.margot.word_map.repository.RefreshTokenRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
@@ -33,7 +32,6 @@ public class AuthService {
     private final ConfirmRepository confirmRepository;
     private final AdminRepository adminRepository;
     private final MessageSource messageSource;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenService refreshTokenService;
 
     @Value("${confirm.code-expiration-time}")
@@ -82,7 +80,41 @@ public class AuthService {
 
         confirmRepository.delete(confirm);
 
-        return refreshTokenService.generateToken(email, admin.get());
+        String accessToken = jwtService.generateAccessToken(email, Role.ADMIN.name());
+        String refreshToken = generateAndSaveRefreshToken(adminId, email);
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenResponse refreshAccessToken(String refreshToken) {
+        RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        getMessage("error.token.invalid")));
+
+        if (storedToken.getExpirationTime().isBefore(LocalDateTime.now())) {
+            refreshTokenService.deleteRefreshToken(storedToken);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, getMessage("error.token.expired"));
+        }
+
+        Optional<Admin> admin = adminRepository.findById(storedToken.getUserId());
+        if (admin.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, getMessage("error.user.not_found"));
+        }
+
+        String email = admin.get().getEmail();
+        String role = jwtService.extractRole(refreshToken);
+        String newAccessToken = jwtService.generateAccessToken(email, role);
+
+        return new TokenResponse(newAccessToken, refreshToken);
+    }
+
+    private String generateAndSaveRefreshToken(Long userId, String email) {
+        refreshTokenService.deleteRefreshTokenByUserId(userId);
+
+        String refreshToken = jwtService.generateRefreshToken(email);
+        refreshTokenService.saveRefreshToken(userId, refreshToken);
+        return refreshToken;
     }
 
     private Integer parseCode(String codeStr) {
@@ -108,5 +140,10 @@ public class AuthService {
 
     private Integer generateRandomCode() {
         return (int) (Math.random() * 900000) + 100000;
+    }
+
+    @Transactional
+    public void deleteRefreshTokenByUserId(Long id) {
+        refreshTokenService.deleteRefreshTokenByUserId(id);
     }
 }
