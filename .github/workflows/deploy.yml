@@ -21,6 +21,8 @@ jobs:
           echo "AUTH_EMAIL_USERNAME=${{ secrets.AUTH_EMAIL_USERNAME }}" >> .env
           echo "AUTH_EMAIL_PASSWORD=${{ secrets.AUTH_EMAIL_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}" >> .env
+          echo "YANDEX_CLIENT_SECRET=${{ secrets.YANDEX_CLIENT_SECRET }}" >> .env
           cat .env
 
       - name: Копирование docker-compose.yaml

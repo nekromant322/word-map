@@ -1,11 +1,7 @@
 package com.margot.word_map.service.jwt;
 
-import com.margot.word_map.exception.InvalidTokenException;
-import com.margot.word_map.exception.TokenExpiredException;
 import com.margot.word_map.model.Role;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -72,17 +68,11 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(getKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (ExpiredJwtException e) {
-            throw new TokenExpiredException("JWT token has expired", e);
-        } catch (JwtException e) {
-            throw new InvalidTokenException("Invalid JWT token", e);
-        }
+        return Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String extractRole(String token) {
