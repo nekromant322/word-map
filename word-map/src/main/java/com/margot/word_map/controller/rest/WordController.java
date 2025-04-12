@@ -97,9 +97,9 @@ public class WordController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Слово успешно добавлено"),
-                    @ApiResponse(responseCode = "400", description = "Слово уже существует", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PostMapping("/word")
@@ -119,10 +119,10 @@ public class WordController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Слово обновлено успешно"),
-                    @ApiResponse(responseCode = "400", description = "Слово существует", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Слово существует"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PutMapping("/word")
@@ -142,9 +142,9 @@ public class WordController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Слово удалено успешно"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @DeleteMapping("/word/{id}")

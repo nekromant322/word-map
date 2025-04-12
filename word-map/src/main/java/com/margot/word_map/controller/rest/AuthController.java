@@ -125,8 +125,8 @@ public class AuthController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Успешный выход"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content)
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
             }
     )
     @PostMapping("/logout")

@@ -44,10 +44,10 @@ public class WordsOfferController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Слово предложено успешно"),
-                    @ApiResponse(responseCode = "400", description = "Слово уже предложено", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Слово уже существует", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Слово уже предложено"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PostMapping("/offer")
@@ -88,11 +88,11 @@ public class WordsOfferController {
     )
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Отклонено успешно", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Предложение не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "200", description = "Отклонено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
+                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PostMapping("/admin/reject/{id}")
@@ -111,11 +111,11 @@ public class WordsOfferController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Предложение принято успешно"),
-                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Слово уже существует", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Предложение не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PostMapping("/admin/approve/{id}")
