@@ -14,25 +14,25 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/rules")
-public class RoleModelController {
+@RequestMapping("/admins")
+public class AdminController {
 
     private final RuleService ruleService;
 
     private final AdminService adminService;
 
-    @GetMapping
+    @GetMapping("/rules")
     public List<RuleDto> getRules() {
         return ruleService.getRulesDto();
     }
 
-    @GetMapping("/admins")
+    @GetMapping()
     public GetAdminsResponse getAdmins(@RequestParam(defaultValue = "0") @Min(0) Integer page,
                                        @RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer size) {
         return adminService.getAdmins(page, size);
     }
 
-    @GetMapping("/admins/{id}")
+    @GetMapping("/{id}")
     public AdminDto getAdmin(@PathVariable Long id) {
         return adminService.getAdminById(id);
     }

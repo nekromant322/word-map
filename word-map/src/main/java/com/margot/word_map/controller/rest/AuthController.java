@@ -1,9 +1,11 @@
 package com.margot.word_map.controller.rest;
 
+import com.margot.word_map.dto.request.AdminManagementRequest;
 import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.service.AdminService;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,9 +14,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +41,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthController {
 
     private final AuthService authService;
+
+    private final AdminService adminService;
 
     @Operation(
             summary = "Заявка на вход по почте",
@@ -138,6 +144,11 @@ public class AuthController {
 //            User user = (User) userDetails;
 //            authService.deleteRefreshTokenByUserId(user.getId());
         }
+    }
+
+    @PostMapping("/admins")
+    public void adminManagement(@RequestBody @Validated AdminManagementRequest request) {
+        adminService.manageAdmin(request);
     }
 }
 
