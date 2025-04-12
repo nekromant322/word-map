@@ -14,7 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,13 +54,16 @@ public class AdminService {
         }));
     }
 
-    public void manageAdmin(AdminManagementRequest request) {
+    @Transactional
+    public HttpStatus manageAdmin(AdminManagementRequest request) {
         Optional<Admin> adminOp = adminRepository.findByEmail(request.getEmail());
 
         if (adminOp.isPresent()) {
             updateAdmin(adminOp.get(), request);
+            return HttpStatus.OK;
         } else {
             createAdmin(request);
+            return HttpStatus.CREATED;
         }
     }
 

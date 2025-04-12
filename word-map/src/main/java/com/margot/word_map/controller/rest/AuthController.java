@@ -147,8 +147,8 @@ public class AuthController {
     }
 
     @PostMapping("/admins")
-    public void adminManagement(@RequestBody @Validated AdminManagementRequest request) {
-        adminService.manageAdmin(request);
+    public HttpStatus adminManagement(@RequestBody @Validated AdminManagementRequest request) {
+        return adminService.manageAdmin(request);
     }
 }
 
