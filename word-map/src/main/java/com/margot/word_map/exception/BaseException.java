@@ -3,13 +3,13 @@ package com.margot.word_map.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class WordNotFoundException extends BaseException {
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+public abstract class BaseException extends RuntimeException {
 
-    public WordNotFoundException() {
+    public BaseException() {
     }
 
-    public WordNotFoundException(String message) {
+    public BaseException(String message) {
         super(message);
     }
 }
