@@ -1,6 +1,5 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.CommonErrorDto;
 import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
@@ -10,8 +9,8 @@ import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -46,21 +45,21 @@ public class AuthController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152567831/GET+auth+login+email"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Код успешно отправлен"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content)
             }
     )
     @GetMapping("/login/{email}")
     public ConfirmResponse sendCode(@PathVariable @Email(
             regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
             message = "Invalid email format. Example: example@mail.com")
-            @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
-                                                    @NotBlank String email) {
+                                    @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
+                                    @NotBlank String email) {
         return authService.sendVerificationCode(email);
     }
 
@@ -71,13 +70,13 @@ public class AuthController {
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152338453/POST+auth+confirm"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Код подтвержден"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-                    @ApiResponse(responseCode = "404", description = "Код не найден",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Код не найден", content = @Content)
             }
     )
     @PostMapping("/confirm")
@@ -92,15 +91,14 @@ public class AuthController {
             description = "Обновление access токена с помощью refresh токена",
             externalDocs = @ExternalDocumentation(
                     description = "Метод не задокументирован в Confluence"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Access токен успешно обновлен"),
-                    @ApiResponse(responseCode = "401", description = "Не указан refresh токен",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-                    @ApiResponse(responseCode = "401", description = "Невалидный refresh токен",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-                    @ApiResponse(responseCode = "401", description = "Устаревший refresh токен",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+                    @ApiResponse(responseCode = "401", description = "Не указан refresh токен", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Невалидный refresh токен", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Устаревший refresh токен", content = @Content)
             }
     )
     @PostMapping("/refresh")
@@ -122,13 +120,13 @@ public class AuthController {
             externalDocs = @ExternalDocumentation(
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/152535088/POST+auth+logout"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Успешный выход"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class))),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа",
-                            content = @Content(schema = @Schema(implementation = CommonErrorDto.class)))
+                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content)
             }
     )
     @PostMapping("/logout")
