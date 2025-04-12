@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-admins-rules
+      author: bahertylop
+      changes:
+        - createTable:
+            tableName: admins_rules
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_admins_rules
+              - column:
+                  name: admin_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rule_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: admins_rules
+            baseColumnNames: admin_id
+            constraintName: fk_admins_admins_rules
+            referencedTableName: admins
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: admins_rules
+            baseColumnNames: rule_id
+            constraintName: fk_rules_admins_rules
+            referencedTableName: rules
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: admins_rules
+            columnNames: admin_id, rule_id
+            constraintName: uq_admins_rules_unique_pair
