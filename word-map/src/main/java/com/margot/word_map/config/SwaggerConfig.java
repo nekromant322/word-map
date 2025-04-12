@@ -6,9 +6,6 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
@@ -40,15 +37,4 @@ import org.springframework.context.annotation.Configuration;
 )
 @Configuration
 public class SwaggerConfig {
-
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI()
-                    .info(new io.swagger.v3.oas.models.info.Info()
-                            .title("Word Map API")
-                            .description("Swagger без авторизации")
-                            .version("1.0"))
-                .components(new io.swagger.v3.oas.models.Components())
-                .addSecurityItem(new SecurityRequirement());
-    }
 }
