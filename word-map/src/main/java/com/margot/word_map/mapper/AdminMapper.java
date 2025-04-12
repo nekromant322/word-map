@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminMapper {
 
-    private final RoleMapper roleMapper;
+    private final RuleMapper ruleMapper;
 
     public AdminDto toDto(Admin admin) {
         return AdminDto.builder()
@@ -20,8 +20,9 @@ public class AdminMapper {
                 .email(admin.getEmail())
                 .dateCreation(admin.getDateCreation())
                 .dateActive(admin.getDateActive())
+                .role(admin.getRole().name())
                 .access(admin.getAccess())
-                .adminRoles(roleMapper.toDto(admin.getRoles()))
+                .adminRules(ruleMapper.toDto(admin.getRoles()))
                 .build();
     }
 

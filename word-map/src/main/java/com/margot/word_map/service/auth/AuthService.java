@@ -73,7 +73,7 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(
                 email,
                 admin.getRoles().stream()
-                        .map(Role::getRole)
+                        .map(Rule::getName)
                         .toList()
         );
         String refreshToken = generateAndSaveRefreshToken(adminId, email);
@@ -97,7 +97,7 @@ public class AuthService {
         String newAccessToken = jwtService.generateAccessToken(
                 admin.getEmail(),
                 admin.getRoles().stream()
-                        .map(Role::getRole)
+                        .map(Rule::getName)
                         .toList()
         );
 

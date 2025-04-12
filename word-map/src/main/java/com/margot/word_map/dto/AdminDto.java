@@ -22,7 +22,9 @@ public class AdminDto {
 
     private LocalDateTime dateActive;
 
+    private String role;
+
     private Boolean access;
 
-    private List<RoleDto> adminRoles;
+    private List<RuleDto> adminRules;
 }

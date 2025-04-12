@@ -9,13 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleDto {
+public class RuleDto {
 
     private Long id;
 
-    private String role;
-
-    private String level;
-
-    private String description;
+    private String rule;
 }

@@ -33,17 +33,21 @@ public class Admin implements UserDetails {
     @Column(name = "date_active")
     private LocalDateTime dateActive;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private ROLE role;
+
     @Column(nullable = false)
     private Boolean access;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "admins_roles",
+            name = "admins_rules",
             joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id" )
+            inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 
     )
-    private List<Role> roles;
+    private List<Rule> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,5 +82,10 @@ public class Admin implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public enum ROLE {
+        ADMIN,
+        MODERATOR
     }
 }

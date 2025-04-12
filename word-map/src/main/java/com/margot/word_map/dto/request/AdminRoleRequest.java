@@ -1,6 +1,6 @@
 package com.margot.word_map.dto.request;
 
-import com.margot.word_map.model.Role;
+import com.margot.word_map.model.Rule;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,5 +17,5 @@ public class AdminRoleRequest {
     private Long adminId;
 
     @NotNull(message = "role не может быть null")
-    private Role.ROLE role;
+    private Rule.RULE role;
 }

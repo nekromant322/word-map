@@ -1,6 +1,6 @@
 package com.margot.word_map.service.jwt;
 
-import com.margot.word_map.model.Role;
+import com.margot.word_map.model.Rule;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -26,7 +26,7 @@ public class JwtService {
     @Value("${jwt.expiration.refresh-token-expiration}")
     private Duration refreshTokenExpiration;
 
-    public String generateToken(String email, List<Role.ROLE> roles, Duration expiration) {
+    public String generateToken(String email, List<Rule.RULE> roles, Duration expiration) {
         return Jwts.builder()
                 .subject(email)
                 .claim("roles", roles)
@@ -36,7 +36,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateAccessToken(String email, List<Role.ROLE> roles) {
+    public String generateAccessToken(String email, List<Rule.RULE> roles) {
         return generateToken(email, roles, accessTokenExpiration);
     }
 
