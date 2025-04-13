@@ -36,7 +36,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Admin admin = adminRepository.findByEmail(email).orElseThrow(() ->
                 new UsernameNotFoundException("Администратор с email " + email + " не найден"));
 
-        String accessToken = jwtService.generateAccessToken(email, admin.getRules().stream()
+        String accessToken = jwtService.generateAccessToken(email, admin.getRole(), admin.getRules().stream()
                 .map(Rule::getName)
                 .toList());
         String refreshToken = jwtService.generateRefreshToken(email);
