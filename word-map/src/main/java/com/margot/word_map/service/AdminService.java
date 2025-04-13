@@ -18,9 +18,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.relation.Role;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -68,31 +71,34 @@ public class AdminService {
     }
 
     private void createAdmin(AdminManagementRequest request) {
-        List<Rule> adminRules = ruleService.getRules().stream()
-                .filter(rule -> request.getNameRules().contains(rule.getName().name()))
-                .toList();
-
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .dateCreation(LocalDateTime.now())
                 .role(Admin.ROLE.valueOf(request.getRole()))
                 .access(request.getAccess())
-                .roles(adminRules)
                 .build();
+
+        if (request.getRole().equals(Admin.ROLE.MODERATOR.name())) {
+            List<Rule> adminRules = ruleService.getRules().stream()
+                    .filter(rule -> request.getNameRules().contains(rule.getName().name()))
+                    .collect(Collectors.toList());
+            admin.setRules(adminRules);
+        }
 
         adminRepository.save(admin);
     }
 
     private void updateAdmin(Admin admin, AdminManagementRequest request) {
-        List<Rule> adminRules = ruleService.getRules().stream()
-                .filter(rule -> request.getNameRules().contains(rule.getName().name()))
-                .toList();
-
-        admin.setRoles(adminRules);
         admin.setAccess(request.getAccess());
         admin.setRole(Admin.ROLE.valueOf(request.getRole()));
+        List<Rule> adminRules = new ArrayList<>();
+        if (request.getRole().equals(Admin.ROLE.MODERATOR.name())) {
+            adminRules = ruleService.getRules().stream()
+                    .filter(rule -> request.getNameRules().contains(rule.getName().name()))
+                    .collect(Collectors.toList());
+        }
+        admin.setRules(adminRules);
 
         adminRepository.save(admin);
     }
-
 }

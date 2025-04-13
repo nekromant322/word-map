@@ -11,7 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @Setter
 @ToString
-@Table(name = "roles")
+@Table(name = "rules")
 public class Rule implements GrantedAuthority {
 
     @Id

@@ -47,11 +47,11 @@ public class Admin implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 
     )
-    private List<Rule> roles;
+    private List<Rule> rules;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return rules;
     }
 
     @Override

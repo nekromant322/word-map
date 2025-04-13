@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface RuleRepository extends JpaRepository<Rule, Long> {
 
-    Optional<Rule> findRuleByAuthority(Rule.RULE rule);
+    Optional<Rule> findRuleByName(Rule.RULE rule);
 
 }

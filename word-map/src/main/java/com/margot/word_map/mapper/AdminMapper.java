@@ -22,7 +22,7 @@ public class AdminMapper {
                 .dateActive(admin.getDateActive())
                 .role(admin.getRole().name())
                 .access(admin.getAccess())
-                .adminRules(ruleMapper.toDto(admin.getRoles()))
+                .adminRules(ruleMapper.toDto(admin.getRules()))
                 .build();
     }
 

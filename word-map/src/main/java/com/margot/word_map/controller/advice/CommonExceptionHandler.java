@@ -50,11 +50,11 @@ public class CommonExceptionHandler {
         return createErrorResponse("user not found", HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CommonErrorDto> handleException(Exception e) {
-        log.error("Unhandled Exception: ", e);
-        return createErrorResponse("internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<CommonErrorDto> handleException(Exception e) {
+//        log.error("Unhandled Exception: ", e);
+//        return createErrorResponse("internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     private ResponseEntity<CommonErrorDto> createErrorResponse(Exception e, HttpStatus status) {
         CommonErrorDto body = CommonErrorDto.builder()

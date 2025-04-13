@@ -25,6 +25,6 @@ public class RuleService {
     public List<Rule> getRules() { return ruleRepository.findAll(); }
 
     public Optional<Rule> getRuleByRule(Rule.RULE rule) {
-        return ruleRepository.findRuleByAuthority(rule);
+        return ruleRepository.findRuleByName(rule);
     }
 }

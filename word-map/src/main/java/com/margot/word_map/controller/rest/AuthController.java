@@ -20,6 +20,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -147,8 +148,8 @@ public class AuthController {
     }
 
     @PostMapping("/admins")
-    public HttpStatus adminManagement(@RequestBody @Validated AdminManagementRequest request) {
-        return adminService.manageAdmin(request);
+    public ResponseEntity<Void> adminManagement(@RequestBody @Validated AdminManagementRequest request) {
+        return new ResponseEntity<>(adminService.manageAdmin(request));
     }
 }
 
