@@ -46,6 +46,9 @@ public class AdminManagementRequest {
 
     @AssertTrue(message = "указано неверное правило")
     public boolean isNameRulesValid() {
+        if (nameRules == null) {
+            return true;
+        }
         for (String rule : nameRules) {
             try {
                 Rule.RULE.valueOf(rule);

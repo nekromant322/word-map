@@ -75,15 +75,9 @@ public class AdminService {
                 .email(request.getEmail())
                 .dateCreation(LocalDateTime.now())
                 .role(Admin.ROLE.valueOf(request.getRole()))
+                .rules(getAdminRules(request.getNameRules(), request.getRole()))
                 .access(request.getAccess())
                 .build();
-
-        if (request.getRole().equals(Admin.ROLE.MODERATOR.name())) {
-            List<Rule> adminRules = ruleService.getRules().stream()
-                    .filter(rule -> request.getNameRules().contains(rule.getName().name()))
-                    .collect(Collectors.toList());
-            admin.setRules(adminRules);
-        }
 
         adminRepository.save(admin);
     }
@@ -91,14 +85,17 @@ public class AdminService {
     private void updateAdmin(Admin admin, AdminManagementRequest request) {
         admin.setAccess(request.getAccess());
         admin.setRole(Admin.ROLE.valueOf(request.getRole()));
-        List<Rule> adminRules = new ArrayList<>();
-        if (request.getRole().equals(Admin.ROLE.MODERATOR.name())) {
-            adminRules = ruleService.getRules().stream()
-                    .filter(rule -> request.getNameRules().contains(rule.getName().name()))
-                    .collect(Collectors.toList());
-        }
-        admin.setRules(adminRules);
+        admin.setRules(getAdminRules(request.getNameRules(), request.getRole()));
 
         adminRepository.save(admin);
+    }
+
+    private List<Rule> getAdminRules(List<String> needRules, String role) {
+        if (role.equals(Admin.ROLE.MODERATOR.name()) && needRules != null) {
+            return ruleService.getRules().stream()
+                    .filter(rule -> needRules.contains(rule.getName().name()))
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 }
