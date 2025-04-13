@@ -14,11 +14,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.pulsar.PulsarProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -147,6 +145,23 @@ public class AuthController {
         }
     }
 
+    @Operation(
+            summary = "Управление админами",
+            description = "Создать/обновить админа/модератора",
+            externalDocs = @ExternalDocumentation(
+                    description = "Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/POST+auth+admins"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные успешно обновлены"),
+                    @ApiResponse(responseCode = "201", description = "Пользователь добавлен"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
+                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+            }
+    )
     @PostMapping("/admins")
     public ResponseEntity<Void> adminManagement(@RequestBody @Validated AdminManagementRequest request) {
         return new ResponseEntity<>(adminService.manageAdmin(request));
