@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-rules
+      author: bahertylop
+      changes:
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_DICTIONARY
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: WIPE_DICTIONARY
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_RATING
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_WORLD
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_ROLE
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_IVENT
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_SHOP

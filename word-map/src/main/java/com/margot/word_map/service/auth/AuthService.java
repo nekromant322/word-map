@@ -11,6 +11,7 @@ import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Validated
@@ -68,7 +70,13 @@ public class AuthService {
 
         confirmRepository.delete(confirm);
 
-        String accessToken = jwtService.generateAccessToken(email, Role.ADMIN.name());
+        String accessToken = jwtService.generateAccessToken(
+                email,
+                admin.getRole(),
+                admin.getRules().stream()
+                        .map(Rule::getName)
+                        .toList()
+        );
         String refreshToken = generateAndSaveRefreshToken(adminId, email);
 
         return new TokenResponse(accessToken, refreshToken);
@@ -87,9 +95,13 @@ public class AuthService {
         Admin admin = adminRepository.findById(storedToken.getUserId()).orElseThrow(
                 () -> new AdminNotFoundException("admin with id " + storedToken.getUserId() + " not found"));
 
-        String email = admin.getEmail();
-        String role = jwtService.extractRole(refreshToken);
-        String newAccessToken = jwtService.generateAccessToken(email, role);
+        String newAccessToken = jwtService.generateAccessToken(
+                admin.getEmail(),
+                admin.getRole(),
+                admin.getRules().stream()
+                        .map(Rule::getName)
+                        .toList()
+        );
 
         return new TokenResponse(newAccessToken, refreshToken);
     }

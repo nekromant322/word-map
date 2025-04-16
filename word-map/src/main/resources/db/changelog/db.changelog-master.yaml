@@ -10,4 +10,10 @@ databaseChangeLog:
   - include:
       file: db/changelog/tables/changeset-005-create-table-words.yaml
   - include:
-      file: db/changelog/tables/changeset-006-create-table-words_offer.yaml
+      file: db/changelog/tables/changeset-006-create-table-words-offer.yaml
+  - include:
+      file: db/changelog/tables/changeset-007-create-table-rules.yaml
+  - include:
+      file: db/changelog/tables/changeset-008-create-table-admins-rules.yaml
+  - include:
+      file: db/changelog/data/changeset-009-insert-data-to-table-rules.yaml
