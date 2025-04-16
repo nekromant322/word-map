@@ -1,4 +1,4 @@
-package com.margot.word_map.controller;
+package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.LettersWithCoordinatesRequest;
 import com.margot.word_map.service.WordService;
@@ -20,6 +20,7 @@ public class MapTitleController {
     @PostMapping("/sendWord")
     public void sendWord (@RequestBody LettersWithCoordinatesRequest lettersWithCoordinatesRequest) {
         wordService.getWordInfo(lettersWithCoordinatesRequest.getWord());
+        mapTitlesService.check(lettersWithCoordinatesRequest);
         mapTitlesService.save(lettersWithCoordinatesRequest);
     }
 }

@@ -1,6 +1,7 @@
 package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.request.LettersWithCoordinatesRequest;
+import com.margot.word_map.exception.BadAttemptToMakeTheWord;
 import com.margot.word_map.map.MapTitle;
 import com.margot.word_map.repository.MapTitlesRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,20 @@ public class MapTitlesService {
             titles.add(mapTitle);
         }
         mapTitlesRepository.saveAll(titles);
+    }
+
+    public void check(LettersWithCoordinatesRequest lettersWithCoordinatesRequest) {
+        int counter = 0;
+        for (int i = 0; i < lettersWithCoordinatesRequest.getWord().length(); i++) {
+            Point point = convertToPoint(lettersWithCoordinatesRequest.getCoordinates().get(i).getX(),
+                    lettersWithCoordinatesRequest.getCoordinates().get(i).getY());
+            if (mapTitlesRepository.findByPoint(point).isPresent()) {
+                counter++;
+            }
+        }
+        if (counter >= 2) {
+            throw new BadAttemptToMakeTheWord("Ошибка расположения");
+        }
     }
 
     private Point convertToPoint(double x, double y) {
