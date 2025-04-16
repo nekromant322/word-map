@@ -22,6 +22,10 @@ public class RefreshToken {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "user_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
+
     @Column(nullable = false, unique = true)
     private String token;
 

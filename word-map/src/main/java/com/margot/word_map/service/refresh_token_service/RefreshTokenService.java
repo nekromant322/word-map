@@ -2,6 +2,7 @@ package com.margot.word_map.service.refresh_token_service;
 
 import com.margot.word_map.model.RefreshToken;
 import com.margot.word_map.repository.RefreshTokenRepository;
+import com.margot.word_map.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,18 @@ import java.util.Optional;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final JwtService jwtService;
+
+    @Transactional
+    public String generateAndSaveRefreshToken(Long userId, String email) {
+        deleteRefreshTokenByUserId(userId);
+
+        String refresh = jwtService.generateRefreshToken(email);
+        saveRefreshToken(userId, refresh);
+
+        return refresh;
+    }
 
     @Transactional
     public void saveRefreshToken(Long userId, String refreshToken) {

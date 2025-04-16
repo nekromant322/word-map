@@ -31,5 +31,8 @@ databaseChangeLog:
                   type: bigint
                   constraints:
                     nullable: false
-                    foreignKeyName: fk_confirm_user
-                    references: admins(id)
+              - column:
+                  name: user_type
+                  type: varchar
+                  constraints:
+                    nullable: false

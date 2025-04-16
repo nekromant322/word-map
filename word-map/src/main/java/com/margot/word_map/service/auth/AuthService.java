@@ -44,7 +44,7 @@ public class AuthService {
 
         Integer confirmCode = generateRandomCode();
         Confirm confirm = confirmRepository.findByUserId(admin.getId())
-                .orElseGet(() -> new Confirm(confirmCode, admin.getId()));
+                .orElseGet(() -> new Confirm(confirmCode, admin.getId(), null));
         confirm.setCode(confirmCode);
         confirm.setCreatedAt(LocalDateTime.now());
         confirm.setExpirationTime(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
