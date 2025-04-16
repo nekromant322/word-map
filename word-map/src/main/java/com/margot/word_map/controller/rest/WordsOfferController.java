@@ -1,4 +1,4 @@
-package com.margot.word_map.controller;
+package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +39,15 @@ public class WordsOfferController {
             summary = "Метод для предложения слова",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Слово предложено успешно"),
-                    @ApiResponse(responseCode = "400", description = "Слово уже предложено", content = @Content()),
-                    @ApiResponse(responseCode = "400", description = "Слово уже существует", content = @Content()),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+                    @ApiResponse(responseCode = "400", description = "Слово уже предложено"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
     @PostMapping("/offer")
@@ -57,12 +60,14 @@ public class WordsOfferController {
             summary = "Метод для просмотра предложений",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Предложения получены успешно"),
-                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах", content = @Content()),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content()),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content())
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
     @GetMapping("/admin/check")
@@ -76,11 +81,35 @@ public class WordsOfferController {
     }
 
     @Operation(
+            summary = "Метод для отказа предложения",
+            externalDocs = @ExternalDocumentation(
+                    description = "Метод еще не описан в Confluence"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Отклонено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
+                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
+    )
+    @PostMapping("/admin/reject/{id}")
+    public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,
+                           @Parameter(description = "id предложения", example = "12")
+                           @PathVariable Long id) {
+        wordsOfferService.reject(userDetails, id);
+    }
+
+    @Operation(
             summary = "Метод для принятия предложения",
             externalDocs = @ExternalDocumentation(
                     description = "Метод еще не описан в Confluence"
-            ),
-            responses = {
+            )
+    )
+    @ApiResponses(
+            value = {
                     @ApiResponse(responseCode = "200", description = "Предложение принято успешно"),
                     @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
                     @ApiResponse(responseCode = "400", description = "Слово уже существует"),
@@ -94,25 +123,5 @@ public class WordsOfferController {
                             @Parameter(description = "id предложения", example = "12")
                             @PathVariable Long id) {
         wordsOfferService.approve(userDetails, id);
-    }
-
-    @Operation(
-            summary = "Метод для отказа предложения",
-            externalDocs = @ExternalDocumentation(
-                    description = "Метод еще не описан в Confluence"
-            ),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Предложения отклонено успешно"),
-                    @ApiResponse(responseCode = "400", description = "Ошибка в параметрах"),
-                    @ApiResponse(responseCode = "404", description = "Предложение не найдено"),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
-            }
-    )
-    @PostMapping("/admin/reject/{id}")
-    public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,
-                           @Parameter(description = "id предложения", example = "12")
-                           @PathVariable Long id) {
-        wordsOfferService.reject(userDetails, id);
     }
 }

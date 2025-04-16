@@ -3,6 +3,7 @@ package com.margot.word_map.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Admin admin = adminRepository.findByEmail(email).orElseThrow(() ->
                 new UsernameNotFoundException("Администратор с email " + email + " не найден"));
 
-        String accessToken = jwtService.generateAccessToken(email, admin.getRole().name());
+        String accessToken = jwtService.generateAccessToken(email, admin.getRole(), admin.getRules().stream()
+                .map(Rule::getName)
+                .toList());
         String refreshToken = jwtService.generateRefreshToken(email);
 
         String jsonResponse = new ObjectMapper().writeValueAsString(new TokenResponse(accessToken, refreshToken));
