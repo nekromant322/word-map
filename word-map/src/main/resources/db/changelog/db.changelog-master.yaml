@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/tables/changeset-008-create-table-admins-rules.yaml
   - include:
       file: db/changelog/data/changeset-009-insert-data-to-table-rules.yaml
+  - include:
+      file: db/changelog/data/changeset-010-create-table-users.yaml
