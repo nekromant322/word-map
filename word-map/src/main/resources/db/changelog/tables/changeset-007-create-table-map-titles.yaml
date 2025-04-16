@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-map-titles-table
+      author: Alex_Kolosov
+      changes:
+        - createTable:
+            tableName: map
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: point
+                  type: geometry(Point,0)
+              - column:
+                        name: letter
+                        type: CHAR(1)
