@@ -119,4 +119,8 @@ public class UserAuthService {
             throw new InvalidConfirmCodeException();
         }
     }
+
+    public void logout(Long id) {
+        refreshTokenService.deleteRefreshTokenByUserId(id);
+    }
 }
