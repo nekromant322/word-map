@@ -15,7 +15,13 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: point
-                  type: geometry(Point,0)
+                  type: geometry
               - column:
-                        name: letter
-                        type: CHAR(1)
+                  name: letter
+                  type: CHAR(1)
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
