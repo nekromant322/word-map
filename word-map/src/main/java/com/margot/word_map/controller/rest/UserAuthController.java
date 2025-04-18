@@ -5,24 +5,16 @@ import com.margot.word_map.dto.request.UserSignUpRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.User;
 import com.margot.word_map.service.auth.new_auth.user.UserAuthService;
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,7 +34,7 @@ public class UserAuthController {
             message = "Invalid email format. Example: example@mail.com")
                                     @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
                                     @NotBlank String email) {
-        return userAuthService.loginUser(email);
+        return userAuthService.login(email);
     }
 
     @PostMapping("/confirm")

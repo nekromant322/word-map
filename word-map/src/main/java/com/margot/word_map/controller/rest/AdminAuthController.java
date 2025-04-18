@@ -38,7 +38,7 @@ public class AdminAuthController {
             message = "Invalid email format. Example: example@mail.com")
                                     @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
                                     @NotBlank String email) {
-        return adminAuthService.loginAdmin(email);
+        return adminAuthService.login(email);
     }
 
     @PostMapping("/confirm")

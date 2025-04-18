@@ -2,29 +2,26 @@ package com.margot.word_map.service.auth.new_auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.ConfirmCodeDto;
-import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.exception.InvalidConfirmCodeException;
+import com.margot.word_map.exception.AdminNotAccessException;
 import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.exception.TokenExpiredException;
-import com.margot.word_map.exception.UserNotAccessException;
 import com.margot.word_map.model.*;
+import com.margot.word_map.service.auth.new_auth.AuthService;
 import com.margot.word_map.service.auth.new_auth.ConfirmCodeService;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.cfg.defs.EmailDef;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
-public class AdminAuthService {
+public class AdminAuthService extends AuthService {
 
     private final AdminService adminService;
 
@@ -34,15 +31,29 @@ public class AdminAuthService {
 
     private final JwtService jwtService;
 
-    private final RefreshTokenService refreshTokenService;
+    @Autowired
+    public AdminAuthService(
+            RefreshTokenService refreshTokenService,
+            AdminService adminService,
+            ConfirmCodeService confirmCodeService,
+            EmailService emailService,
+            JwtService jwtService
+    ) {
+        super(refreshTokenService);
+        this.adminService = adminService;
+        this.confirmCodeService = confirmCodeService;
+        this.emailService = emailService;
+        this.jwtService = jwtService;
+    }
 
     // вход (по почте)
+    @Override
     @Transactional
-    public ConfirmResponse loginAdmin(String email) {
+    public ConfirmResponse login(String email) {
         AdminDto adminInfo = adminService.getAdminInfoByEmail(email);
 
         if (!adminInfo.getAccess()) {
-            throw new UserNotAccessException("user has not access");
+            throw new AdminNotAccessException("admin has not access");
         }
 
         ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(UserType.ADMIN, adminInfo.getId());
@@ -54,6 +65,7 @@ public class AdminAuthService {
         return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
     }
 
+    @Override
     @Transactional
     public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
         Integer code = parseCode(codeStr);
@@ -69,6 +81,7 @@ public class AdminAuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
+    @Override
     public TokenResponse refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
                 .orElseThrow(() -> new InvalidTokenException("invalid refresh token"));
@@ -86,18 +99,6 @@ public class AdminAuthService {
                 null
         );
         return new TokenResponse(newAccessToken, refreshToken);
-    }
-
-    private Integer parseCode(String codeStr) {
-        try {
-            return Integer.parseInt(codeStr);
-        } catch (NumberFormatException e) {
-            throw new InvalidConfirmCodeException();
-        }
-    }
-
-    public void logout(Long id) {
-        refreshTokenService.deleteRefreshTokenByUserId(id);
     }
 }
 

@@ -1,18 +1,39 @@
 package com.margot.word_map.service.auth.new_auth;
 
+import com.margot.word_map.dto.response.ConfirmResponse;
+import com.margot.word_map.dto.response.TokenResponse;
+import com.margot.word_map.exception.InvalidConfirmCodeException;
 import com.margot.word_map.service.auth.new_auth.admin.AdminService;
 import com.margot.word_map.service.auth.new_auth.user.UserService;
+import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
-@RequiredArgsConstructor
-public class AuthService {
+public abstract class AuthService {
 
-    private final UserService userService;
-    private final AdminService adminService;
+    protected final RefreshTokenService refreshTokenService;
 
+    protected AuthService(RefreshTokenService refreshTokenService) {
+        this.refreshTokenService = refreshTokenService;
+    }
 
+    public abstract ConfirmResponse login(String email);
+
+    public abstract TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr);
+
+    public abstract TokenResponse refreshAccessToken(String refreshToken);
+
+    public void logout(Long id) {
+        refreshTokenService.deleteRefreshTokenByUserId(id);
+    }
+
+    protected Integer parseCode(String codeStr) {
+        try {
+            return Integer.parseInt(codeStr);
+        } catch (NumberFormatException e) {
+            throw new InvalidConfirmCodeException();
+        }
+    }
 }

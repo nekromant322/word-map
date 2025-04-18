@@ -8,12 +8,13 @@ import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.model.*;
+import com.margot.word_map.service.auth.new_auth.AuthService;
 import com.margot.word_map.service.auth.new_auth.ConfirmCodeService;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +22,29 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class UserAuthService {
+public class UserAuthService extends AuthService {
 
     private final UserService userService;
 
     private final ConfirmCodeService confirmCodeService;
 
-    private final RefreshTokenService refreshTokenService;
-
     private final EmailService emailService;
 
     private final JwtService jwtService;
+
+    @Autowired
+    public UserAuthService(
+            RefreshTokenService refreshTokenService,
+            UserService userService,
+            ConfirmCodeService confirmCodeService,
+            EmailService emailService,
+            JwtService jwtService) {
+        super(refreshTokenService);
+        this.userService = userService;
+        this.confirmCodeService = confirmCodeService;
+        this.emailService = emailService;
+        this.jwtService = jwtService;
+    }
 
     // регистрация аккаунта
     @Transactional
@@ -59,8 +71,9 @@ public class UserAuthService {
     }
 
     // вход (по почте)
+    @Override
     @Transactional
-    public ConfirmResponse loginUser(String email) {
+    public ConfirmResponse login(String email) {
         UserDto userInfo = userService.getUserInfoByEmail(email);
 
         if (!userInfo.getAccess()) {
@@ -77,6 +90,7 @@ public class UserAuthService {
     }
 
     // валидация кода подтвеждения
+    @Override
     @Transactional
     public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
         Integer code = parseCode(codeStr);
@@ -93,6 +107,7 @@ public class UserAuthService {
     }
 
     // обновление refresh токена
+    @Override
     public TokenResponse refreshAccessToken(String refreshToken) {
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
                 .orElseThrow(() -> new InvalidTokenException("invalid refresh token"));
@@ -110,17 +125,5 @@ public class UserAuthService {
                 null
         );
         return new TokenResponse(newAccessToken, refreshToken);
-    }
-
-    private Integer parseCode(String codeStr) {
-        try {
-            return Integer.parseInt(codeStr);
-        } catch (NumberFormatException e) {
-            throw new InvalidConfirmCodeException();
-        }
-    }
-
-    public void logout(Long id) {
-        refreshTokenService.deleteRefreshTokenByUserId(id);
     }
 }
