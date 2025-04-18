@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Setter
 @Getter
@@ -11,7 +13,7 @@ import org.locationtech.jts.geom.Point;
 @NoArgsConstructor
 @Builder
 @Table(name = "map")
-public class MapTitle {
+public class MapTile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +23,10 @@ public class MapTitle {
     private Point point;
 
     private Character letter;
+
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }
