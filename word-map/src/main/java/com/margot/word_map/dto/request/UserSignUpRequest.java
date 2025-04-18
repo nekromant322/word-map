@@ -1,7 +1,6 @@
 package com.margot.word_map.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -23,7 +22,10 @@ public class UserSignUpRequest {
 
     @Pattern(
             regexp = "^(?![._])(?!.*[._]{2})[a-zA-Z0-9._]{3,20}(?<![._])$",
-            message = "Имя пользователя должно содержать от 3 до 20 символов, состоять из латинских букв, цифр, '.', '_', не начинаться и не заканчиваться на '.' или '_', и не содержать подряд '..' или '__'"
+            message = "Имя пользователя должно содержать от 3 до 20 символов, " +
+                    "состоять из латинских букв, цифр, '.', '_', " +
+                    "не начинаться и не заканчиваться на '.' или '_', " +
+                    "не содержать подряд '..' или '__'"
     )
     @NotBlank(message = "Имя пользователя не может быть пустым")
     @Schema(description = "Имя пользователя в игре", example = "bahertylop")

@@ -1,20 +1,16 @@
 package com.margot.word_map.service.auth.new_auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
-import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
 import com.margot.word_map.model.Confirm;
-import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.UserType;
 import com.margot.word_map.repository.ConfirmRepository;
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

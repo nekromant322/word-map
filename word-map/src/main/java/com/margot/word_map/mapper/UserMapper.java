@@ -2,8 +2,6 @@ package com.margot.word_map.mapper;
 
 import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.model.User;
-import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

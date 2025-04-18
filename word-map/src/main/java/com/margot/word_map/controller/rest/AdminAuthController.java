@@ -55,7 +55,10 @@ public class AdminAuthController {
                     @ApiResponse(responseCode = "200", description = "Успешный вход. Код отправлен"),
                     @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
                     @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Почта введена в невалидном формате", content = @Content)
+                    @ApiResponse(responseCode = "401",
+                            description = "Почта введена в невалидном формате",
+                            content = @Content
+                    )
             }
     )
     @GetMapping("/login/{email}")
