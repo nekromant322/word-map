@@ -1,5 +1,6 @@
 package com.margot.word_map.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -12,11 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Schema(description = "Запрос на регистрацию игрока")
 public class UserSignUpRequest {
 
-    @Email(message = "Неверный формат email")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Некорректный формат email")
     @NotBlank(message = "Email не может быть пустым")
+    @Schema(description = "Почта игрока", example = "test@mail.ru")
     private String email;
 
     @Pattern(
@@ -24,6 +26,7 @@ public class UserSignUpRequest {
             message = "Имя пользователя должно содержать от 3 до 20 символов, состоять из латинских букв, цифр, '.', '_', не начинаться и не заканчиваться на '.' или '_', и не содержать подряд '..' или '__'"
     )
     @NotBlank(message = "Имя пользователя не может быть пустым")
+    @Schema(description = "Имя пользователя в игре", example = "bahertylop")
     private String username;
 }
 
