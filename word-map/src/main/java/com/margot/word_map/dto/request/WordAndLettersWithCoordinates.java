@@ -1,6 +1,7 @@
 package com.margot.word_map.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ public class WordAndLettersWithCoordinates {
     @NotBlank
     private String word;
 
+    @Valid
     @Schema(description = "Массив букв с их координатами")
     private List<LettersWithCoordinates> lettersWithCoordinates;
 }

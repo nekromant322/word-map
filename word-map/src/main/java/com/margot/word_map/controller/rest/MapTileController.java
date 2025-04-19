@@ -6,6 +6,7 @@ import com.margot.word_map.service.map.MapTileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,12 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/map")
 @RequiredArgsConstructor
-public class MapTilesController {
+@Validated
+public class MapTileController {
 
     private final MapTileService mapTileService;
     private final WordService wordService;
 
-    @PostMapping("/sendWord")
+    @PostMapping("/word")
     public void sendWord (@Valid @RequestBody WordAndLettersWithCoordinates word, UserDetails userDetails) {
         checkAndSave(word, userDetails);
     }

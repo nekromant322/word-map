@@ -27,9 +27,9 @@ public class MapTileService {
         List<MapTile> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
             MapTile mapTitle = MapTile.builder()
-                    .point(convertToPoint(word.getLettersWithCoordinates().get(i).getCoordinates().getX(),
-                            word.getLettersWithCoordinates().get(i).getCoordinates().getY()))
-                    .letter(word.getLettersWithCoordinates().get(i).getLetters())
+                    .point(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
+                            word.getLettersWithCoordinates().get(i).getPosition().getY()))
+                    .letter(word.getLettersWithCoordinates().get(i).getLetter())
                     .createdAt(LocalDateTime.now())
                     .userId(userId)
                     .build();
@@ -42,8 +42,8 @@ public class MapTileService {
         int counter = 0;
         for (int i = 0; i < wordAndLettersWithCoordinates.getWord().length(); i++) {
             Point point = convertToPoint(
-                    wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getCoordinates().getX(),
-                    wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getCoordinates().getY());
+                    wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getPosition().getX(),
+                    wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getPosition().getY());
             if (mapTileRepository.findByPoint(point).isPresent()) {
                 counter++;
             }
