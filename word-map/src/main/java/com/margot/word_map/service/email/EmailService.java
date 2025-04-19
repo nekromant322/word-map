@@ -1,7 +1,7 @@
 package com.margot.word_map.service.email;
 
 import com.margot.word_map.config.SenderProperties;
-import com.margot.word_map.dto.request.ConfirmEmailRequest;
+import com.margot.word_map.dto.request.ConfirmRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,11 +22,11 @@ public class EmailService {
     @Value("${auth.confirm-by-email}")
     private Boolean needConfirm;
 
-    public void sendConfirmEmail(ConfirmEmailRequest request) {
+    public void sendConfirmEmail(ConfirmRequest request) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(request.getEmail());
         message.setSubject("confirm code to word-map game");
-        message.setText("Ваш код подтверждения для входа в word-map: " + request.getVerificationCode());
+        message.setText("Ваш код подтверждения для входа в word-map: " + request.getCode());
         message.setFrom(senderProperties.getUsername());
 
         if (needConfirm) {

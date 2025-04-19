@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/dictionary/**").authenticated()
                         .requestMatchers("/roles/**").authenticated()
                         .requestMatchers("/wordsOffer/**").authenticated()
+                        .requestMatchers("/map/**").authenticated()
                         .requestMatchers("/**").authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler)
