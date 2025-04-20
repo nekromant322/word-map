@@ -2,7 +2,7 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
-import com.margot.word_map.service.words_offer_service.WordsOfferService;
+import com.margot.word_map.service.word_offer.WordOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/wordsOffer")
 public class WordsOfferController {
 
-    private final WordsOfferService wordsOfferService;
+    private final WordOfferService wordOfferService;
 
     @Operation(
             summary = "Метод для предложения слова",
@@ -53,7 +53,7 @@ public class WordsOfferController {
     @PostMapping("/offer")
     public void offerWord(@RequestBody CreateWordRequest word,
                           @AuthenticationPrincipal UserDetails userDetails) {
-        wordsOfferService.processWordOffer(word, userDetails);
+        wordOfferService.processWordOffer(word, userDetails);
     }
 
     @Operation(
@@ -77,7 +77,7 @@ public class WordsOfferController {
             @Parameter(description = "количество элементов на странице", example = "20")
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return wordsOfferService.getAllWordsOffersNotChecked(pageable);
+        return wordOfferService.getAllWordsOffersNotChecked(pageable);
     }
 
     @Operation(
@@ -99,7 +99,7 @@ public class WordsOfferController {
     public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,
                            @Parameter(description = "id предложения", example = "12")
                            @PathVariable Long id) {
-        wordsOfferService.reject(userDetails, id);
+        wordOfferService.reject(userDetails, id);
     }
 
     @Operation(
@@ -122,6 +122,6 @@ public class WordsOfferController {
     public void approveWord(@AuthenticationPrincipal UserDetails userDetails,
                             @Parameter(description = "id предложения", example = "12")
                             @PathVariable Long id) {
-        wordsOfferService.approve(userDetails, id);
+        wordOfferService.approve(userDetails, id);
     }
 }

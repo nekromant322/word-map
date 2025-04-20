@@ -1,4 +1,4 @@
-package com.margot.word_map.service;
+package com.margot.word_map.service.word;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;

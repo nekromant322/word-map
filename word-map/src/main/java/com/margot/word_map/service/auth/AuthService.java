@@ -9,7 +9,7 @@ import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.ConfirmRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
-import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
+import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
