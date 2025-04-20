@@ -1,4 +1,4 @@
-package com.margot.word_map.service;
+package com.margot.word_map.service.language;
 
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.exception.LanguageNotFoundException;

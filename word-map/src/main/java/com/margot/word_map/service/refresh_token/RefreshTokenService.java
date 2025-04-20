@@ -1,4 +1,4 @@
-package com.margot.word_map.service.refresh_token_service;
+package com.margot.word_map.service.refresh_token;
 
 import com.margot.word_map.model.RefreshToken;
 import com.margot.word_map.model.UserType;

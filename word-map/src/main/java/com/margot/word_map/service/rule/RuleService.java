@@ -1,4 +1,4 @@
-package com.margot.word_map.service;
+package com.margot.word_map.service.rule;
 
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.mapper.RuleMapper;

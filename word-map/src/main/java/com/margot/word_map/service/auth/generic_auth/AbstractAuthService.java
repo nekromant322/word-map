@@ -1,7 +1,6 @@
 package com.margot.word_map.service.auth.generic_auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
-import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
@@ -12,7 +11,8 @@ import com.margot.word_map.service.auth.AuthService;
 import com.margot.word_map.service.auth.ConfirmCodeService;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
-import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
+import com.margot.word_map.service.refresh_token.RefreshTokenService;
+import com.margot.word_map.dto.request.ConfirmRequest;
 
 import java.time.LocalDateTime;
 
@@ -48,8 +48,8 @@ public abstract class AbstractAuthService<T> extends AuthService {
         }
 
         ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(userType, authEntityService.getId(entity));
-        emailService.sendConfirmEmail(ConfirmEmailRequest.builder()
-                .verificationCode(String.valueOf(codeDto.getCode()))
+        emailService.sendConfirmEmail(ConfirmRequest.builder()
+                .code(String.valueOf(codeDto.getCode()))
                 .email(email)
                 .build());
 

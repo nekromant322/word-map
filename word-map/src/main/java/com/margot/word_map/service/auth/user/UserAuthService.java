@@ -2,7 +2,7 @@ package com.margot.word_map.service.auth.user;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
 import com.margot.word_map.dto.UserDto;
-import com.margot.word_map.dto.request.ConfirmEmailRequest;
+import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.request.UserSignUpRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.exception.UserAlreadyExistsException;
@@ -12,7 +12,7 @@ import com.margot.word_map.service.auth.ConfirmCodeService;
 import com.margot.word_map.service.auth.generic_auth.AbstractAuthService;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
-import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
+import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,8 +50,8 @@ public class UserAuthService extends AbstractAuthService<UserDto> {
         log.debug("user with id {} created", createdUser.getId());
 
         ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(UserType.USER, createdUser.getId());
-        emailService.sendConfirmEmail(ConfirmEmailRequest.builder()
-                .verificationCode(String.valueOf(codeDto.getCode()))
+        emailService.sendConfirmEmail(ConfirmRequest.builder()
+                .code(String.valueOf(codeDto.getCode()))
                 .email(request.getEmail())
                 .build());
 

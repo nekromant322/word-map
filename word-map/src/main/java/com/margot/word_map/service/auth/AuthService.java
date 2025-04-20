@@ -3,7 +3,7 @@ package com.margot.word_map.service.auth;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
-import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
+import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
