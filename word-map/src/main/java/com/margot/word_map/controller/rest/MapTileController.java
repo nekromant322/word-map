@@ -1,8 +1,8 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
-import com.margot.word_map.service.WordService;
 import com.margot.word_map.service.map.MapTileService;
+import com.margot.word_map.service.word.WordService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
