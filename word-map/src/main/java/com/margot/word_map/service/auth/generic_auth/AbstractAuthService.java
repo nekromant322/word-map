@@ -1,7 +1,6 @@
 package com.margot.word_map.service.auth.generic_auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
-import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
@@ -16,7 +15,6 @@ import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public abstract class AbstractAuthService<T> extends AuthService {
 
@@ -84,7 +82,9 @@ public abstract class AbstractAuthService<T> extends AuthService {
         confirmCodeService.verifyConfirmCode(code, authEntityService.getId(entity), userType);
 
         String accessToken = jwtService.generateAccessToken(email, authEntityService.extractRole(entity), null);
-        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(authEntityService.getId(entity), email, userType);
+        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(
+                authEntityService.getId(entity), email, userType
+        );
 
         return new TokenResponse(accessToken, refreshToken);
     }

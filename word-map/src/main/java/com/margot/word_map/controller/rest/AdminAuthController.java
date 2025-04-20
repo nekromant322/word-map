@@ -28,8 +28,7 @@ import org.springframework.web.bind.annotation.*;
         name = "AdminAuthController",
         description = "Контроллер для авторизации админов",
         externalDocs = @ExternalDocumentation(
-                description = "Документация в Confluence",
-                url = "url на доку"
+                description = "Документация в Confluence"
         )
 )
 @RestController

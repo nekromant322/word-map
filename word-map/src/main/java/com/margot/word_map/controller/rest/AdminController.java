@@ -5,6 +5,8 @@ import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.service.auth.admin.AdminService;
 import com.margot.word_map.service.RuleService;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(
+        name = "AdminsController",
+        description = "Контроллер для получение прав и админов",
+        externalDocs = @ExternalDocumentation(
+                description = "Контроллер не прописан в доке, пока прост заглушечный по сути"
+        )
+)
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admins")

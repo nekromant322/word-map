@@ -4,7 +4,6 @@ import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.exception.AdminNotAccessException;
 import com.margot.word_map.exception.BaseException;
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.auth.generic_auth.AuthEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

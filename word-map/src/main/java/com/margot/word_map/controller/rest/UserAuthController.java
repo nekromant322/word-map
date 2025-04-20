@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "UserAuthController",
+        description = "Контроллер для авторизации игроков",
+        externalDocs = @ExternalDocumentation(
+                description = "Документация в Confluence"
+        )
+)
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth/user")
@@ -32,8 +40,7 @@ public class UserAuthController {
             summary = "Регистрация игрока",
             description = "Регистрация с указанием почты и юзернейма, отправка кода на почту",
             externalDocs = @ExternalDocumentation(
-                    description = "документация в Confluence",
-                    url = "Документация еще не прописана"
+                    description = "документация в Confluence"
             )
     )
     @ApiResponses(

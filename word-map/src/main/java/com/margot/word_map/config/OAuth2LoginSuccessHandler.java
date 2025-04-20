@@ -3,7 +3,6 @@ package com.margot.word_map.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.model.Admin;
-import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;

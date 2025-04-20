@@ -5,9 +5,7 @@ import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.request.UserSignUpRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
-import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.UserAlreadyExistsException;
-import com.margot.word_map.exception.UserNotAccessException;
 import com.margot.word_map.model.User;
 import com.margot.word_map.model.UserType;
 import com.margot.word_map.service.auth.ConfirmCodeService;
@@ -18,8 +16,6 @@ import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Slf4j
 @Service

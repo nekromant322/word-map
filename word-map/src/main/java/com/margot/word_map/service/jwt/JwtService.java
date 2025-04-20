@@ -1,7 +1,5 @@
 package com.margot.word_map.service.jwt;
 
-import com.margot.word_map.model.Admin;
-import com.margot.word_map.model.Rule;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

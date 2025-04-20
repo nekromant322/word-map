@@ -22,7 +22,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -90,7 +89,6 @@ public class SecurityConfig {
             return customAccessCheck(authentication, request);
         };
     }
-
 
     private AuthorizationDecision customAccessCheck(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal() instanceof Admin admin) {

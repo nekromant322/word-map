@@ -5,13 +5,21 @@ import com.margot.word_map.exception.BaseException;
 import java.util.List;
 
 public interface AuthEntityService<T> {
+
     T getByEmail(String email);
+
     Long getId(T entity);
+
     boolean hasAccess(T entity);
+
     String getEmail(T entity);
+
     T getEntityById(Long id);
+
     BaseException createNoAccessException(String email);
+
     String extractRole(T entity);
+
     List<String> extractRules(T entity);
 }
 
