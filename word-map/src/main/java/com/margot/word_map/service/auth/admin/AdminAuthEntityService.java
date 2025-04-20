@@ -1,7 +1,9 @@
 package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
+import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.exception.AdminNotAccessException;
+import com.margot.word_map.exception.BaseException;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.auth.generic_auth.AuthEntityService;
 import lombok.RequiredArgsConstructor;
@@ -14,36 +16,6 @@ import java.util.List;
 public class AdminAuthEntityService implements AuthEntityService<AdminDto> {
 
     private final AdminService adminService;
-
-    public AdminDto getAccessibleAdminDtoByEmail(String email) {
-        AdminDto adminDto = adminService.getAdminInfoByEmail(email);
-
-        if (!adminDto.getAccess()) {
-            throw new AdminNotAccessException("admin has not access");
-        }
-
-        return adminDto;
-    }
-
-    public Admin getAccessibleAdminByEmail(String email) {
-        Admin admin = adminService.getAdminByEmail(email);
-
-        if (!admin.getAccess()) {
-            throw new AdminNotAccessException("admin has not access");
-        }
-
-        return admin;
-    }
-
-    public List<String> getAdminRuleNames(Admin admin) {
-        return admin.getRules().stream()
-                .map(rule -> rule.getName().name())
-                .toList();
-    }
-
-    public Admin getAdminById(Long id) {
-        return adminService.getAdminById(id);
-    }
 
     @Override
     public AdminDto getByEmail(String email) {
@@ -63,5 +35,25 @@ public class AdminAuthEntityService implements AuthEntityService<AdminDto> {
     @Override
     public String getEmail(AdminDto entity) {
         return entity.getEmail();
+    }
+
+    @Override
+    public AdminDto getEntityById(Long id) {
+        return adminService.getAdminInfoById(id);
+    }
+
+    @Override
+    public BaseException createNoAccessException(String email) {
+        return new AdminNotAccessException("admin " + email + " has no access");
+    }
+
+    @Override
+    public String extractRole(AdminDto entity) {
+        return entity.getRole();
+    }
+
+    @Override
+    public List<String> extractRules(AdminDto entity) {
+        return entity.getAdminRules().stream().map(RuleDto::getRule).toList();
     }
 }

@@ -1,6 +1,7 @@
 package com.margot.word_map.service.auth.generic_auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
+import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.dto.request.ConfirmEmailRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
@@ -45,7 +46,7 @@ public abstract class AbstractAuthService<T> extends AuthService {
     public ConfirmResponse login(String email) {
         T entity = authEntityService.getByEmail(email);
         if (!authEntityService.hasAccess(entity)) {
-            throw createNoAccessException();
+            throw authEntityService.createNoAccessException(email);
         }
 
         ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(userType, authEntityService.getId(entity));
@@ -67,18 +68,25 @@ public abstract class AbstractAuthService<T> extends AuthService {
             throw new TokenExpiredException("refresh token expired");
         }
 
-        T entity = getEntityById(storedToken.getUserId());
+        T entity = authEntityService.getEntityById(storedToken.getUserId());
         String newAccessToken = jwtService.generateAccessToken(
                 authEntityService.getEmail(entity),
-                extractRole(entity),
-                extractRules(entity)
+                authEntityService.extractRole(entity),
+                authEntityService.extractRules(entity)
         );
         return new TokenResponse(newAccessToken, refreshToken);
     }
 
-    protected abstract T getEntityById(Long id);
-    protected abstract RuntimeException createNoAccessException();
-    protected abstract String extractRole(T entity);
-    protected abstract List<String> extractRules(T entity);
+    @Override
+    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
+        Integer code = parseCode(codeStr);
+        T entity = authEntityService.getByEmail(email);
+        confirmCodeService.verifyConfirmCode(code, authEntityService.getId(entity), userType);
+
+        String accessToken = jwtService.generateAccessToken(email, authEntityService.extractRole(entity), null);
+        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(authEntityService.getId(entity), email, userType);
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
 }
 

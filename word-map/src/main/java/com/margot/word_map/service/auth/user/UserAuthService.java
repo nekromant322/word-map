@@ -61,37 +61,5 @@ public class UserAuthService extends AbstractAuthService<UserDto> {
 
         return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
     }
-
-    @Override
-    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
-        Integer code = parseCode(codeStr);
-        UserDto user = userService.getUserInfoByEmail(email);
-        confirmCodeService.verifyConfirmCode(code, user.getId(), userType);
-
-        String accessToken = jwtService.generateAccessToken(user.getEmail(), null, null);
-        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(user.getId(), user.getEmail(), UserType.USER);
-
-        return new TokenResponse(accessToken, refreshToken);
-    }
-
-    @Override
-    protected UserDto getEntityById(Long id) {
-        return userService.getUserInfoById(id);
-    }
-
-    @Override
-    protected RuntimeException createNoAccessException() {
-        return new UserNotAccessException("user has not access");
-    }
-
-    @Override
-    protected String extractRole(UserDto entity) {
-        return null;
-    }
-
-    @Override
-    protected List<String> extractRules(UserDto entity) {
-        return null;
-    }
 }
 
