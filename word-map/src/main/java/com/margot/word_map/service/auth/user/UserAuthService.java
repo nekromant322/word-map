@@ -1,0 +1,97 @@
+package com.margot.word_map.service.auth.user;
+
+import com.margot.word_map.dto.ConfirmCodeDto;
+import com.margot.word_map.dto.UserDto;
+import com.margot.word_map.dto.request.ConfirmEmailRequest;
+import com.margot.word_map.dto.request.UserSignUpRequest;
+import com.margot.word_map.dto.response.ConfirmResponse;
+import com.margot.word_map.dto.response.TokenResponse;
+import com.margot.word_map.exception.UserAlreadyExistsException;
+import com.margot.word_map.exception.UserNotAccessException;
+import com.margot.word_map.model.User;
+import com.margot.word_map.model.UserType;
+import com.margot.word_map.service.auth.ConfirmCodeService;
+import com.margot.word_map.service.auth.generic_auth.AbstractAuthService;
+import com.margot.word_map.service.email.EmailService;
+import com.margot.word_map.service.jwt.JwtService;
+import com.margot.word_map.service.refresh_token_service.RefreshTokenService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Slf4j
+@Service
+public class UserAuthService extends AbstractAuthService<UserDto> {
+
+    private final UserService userService;
+
+    @Autowired
+    public UserAuthService(
+            RefreshTokenService refreshTokenService,
+            UserService userService,
+            UserAuthEntityService userAuthEntityService,
+            ConfirmCodeService confirmCodeService,
+            EmailService emailService,
+            JwtService jwtService
+    ) {
+        super(refreshTokenService, userAuthEntityService, confirmCodeService, emailService, jwtService, UserType.USER);
+        this.userService = userService;
+    }
+
+    public ConfirmResponse signUpUser(UserSignUpRequest request) {
+        if (userService.isUserExistsByEmail(request.getEmail())) {
+            log.info("user with email {} already exists", request.getEmail());
+            throw new UserAlreadyExistsException("user with email " + request.getEmail() + " already exists");
+        }
+        if (userService.isUserExistsByUsername(request.getUsername())) {
+            log.info("user with username {} already exists", request.getUsername());
+            throw new UserAlreadyExistsException("user with username " + request.getUsername() + " already exists");
+        }
+
+        User createdUser = userService.createUser(request.getEmail(), request.getUsername());
+        log.debug("user with id {} created", createdUser.getId());
+
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(UserType.USER, createdUser.getId());
+        emailService.sendConfirmEmail(ConfirmEmailRequest.builder()
+                .verificationCode(String.valueOf(codeDto.getCode()))
+                .email(request.getEmail())
+                .build());
+
+        return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
+    }
+
+    @Override
+    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
+        Integer code = parseCode(codeStr);
+        UserDto user = userService.getUserInfoByEmail(email);
+        confirmCodeService.verifyConfirmCode(code, user.getId(), userType);
+
+        String accessToken = jwtService.generateAccessToken(user.getEmail(), null, null);
+        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(user.getId(), user.getEmail(), UserType.USER);
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
+    @Override
+    protected UserDto getEntityById(Long id) {
+        return userService.getUserInfoById(id);
+    }
+
+    @Override
+    protected RuntimeException createNoAccessException() {
+        return new UserNotAccessException("user has not access");
+    }
+
+    @Override
+    protected String extractRole(UserDto entity) {
+        return null;
+    }
+
+    @Override
+    protected List<String> extractRules(UserDto entity) {
+        return null;
+    }
+}
+

@@ -6,7 +6,7 @@ import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.model.User;
-import com.margot.word_map.service.auth.new_auth.user.UserAuthService;
+import com.margot.word_map.service.auth.user.UserAuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

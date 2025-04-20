@@ -1,4 +1,4 @@
-package com.margot.word_map.service.auth.new_auth.admin;
+package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;

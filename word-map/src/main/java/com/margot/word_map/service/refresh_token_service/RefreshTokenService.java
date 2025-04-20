@@ -1,6 +1,7 @@
 package com.margot.word_map.service.refresh_token_service;
 
 import com.margot.word_map.model.RefreshToken;
+import com.margot.word_map.model.UserType;
 import com.margot.word_map.repository.RefreshTokenRepository;
 import com.margot.word_map.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +20,21 @@ public class RefreshTokenService {
     private final JwtService jwtService;
 
     @Transactional
-    public String generateAndSaveRefreshToken(Long userId, String email) {
+    public String generateAndSaveRefreshToken(Long userId, String email, UserType userType) {
         deleteRefreshTokenByUserId(userId);
 
         String refresh = jwtService.generateRefreshToken(email);
-        saveRefreshToken(userId, refresh);
+        saveRefreshToken(userId, refresh, userType);
 
         return refresh;
     }
 
     @Transactional
-    public void saveRefreshToken(Long userId, String refreshToken) {
+    public void saveRefreshToken(Long userId, String refreshToken, UserType userType) {
         RefreshToken token = new RefreshToken();
         token.setUserId(userId);
         token.setToken(refreshToken);
+        token.setUserType(userType);
         token.setExpirationTime(LocalDateTime.now().plusDays(14));
         refreshTokenRepository.save(token);
     }

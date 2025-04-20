@@ -3,7 +3,7 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.service.auth.new_auth.admin.AdminService;
+import com.margot.word_map.service.auth.admin.AdminService;
 import com.margot.word_map.service.RuleService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

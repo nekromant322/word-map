@@ -1,4 +1,4 @@
-package com.margot.word_map.service.auth.new_auth.user;
+package com.margot.word_map.service.auth.user;
 
 import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.exception.UserNotFoundException;

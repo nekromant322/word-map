@@ -1,4 +1,4 @@
-package com.margot.word_map.service.auth.new_auth;
+package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
