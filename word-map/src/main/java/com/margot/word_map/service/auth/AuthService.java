@@ -1,6 +1,6 @@
 package com.margot.word_map.service.auth;
 
-import com.margot.word_map.dto.request.ConfirmEmailRequest;
+import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.*;
@@ -50,7 +50,7 @@ public class AuthService {
         confirm.setExpirationTime(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
         Confirm savedConfirm = confirmRepository.save(confirm);
 
-        emailService.sendConfirmEmail(new ConfirmEmailRequest(email, confirmCode.toString()));
+        emailService.sendConfirmEmail(new ConfirmRequest(email, confirmCode.toString()));
 
         return new ConfirmResponse(savedConfirm.getId(), confirmCodeExpirationTime);
     }
