@@ -1,4 +1,4 @@
-package com.margot.word_map.service.words_offer_service;
+package com.margot.word_map.service.word_offer;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
@@ -9,7 +9,7 @@ import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
-import com.margot.word_map.service.WordService;
+import com.margot.word_map.service.word.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

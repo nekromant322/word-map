@@ -2,7 +2,7 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
-import com.margot.word_map.service.words_offer_service.WordOfferService;
+import com.margot.word_map.service.word_offer.WordOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
