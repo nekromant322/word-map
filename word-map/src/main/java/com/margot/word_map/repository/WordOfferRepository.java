@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface WordsOfferRepository extends JpaRepository<WordOffer, Long> {
+public interface WordOfferRepository extends JpaRepository<WordOffer, Long> {
 
     Optional<WordOffer> findByWord(String word);
 
