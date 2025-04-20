@@ -1,4 +1,4 @@
-package com.margot.word_map.service.words_offer_service;
+package com.margot.word_map.service.word_offer;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
@@ -7,9 +7,9 @@ import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordOfferMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.WordOffer;
+import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
-import com.margot.word_map.repository.WordsOfferRepository;
-import com.margot.word_map.service.WordService;
+import com.margot.word_map.service.word.WordService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,16 +24,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class WordsOfferService {
+public class WordOfferService {
 
-    private final WordsOfferRepository wordsOfferRepository;
+    private final WordOfferRepository wordOfferRepository;
     private final WordService wordService;
     private final WordRepository wordRepository;
     private final WordOfferMapper wordOfferMapper;
 
     @Transactional
     public void save(WordOffer wordOffer) {
-        wordsOfferRepository.save(wordOffer);
+        wordOfferRepository.save(wordOffer);
     }
 
     public void isAlreadyExist(CreateWordRequest wordRequest) {
@@ -55,7 +55,7 @@ public class WordsOfferService {
                 .userId(user.getId())
                 .build();
 
-        wordsOfferRepository.save(wordOffer);
+        wordOfferRepository.save(wordOffer);
     }
 
     public boolean findByWordInTableWords(String word) {
@@ -63,18 +63,18 @@ public class WordsOfferService {
     }
 
     public boolean findByWordInTableWordsOffer(String word) {
-        return wordsOfferRepository.findByWord(word).isPresent();
+        return wordOfferRepository.findByWord(word).isPresent();
     }
 
     public Page<WordOfferResponse> getAllWordsOffersNotChecked(Pageable pageable) {
-        return wordsOfferRepository.findAllByCheckedIsFalse(pageable)
+        return wordOfferRepository.findAllByCheckedIsFalse(pageable)
                 .map(wordOfferMapper::toResponse);
     }
 
     //Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
     public void approve(UserDetails userDetails, Long id) {
-        Optional<WordOffer> wordOfferOptional = wordsOfferRepository.findById(id);
+        Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
             throw new WordNotFoundException("word offer with " + id + " not found");
         }
@@ -83,21 +83,21 @@ public class WordsOfferService {
 
         wordOffer.setApproved(true);
         wordOffer.setChecked(true);
-        wordsOfferRepository.save(wordOffer);
+        wordOfferRepository.save(wordOffer);
     }
 
     @Transactional
     public void reject(UserDetails userDetails, Long id) {
         Admin admin = (Admin) userDetails;
 
-        Optional<WordOffer> wordOfferOptional = wordsOfferRepository.findById(id);
+        Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
             throw new WordNotFoundException("word offer with " + id + " not found");
         }
         WordOffer wordOffer = wordOfferOptional.get();
         wordOffer.setApproved(false);
         wordOffer.setChecked(true);
-        wordsOfferRepository.save(wordOffer);
+        wordOfferRepository.save(wordOffer);
         log.info("REJECT WORD Пользователь {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
     }
 }

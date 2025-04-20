@@ -1,4 +1,4 @@
-package com.margot.word_map.service;
+package com.margot.word_map.service.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;
@@ -8,6 +8,7 @@ import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
+import com.margot.word_map.service.rule.RuleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
