@@ -2,8 +2,9 @@ package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
-import com.margot.word_map.map.MapTile;
-import com.margot.word_map.repository.MapTileRepository;
+import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.map.Grid;
+import com.margot.word_map.repository.map.GridRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -12,30 +13,29 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class MapTileService {
+public class GridService {
 
-    private final MapTileRepository mapTileRepository;
+    private final GridRepository gridRepository;
 
+    //Todo поменять админа на юзера
     @Transactional
-    public void save(WordAndLettersWithCoordinates word, Long userId) {
-        List<MapTile> titles = new ArrayList<>();
+    public void save(WordAndLettersWithCoordinates word, Admin user) {
+        List<Grid> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
-            MapTile mapTitle = MapTile.builder()
+            Grid mapTitle = Grid.builder()
                     .point(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
                             word.getLettersWithCoordinates().get(i).getPosition().getY()))
                     .letter(word.getLettersWithCoordinates().get(i).getLetter())
-                    .createdAt(LocalDateTime.now())
-                    .userId(userId)
+                    .user(user)
                     .build();
             titles.add(mapTitle);
         }
-        mapTileRepository.saveAll(titles);
+        gridRepository.saveAll(titles);
     }
 
     public void check(WordAndLettersWithCoordinates wordAndLettersWithCoordinates) {
@@ -44,7 +44,7 @@ public class MapTileService {
             Point point = convertToPoint(
                     wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getPosition().getX(),
                     wordAndLettersWithCoordinates.getLettersWithCoordinates().get(i).getPosition().getY());
-            if (mapTileRepository.findByPoint(point).isPresent()) {
+            if (gridRepository.findByPoint(point).isPresent()) {
                 counter++;
             }
         }

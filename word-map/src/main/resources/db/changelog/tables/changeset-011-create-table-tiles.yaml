@@ -1,27 +1,23 @@
 databaseChangeLog:
   - changeSet:
-      id: create-map-titles-table
+      id: create-table-tiles
       author: Alex_Kolosov
       changes:
         - createTable:
-            tableName: map
+            tableName: tiles
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: SMALLINT
                   autoIncrement: true
                   constraints:
                     primaryKey: true
-                    nullable: false
               - column:
-                  name: point
-                  type: geometry
+                  name: bonus
+                  type: VARCHAR(255)
               - column:
                   name: letter
-                  type: CHAR(1)
+                  type: VARCHAR(10)
               - column:
-                  name: user_id
-                  type: BIGINT
-              - column:
-                  name: created_at
-                  type: TIMESTAMP
+                  name: multiplier
+                  type: SMALLINT
