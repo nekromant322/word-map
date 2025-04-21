@@ -6,6 +6,7 @@ import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordOfferMapper;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.User;
 import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
@@ -43,10 +44,9 @@ public class WordOfferService {
         }
     }
 
-    //Изменим админа на юзера
     @Transactional
     public void processWordOffer(CreateWordRequest request, UserDetails userDetails) {
-        Admin user = (Admin) userDetails;
+        User user = (User) userDetails;
         isAlreadyExist(request);
 
         WordOffer wordOffer = WordOffer.builder()
@@ -71,7 +71,7 @@ public class WordOfferService {
                 .map(wordOfferMapper::toResponse);
     }
 
-    //Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
+    //Todo Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
     public void approve(UserDetails userDetails, Long id) {
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);

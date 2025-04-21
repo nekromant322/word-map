@@ -2,7 +2,7 @@ package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
-import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.User;
 import com.margot.word_map.model.map.Grid;
 import com.margot.word_map.repository.map.GridRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,8 @@ public class GridService {
 
     private final GridRepository gridRepository;
 
-    //Todo поменять админа на юзера
     @Transactional
-    public void save(WordAndLettersWithCoordinates word, Admin user) {
+    public void save(WordAndLettersWithCoordinates word, User user) {
         List<Grid> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
             Grid mapTitle = Grid.builder()

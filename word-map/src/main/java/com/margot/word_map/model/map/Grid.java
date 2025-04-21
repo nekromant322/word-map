@@ -1,6 +1,6 @@
 package com.margot.word_map.model.map;
 
-import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
@@ -25,8 +25,7 @@ public class Grid {
     @Column(name = "user_id")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    // Todo Поменять на юзера потом
-    private Admin user;
+    private User user;
 
     @Column(name = "tile_id")
     @ManyToOne
