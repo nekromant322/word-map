@@ -16,14 +16,14 @@ public class AdminAuthService extends AbstractAuthService<AdminDto> {
     @Autowired
     public AdminAuthService(
             RefreshTokenService refreshTokenService,
-            AdminAuthEntityService adminAuthEntityService,
+            AdminAuthSubjectServiceImpl adminAuthSubjectService,
             ConfirmCodeService confirmCodeService,
             EmailService emailService,
             JwtService jwtService
     ) {
         super(
                 refreshTokenService,
-                adminAuthEntityService,
+                adminAuthSubjectService,
                 confirmCodeService,
                 emailService,
                 jwtService,

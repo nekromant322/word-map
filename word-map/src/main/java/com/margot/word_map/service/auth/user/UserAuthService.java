@@ -27,12 +27,12 @@ public class UserAuthService extends AbstractAuthService<UserDto> {
     public UserAuthService(
             RefreshTokenService refreshTokenService,
             UserService userService,
-            UserAuthEntityService userAuthEntityService,
+            UserAuthSubjectServiceImpl userAuthSubjectService,
             ConfirmCodeService confirmCodeService,
             EmailService emailService,
             JwtService jwtService
     ) {
-        super(refreshTokenService, userAuthEntityService, confirmCodeService, emailService, jwtService, UserType.USER);
+        super(refreshTokenService, userAuthSubjectService, confirmCodeService, emailService, jwtService, UserType.USER);
         this.userService = userService;
     }
 

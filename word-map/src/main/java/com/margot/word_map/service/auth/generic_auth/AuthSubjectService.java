@@ -4,7 +4,7 @@ import com.margot.word_map.exception.BaseException;
 
 import java.util.List;
 
-public interface AuthEntityService<T> {
+public interface AuthSubjectService<T> {
 
     T getByEmail(String email);
 

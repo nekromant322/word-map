@@ -3,16 +3,16 @@ package com.margot.word_map.service.auth.user;
 import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.exception.BaseException;
 import com.margot.word_map.exception.UserNotAccessException;
-import com.margot.word_map.service.auth.generic_auth.AuthEntityService;
+import com.margot.word_map.service.auth.generic_auth.AuthSubjectService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserAuthEntityService implements AuthEntityService<UserDto> {
+public class UserAuthSubjectServiceImpl implements AuthSubjectService<UserDto> {
     private final UserService userService;
 
-    public UserAuthEntityService(UserService userService) {
+    public UserAuthSubjectServiceImpl(UserService userService) {
         this.userService = userService;
     }
 

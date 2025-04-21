@@ -4,7 +4,7 @@ import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.exception.AdminNotAccessException;
 import com.margot.word_map.exception.BaseException;
-import com.margot.word_map.service.auth.generic_auth.AuthEntityService;
+import com.margot.word_map.service.auth.generic_auth.AuthSubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AdminAuthEntityService implements AuthEntityService<AdminDto> {
+public class AdminAuthSubjectServiceImpl implements AuthSubjectService<AdminDto> {
 
     private final AdminService adminService;
 

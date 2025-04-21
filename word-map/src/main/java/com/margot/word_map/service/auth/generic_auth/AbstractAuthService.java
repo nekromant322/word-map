@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractAuthService<T> extends AuthService {
 
-    protected final AuthEntityService<T> authEntityService;
+    protected final AuthSubjectService<T> authSubjectService;
     protected final ConfirmCodeService confirmCodeService;
     protected final EmailService emailService;
     protected final JwtService jwtService;
@@ -26,14 +26,14 @@ public abstract class AbstractAuthService<T> extends AuthService {
 
     protected AbstractAuthService(
             RefreshTokenService refreshTokenService,
-            AuthEntityService<T> authEntityService,
+            AuthSubjectService<T> authSubjectService,
             ConfirmCodeService confirmCodeService,
             EmailService emailService,
             JwtService jwtService,
             UserType userType
     ) {
         super(refreshTokenService);
-        this.authEntityService = authEntityService;
+        this.authSubjectService = authSubjectService;
         this.confirmCodeService = confirmCodeService;
         this.emailService = emailService;
         this.jwtService = jwtService;
@@ -42,12 +42,12 @@ public abstract class AbstractAuthService<T> extends AuthService {
 
     @Override
     public ConfirmResponse login(String email) {
-        T entity = authEntityService.getByEmail(email);
-        if (!authEntityService.hasAccess(entity)) {
-            throw authEntityService.createNoAccessException(email);
+        T entity = authSubjectService.getByEmail(email);
+        if (!authSubjectService.hasAccess(entity)) {
+            throw authSubjectService.createNoAccessException(email);
         }
 
-        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(userType, authEntityService.getId(entity));
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(userType, authSubjectService.getId(entity));
         emailService.sendConfirmEmail(ConfirmRequest.builder()
                 .code(String.valueOf(codeDto.getCode()))
                 .email(email)
@@ -66,11 +66,11 @@ public abstract class AbstractAuthService<T> extends AuthService {
             throw new TokenExpiredException("refresh token expired");
         }
 
-        T entity = authEntityService.getEntityById(storedToken.getUserId());
+        T entity = authSubjectService.getEntityById(storedToken.getUserId());
         String newAccessToken = jwtService.generateAccessToken(
-                authEntityService.getEmail(entity),
-                authEntityService.extractRole(entity),
-                authEntityService.extractRules(entity)
+                authSubjectService.getEmail(entity),
+                authSubjectService.extractRole(entity),
+                authSubjectService.extractRules(entity)
         );
         return new TokenResponse(newAccessToken, refreshToken);
     }
@@ -78,12 +78,12 @@ public abstract class AbstractAuthService<T> extends AuthService {
     @Override
     public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
         Integer code = parseCode(codeStr);
-        T entity = authEntityService.getByEmail(email);
-        confirmCodeService.verifyConfirmCode(code, authEntityService.getId(entity), userType);
+        T entity = authSubjectService.getByEmail(email);
+        confirmCodeService.verifyConfirmCode(code, authSubjectService.getId(entity), userType);
 
-        String accessToken = jwtService.generateAccessToken(email, authEntityService.extractRole(entity), null);
+        String accessToken = jwtService.generateAccessToken(email, authSubjectService.extractRole(entity), null);
         String refreshToken = refreshTokenService.generateAndSaveRefreshToken(
-                authEntityService.getId(entity), email, userType
+                authSubjectService.getId(entity), email, userType
         );
 
         return new TokenResponse(accessToken, refreshToken);
