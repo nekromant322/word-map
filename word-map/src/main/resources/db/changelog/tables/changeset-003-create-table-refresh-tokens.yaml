@@ -17,9 +17,11 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    references: admins(id)
-                    foreignKeyName: fk_refresh_tokens_users
-                    deleteCascade: true
+              - column:
+                  name: user_type
+                  type: varchar
+                  constraints:
+                    nullable: false
               - column:
                   name: token
                   type: TEXT

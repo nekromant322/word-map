@@ -20,7 +20,7 @@ public class LanguageService {
     private final LanguageMapper languageMapper;
 
     public List<LanguageDto> getLanguages() {
-        return languageMapper.toDto(languageRepository.findAll());
+        return languageRepository.findAll().stream().map(languageMapper::toDto).toList();
     }
 
     public LanguageDto getLanguageByPrefix(String prefix) {

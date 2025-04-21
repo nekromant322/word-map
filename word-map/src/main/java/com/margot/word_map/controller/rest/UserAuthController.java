@@ -1,12 +1,12 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.request.AdminManagementRequest;
 import com.margot.word_map.dto.request.ConfirmRequest;
+import com.margot.word_map.dto.request.UserSignUpRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.model.Admin;
-import com.margot.word_map.service.admin.AdminService;
-import com.margot.word_map.service.auth.AuthService;
+import com.margot.word_map.exception.InvalidTokenException;
+import com.margot.word_map.model.User;
+import com.margot.word_map.service.auth.user.UserAuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,62 +17,77 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @Tag(
-        name = "AuthController",
-        description = "Контроллер для авторизации админов",
+        name = "UserAuthController",
+        description = "Контроллер для авторизации игроков",
         externalDocs = @ExternalDocumentation(
-                description = "Документация в Confluence",
-                url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/152535064/MS+-+auth"
+                description = "Документация в Confluence"
         )
 )
 @RestController
-@RequestMapping("/auth")
-@Validated
 @RequiredArgsConstructor
-public class AuthController {
+@RequestMapping("/auth/user")
+public class UserAuthController {
 
-    private final AuthService authService;
-
-    private final AdminService adminService;
+    private final UserAuthService userAuthService;
 
     @Operation(
-            summary = "Заявка на вход по почте",
+            summary = "Регистрация игрока",
+            description = "Регистрация с указанием почты и юзернейма, отправка кода на почту",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация в Confluence"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Успешная регистрация"),
+                    @ApiResponse(responseCode = "400", description = "Введены невалидные данные", content = @Content)
+            }
+    )
+    @PostMapping("/signup")
+    public ConfirmResponse signUpUser(@RequestBody @Validated UserSignUpRequest request) {
+        return userAuthService.signUpUser(request);
+    }
+
+    @Operation(
+            summary = "Вход по почте для игроков",
             description = "Отправка кода подтверждения на введенную почту",
             externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
+                    description = "документация в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152567831/GET+auth+login+email"
             )
     )
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Код успешно отправлен"),
+                    @ApiResponse(responseCode = "200", description = "Успешный вход. Код успешно отправлен"),
                     @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content)
+                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content),
+                    @ApiResponse(responseCode = "401",
+                            description = "Почта введена в невалидном формате",
+                            content = @Content
+                    )
             }
     )
     @GetMapping("/login/{email}")
-    public ConfirmResponse sendCode(@PathVariable @Email(
+    public ConfirmResponse loginUser(@PathVariable @Email(
             regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
             message = "Invalid email format. Example: example@mail.com")
                                     @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
                                     @NotBlank String email) {
-        return authService.sendVerificationCode(email);
+        return userAuthService.login(email);
     }
 
     @Operation(
             summary = "Верификация кода подтверждения",
             description = "Верификация кода подтверждения, подтверждение входа",
             externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
+                    description = "документация в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
                             "152338453/POST+auth+confirm"
             )
@@ -81,14 +96,14 @@ public class AuthController {
             value = {
                     @ApiResponse(responseCode = "200", description = "Код подтвержден"),
                     @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Код не найден", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Указан неверный код", content = @Content)
             }
     )
     @PostMapping("/confirm")
-    public TokenResponse verifyCode(
+    public TokenResponse verifyConfirmCode(
             @RequestBody @Validated ConfirmRequest confirmRequest
     ) {
-        return authService.verifyCodeAndGenerateToken(confirmRequest.getEmail(), confirmRequest.getCode());
+        return userAuthService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode());
     }
 
     @Operation(
@@ -112,18 +127,17 @@ public class AuthController {
             @CookieValue(value = "refreshToken", required = false) String refreshToken
     ) {
         if (refreshToken == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Refresh token is missing");
+            throw new InvalidTokenException("refresh token is missing");
         }
 
-        return authService.refreshAccessToken(refreshToken);
+        return userAuthService.refreshAccessToken(refreshToken);
     }
 
     @Operation(
             summary = "Заявка на выход",
             description = "Удаление рефреш токена и выход",
             externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
+                    description = "документация в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/152535088/POST+auth+logout"
             )
     )
@@ -136,35 +150,6 @@ public class AuthController {
     )
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails instanceof Admin admin) {
-            authService.logout(admin.getId());
-        } else {
-            // toDo раскомментить когда будет юзер
-//            User user = (User) userDetails;
-//            authService.deleteRefreshTokenByUserId(user.getId());
-        }
-    }
-
-    @Operation(
-            summary = "Управление админами",
-            description = "Создать/обновить админа/модератора",
-            externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/POST+auth+admins"
-            )
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "Данные успешно обновлены"),
-                    @ApiResponse(responseCode = "201", description = "Пользователь добавлен"),
-                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
-                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа")
-            }
-    )
-    @PostMapping("/admins")
-    public ResponseEntity<Void> adminManagement(@RequestBody @Validated AdminManagementRequest request) {
-        return new ResponseEntity<>(adminService.manageAdmin(request));
+        userAuthService.logout(((User) userDetails).getId());
     }
 }
-

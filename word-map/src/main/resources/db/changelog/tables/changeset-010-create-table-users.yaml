@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-confirm
-      author: Alex_Kolosov
+      id: create-table-users
+      author: bahertylop
       changes:
         - createTable:
-            tableName: confirm
+            tableName: users
             columns:
               - column:
                   name: id
@@ -14,25 +14,27 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: code
-                  type: integer
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: date_creation
+                  type: timestamp
                   constraints:
                     nullable: false
               - column:
-                  name: created_at
+                  name: date_active
                   type: timestamp
               - column:
-                  name: expiration_time
-                  type: timestamp
-                  constraints:
-                    nullable: false
-              - column:
-                  name: user_id
-                  type: bigint
-                  constraints:
-                    nullable: false
-              - column:
-                  name: user_type
-                  type: varchar
+                  name: access
+                  type: boolean
                   constraints:
                     nullable: false

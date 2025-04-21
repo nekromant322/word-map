@@ -23,3 +23,5 @@ databaseChangeLog:
       file: db/changelog/tables/changeset-011-create-table-tiles.yaml
   - include:
       file: db/changelog/tables/changeset-012-create-table-letters.yaml
+  - include:
+      file: db/changelog/tables/changeset-013-create-table-users.yaml

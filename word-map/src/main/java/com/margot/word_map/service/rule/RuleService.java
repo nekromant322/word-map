@@ -19,7 +19,7 @@ public class RuleService {
     private final RuleMapper ruleMapper;
 
     public List<RuleDto> getRulesDto() {
-        return ruleMapper.toDto(ruleRepository.findAll());
+        return ruleRepository.findAll().stream().map(ruleMapper::toDto).toList();
     }
 
     public List<Rule> getRules() { return ruleRepository.findAll(); }
