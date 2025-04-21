@@ -7,9 +7,11 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Schema(description = "Запрос для подтверждения проверочного кода")
 public class ConfirmRequest {
