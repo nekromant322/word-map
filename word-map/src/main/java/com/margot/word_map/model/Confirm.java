@@ -31,4 +31,9 @@ public class Confirm {
     @Column(name = "user_id")
     @NonNull
     private Long userId;
+
+    @Column(name = "user_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NonNull
+    private UserType userType;
 }

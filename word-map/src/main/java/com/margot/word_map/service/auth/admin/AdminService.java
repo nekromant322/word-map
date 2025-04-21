@@ -1,4 +1,4 @@
-package com.margot.word_map.service.admin;
+package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;
@@ -40,7 +40,7 @@ public class AdminService {
         Long countAdmins = adminRepository.count();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<AdminDto> admins = adminMapper.toDto(adminRepository.findAll(pageable));
+        Page<AdminDto> admins = adminRepository.findAll(pageable).map(adminMapper::toDto);
 
         return GetAdminsResponse.builder()
                 .count(countAdmins)
@@ -50,11 +50,26 @@ public class AdminService {
                 .build();
     }
 
-    public AdminDto getAdminById(Long id) {
-        return adminMapper.toDto(adminRepository.findById(id).orElseThrow(() -> {
+    public AdminDto getAdminInfoById(Long id) {
+        return adminMapper.toDto(getAdminById(id));
+    }
+
+    public Admin getAdminById(Long id) {
+        return adminRepository.findById(id).orElseThrow(() -> {
             log.info("admin with id {} not found", id);
             return new AdminNotFoundException("admin with id " + id + " not found");
-        }));
+        });
+    }
+
+    public AdminDto getAdminInfoByEmail(String email) {
+        return adminMapper.toDto(getAdminByEmail(email));
+    }
+
+    public Admin getAdminByEmail(String email) {
+        return adminRepository.findByEmail(email).orElseThrow(() -> {
+            log.info("admin with email {} not found", email);
+            return new AdminNotFoundException("admin with email " + email + " not found");
+        });
     }
 
     @Transactional
