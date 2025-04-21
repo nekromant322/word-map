@@ -4,8 +4,6 @@ import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.model.Language;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class LanguageMapper {
 

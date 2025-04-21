@@ -3,10 +3,7 @@ package com.margot.word_map.mapper;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.model.Admin;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

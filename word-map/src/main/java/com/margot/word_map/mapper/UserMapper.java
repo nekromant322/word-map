@@ -4,8 +4,6 @@ import com.margot.word_map.dto.UserDto;
 import com.margot.word_map.model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class UserMapper {
 
