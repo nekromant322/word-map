@@ -31,10 +31,3 @@ public class UserSignUpRequest {
     @Schema(description = "Имя пользователя в игре", example = "bahertylop")
     private String username;
 }
-
-// правила для username
-// Только латинские буквы, цифры, подчёркивания и точки
-// Без пробелов
-// Длина от 3 до 20 символов
-// Не начинается и не заканчивается с . или _
-// Не содержит подряд .. или __

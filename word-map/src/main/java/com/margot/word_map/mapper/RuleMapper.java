@@ -17,12 +17,4 @@ public class RuleMapper {
                 .rule(rule.getName().name())
                 .build();
     }
-
-    public Set<RuleDto> toDto(Set<Rule> rules) {
-        return rules.stream().map(this::toDto).collect(Collectors.toSet());
-    }
-
-    public List<RuleDto> toDto(List<Rule> rules) {
-        return rules.stream().map(this::toDto).toList();
-    }
 }

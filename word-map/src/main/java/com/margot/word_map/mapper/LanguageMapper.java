@@ -16,8 +16,4 @@ public class LanguageMapper {
                 .name(language.getName())
                 .build();
     }
-
-    public List<LanguageDto> toDto(List<Language> languages) {
-        return languages.stream().map(this::toDto).toList();
-    }
 }

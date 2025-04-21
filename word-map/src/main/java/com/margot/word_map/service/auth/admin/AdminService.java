@@ -40,7 +40,7 @@ public class AdminService {
         Long countAdmins = adminRepository.count();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<AdminDto> admins = adminMapper.toDto(adminRepository.findAll(pageable));
+        Page<AdminDto> admins = adminRepository.findAll(pageable).map(adminMapper::toDto);
 
         return GetAdminsResponse.builder()
                 .count(countAdmins)
