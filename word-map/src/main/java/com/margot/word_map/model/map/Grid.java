@@ -22,17 +22,14 @@ public class Grid {
 
     private Character letter;
 
-    @Column(name = "user_id")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column(name = "tile_id")
     @ManyToOne
     @JoinColumn(name = "tile_id", referencedColumnName = "id")
     private Tile tile;
 
-    @Column(name = "letter_id")
     @ManyToOne
     @JoinColumn(name = "letter_id", referencedColumnName = "id")
     private Letter letterObj;
