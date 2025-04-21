@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgis/postgis:16-3.5.2
+    image: postgis/postgis:16-3.5
     container_name: my_postgres
     restart: always
     environment:
