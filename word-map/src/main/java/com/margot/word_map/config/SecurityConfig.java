@@ -43,14 +43,14 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/auth/admins").access(customAuthorizationManager())
+                        .requestMatchers("/auth/admins").access(authorizationManager())
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        .anyRequest().access(customAuthorizationManager())
+                        .anyRequest().access(authorizationManager())
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler)
@@ -82,15 +82,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationManager<RequestAuthorizationContext> customAuthorizationManager() {
+    public AuthorizationManager<RequestAuthorizationContext> authorizationManager() {
         return (authenticationSupplier, context) -> {
             Authentication authentication = authenticationSupplier.get();
             HttpServletRequest request = context.getRequest();
-            return customAccessCheck(authentication, request);
+            return checkAccessByUrl(authentication, request);
         };
     }
 
-    private AuthorizationDecision customAccessCheck(Authentication authentication, HttpServletRequest request) {
+    private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal() instanceof Admin admin) {
             String path = request.getRequestURI();
             if (isUserPath(path)) {
