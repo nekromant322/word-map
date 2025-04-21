@@ -25,7 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Optional;
+import java.util.*;
 
 @Configuration
 @EnableWebSecurity
@@ -37,6 +37,22 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomAuthenticationEntryPoint customEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private static final Map<String, Rule.RULE> PATH_TO_RULE_MAP = new LinkedHashMap<>();
+
+    static {
+        PATH_TO_RULE_MAP.put("/dictionary/wipe", Rule.RULE.WIPE_DICTIONARY);
+        PATH_TO_RULE_MAP.put("/dictionary", Rule.RULE.MANAGE_DICTIONARY);
+        PATH_TO_RULE_MAP.put("/rating", Rule.RULE.MANAGE_RATING);
+        PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
+        PATH_TO_RULE_MAP.put("/admins", Rule.RULE.MANAGE_ROLE);
+        PATH_TO_RULE_MAP.put("/ivent", Rule.RULE.MANAGE_IVENT);
+        PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
+    }
+
+    private static final List<String> USER_PATHS = List.of(
+            "/user"
+    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -93,7 +109,7 @@ public class SecurityConfig {
     private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal() instanceof Admin admin) {
             String path = request.getRequestURI();
-            if (isUserPath(path)) {
+            if (matchesPath(path, USER_PATHS)) {
                 return new AuthorizationDecision(false);
             }
 
@@ -101,7 +117,6 @@ public class SecurityConfig {
                 return new AuthorizationDecision(true);
             }
             Optional<Rule.RULE> requiredRule = getRuleByPath(path);
-
             return new AuthorizationDecision(
                     requiredRule.map(rule -> admin.getRules().stream()
                                     .map(Rule::getName)
@@ -110,41 +125,20 @@ public class SecurityConfig {
             );
         } else if (authentication.getPrincipal() instanceof User user) {
             return new AuthorizationDecision(
-                    isUserPath(request.getRequestURI())
+                    matchesPath(request.getRequestURI(), USER_PATHS)
             );
         }
         return new AuthorizationDecision(false);
     }
 
-    private boolean isUserPath(String path) {
-        if (path.startsWith("/user")) {
-            return true;
-        }
-        return false;
+    private boolean matchesPath(String path, List<String> prefixes) {
+        return prefixes.stream().anyMatch(path::startsWith);
     }
 
     private Optional<Rule.RULE> getRuleByPath(String path) {
-        if (path.startsWith("/dictionary/wipe")) {
-            return Optional.of(Rule.RULE.WIPE_DICTIONARY);
-        }
-        if (path.startsWith("/dictionary")) {
-            return Optional.of(Rule.RULE.MANAGE_DICTIONARY);
-        }
-        if (path.startsWith("/rating")) {
-            return Optional.of(Rule.RULE.MANAGE_RATING);
-        }
-        if (path.startsWith("/world")) {
-            return Optional.of(Rule.RULE.MANAGE_WORLD);
-        }
-        if (path.startsWith("/auth/admins") || path.startsWith("/roles")) {
-            return Optional.of(Rule.RULE.MANAGE_ROLE);
-        }
-        if (path.startsWith("/ivent")) {
-            return Optional.of(Rule.RULE.MANAGE_IVENT);
-        }
-        if (path.startsWith("/shop")) {
-            return Optional.of(Rule.RULE.MANAGE_SHOP);
-        }
-        return Optional.empty();
+        return PATH_TO_RULE_MAP.entrySet().stream()
+                .filter(entry -> path.startsWith(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst();
     }
 }
