@@ -7,7 +7,7 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisPG10Dialect
         show_sql: true
         format_sql: true
     hibernate:

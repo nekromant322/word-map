@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/wordsOffer")
-public class WordsOfferController {
+public class WordOfferController {
 
     private final WordOfferService wordOfferService;
 

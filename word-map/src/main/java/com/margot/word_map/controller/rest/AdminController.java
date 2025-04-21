@@ -5,6 +5,7 @@ import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.service.auth.admin.AdminService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.margot.word_map.service.rule.RuleService;
 import jakarta.validation.constraints.Max;
@@ -21,6 +22,7 @@ import java.util.List;
                 description = "Контроллер не прописан в доке, пока прост заглушечный по сути"
         )
 )
+@SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admins")

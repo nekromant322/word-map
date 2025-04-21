@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-tiles
+      author: Alex_Kolosov
+      changes:
+        - createTable:
+            tableName: tiles
+            columns:
+              - column:
+                  name: id
+                  type: SMALLINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: bonus
+                  type: VARCHAR(255)
+              - column:
+                  name: letter
+                  type: VARCHAR(10)
+              - column:
+                  name: multiplier
+                  type: SMALLINT

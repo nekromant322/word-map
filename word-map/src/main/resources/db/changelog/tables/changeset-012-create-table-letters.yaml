@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+        id: create-table-letters
+        author: Alex_Kolosov
+        changes:
+          - createTable:
+              tableName: letters
+              columns:
+                - column:
+                    name: id
+                    type: SMALLINT
+                    autoIncrement: true
+                    constraints:
+                      primaryKey: true
+                - column:
+                    name: language
+                    type: VARCHAR(100)
+                - column:
+                    name: letter
+                    type: VARCHAR(10)
+                - column:
+                    name: type
+                    type: VARCHAR(100)
+                - column:
+                    name: multiplier
+                    type: SMALLINT
+                - column:
+                    name: weight
+                    type: SMALLINT
