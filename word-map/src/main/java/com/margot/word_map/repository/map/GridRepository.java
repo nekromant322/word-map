@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface GridRepository extends JpaRepository<Grid, Long> {
     Optional<Grid> findByPoint(Point point);
+
+    boolean existsBy();
 }
