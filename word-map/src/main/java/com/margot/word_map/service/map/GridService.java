@@ -1,12 +1,20 @@
 package com.margot.word_map.service.map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.margot.word_map.dto.GridDto;
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
 import com.margot.word_map.exception.BaseIsNotEmptyExceptions;
+import com.margot.word_map.mapper.GridMapper;
 import com.margot.word_map.model.User;
 import com.margot.word_map.model.map.Grid;
+import com.margot.word_map.model.map.Letter;
+import com.margot.word_map.model.map.Tile;
+import com.margot.word_map.repository.UserRepository;
 import com.margot.word_map.repository.map.GridRepository;
+import com.margot.word_map.repository.map.LetterRepository;
+import com.margot.word_map.repository.map.TileRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +35,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,23 +45,31 @@ public class GridService {
 
     private final GridRepository gridRepository;
     private final ObjectMapper objectMapper;
+    private final GridMapper gridMapper;
+
+    private final LetterRepository letterRepository;
+    private final UserRepository userRepository;
+    private final TileRepository tileRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     @Transactional
-    public void save(WordAndLettersWithCoordinates word, User user) {
+    public void update(WordAndLettersWithCoordinates word, User user) {
         List<Grid> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
-            Grid mapTitle = Grid.builder()
-                    .point(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
-                            word.getLettersWithCoordinates().get(i).getPosition().getY()))
-                    .letter(word.getLettersWithCoordinates().get(i).getLetter())
-                    .user(user)
-                    .build();
-            titles.add(mapTitle);
+            Optional<Grid> optimalMapTitle = gridRepository.findByPoint(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
+                    word.getLettersWithCoordinates().get(i).getPosition().getY()));
+            if (optimalMapTitle.isPresent()) {
+                Grid mapTitle = optimalMapTitle.get();
+                mapTitle.setLetter(word.getLettersWithCoordinates().get(i).getLetter());
+                mapTitle.setUser(user);
+                mapTitle.setLetterObj(letterRepository.findByLetter(word.getLettersWithCoordinates().get(i).getLetter().toString()));
+                gridRepository.saveAll(titles);
+            } else {
+                throw new NoSuchElementException("Нет такой клетки");
+            }
         }
-        gridRepository.saveAll(titles);
     }
 
     public void check(WordAndLettersWithCoordinates wordAndLettersWithCoordinates) {
@@ -110,9 +126,43 @@ public class GridService {
         return grids;
     }
 
+    //Тестовый метод проверить скорость работы
+    public List<Grid> createRandomList(int radius) {
+        List<Grid> grids = new ArrayList<>();
+        User user = userRepository.findById(1L).get();
+        Letter letter = letterRepository.findById((short) 13).get();
+        Tile tile = tileRepository.findById((short) 2).get();
+        for (int x = -radius; x < radius; x++) {
+            for (int y = -radius; y < radius; y++) {
+                Grid grid = Grid.builder()
+                        .point(convertToPoint(x, y))
+                        .user(user)
+                        .tile(tile)
+                        .letter(letter.getLetter().charAt(0))
+                        .letterObj(letter)
+                        .build();
+                grids.add(grid);
+            }
+        }
+        return grids;
+    }
+
+    @Transactional
+    public void createRandomMap(int radius, int batchSize) {
+        LocalDateTime start = LocalDateTime.now();
+        if (!gridRepository.existsBy()) {
+            List<Grid> grids = createRandomList(radius);
+            saveInBatches(grids, batchSize);
+        } else {
+            throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица не пустая");
+        }
+        Duration durationBetween = Duration.between(start, LocalDateTime.now());
+        log.info("Table created in {} seconds", durationBetween.getSeconds());
+    }
+
     @Transactional
     public void truncateTable() {
-        entityManager.createNativeQuery("TRUNCATE TABLE grid RESTART IDENTITY CASCADE").executeUpdate();
+        entityManager.createNativeQuery("TRUNCATE TABLE grid RESTART IDENTITY").executeUpdate();
     }
 
     public File getTableJson() throws IOException {
@@ -124,14 +174,23 @@ public class GridService {
             boolean first = true;
             while (true) {
                 Page<Grid> gridPage = gridRepository.findAll(PageRequest.of(page, 500));
+                List<GridDto> gridDtoPage = gridPage.stream().map(gridMapper::convertToGridDto).toList();
                 if (gridPage.isEmpty()) break;
 
-                for (Grid grid : gridPage.getContent()) {
+                for (GridDto gridDto : gridDtoPage) {
                     if (!first) writer.write(",\n");
                     else first = false;
 
-                    String json = objectMapper.writeValueAsString(grid);
-                    writer.write(json);
+                    try {
+                        String json = objectMapper.writeValueAsString(gridDto);
+                        writer.write(json);
+                    } catch (JsonProcessingException e) {
+                        log.warn("Ошибка сериализации объекта с id {}: {} \n {}",
+                                gridDto.getId(),
+                                e.getMessage(),
+                                Arrays.stream(e.getStackTrace())
+                                        .limit(5).map(StackTraceElement::toString).collect(Collectors.joining("\n")));
+                    }
                 }
 
                 page++;

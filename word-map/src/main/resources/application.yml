@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_DB}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://45.8.230.91:5120/word_map_game
+    username: word_map_game_user
+    password: word_map_game_password
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
