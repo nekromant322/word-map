@@ -1,5 +1,5 @@
 import {confirmLoginCode, requestLoginCode} from "./api/admin-auth-api.js";
-import {setAccessToken, setRefreshToken} from "./util/jwt";
+import {setAccessToken, setRefreshToken} from "./util/jwt.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("login-form");

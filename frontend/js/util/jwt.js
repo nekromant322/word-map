@@ -26,11 +26,11 @@ export function deleteRefreshToken() {
 }
 
 export const availableBlocks = [
-    { name: "Словарь", page: "../pages/dictionary.html", rule: ALL_RULES.MANAGE_DICTIONARY },
-    { name: "Очистка словарей", page: "../pages/dictionary.html", rule: ALL_RULES.WIPE_DICTIONARY},
+    { name: "Управление словарем", page: "../pages/dictionary.html", rule: ALL_RULES.MANAGE_DICTIONARY },
+    { name: "Очистка словаря", page: "../pages/dictionary.html", rule: ALL_RULES.WIPE_DICTIONARY},
     { name: "Управление рейтингом игроков", page: "rating.html", rule: ALL_RULES.MANAGE_RATING},
     { name: "Управление мирами", page: "worlds.html", rule: ALL_RULES.MANAGE_WORLD},
-    { name: "Управление пользователями", page: "users.html", rule: ALL_RULES.MANAGE_ROLE },
+    { name: "Управление пользователями", page: "../pages/admins.html", rule: ALL_RULES.MANAGE_ROLE },
     { name: "Управление ивентами (игровыми событиями)", page: "ivents.html", rule: ALL_RULES.MANAGE_IVENT},
     { name: "Управление магазином", page: "shop.html", rule: ALL_RULES.MANAGE_SHOP}
 ];

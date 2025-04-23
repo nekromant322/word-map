@@ -6,17 +6,17 @@ import {redirectToMenu} from "./util/redirect.js";
 document.addEventListener("DOMContentLoaded", async () => {
     await checkAuthorization();
 
+    const hasAccess = checkAccessByRule(ALL_RULES.MANAGE_DICTIONARY);
+    if (!hasAccess) {
+        redirectToMenu();
+    }
+
     const exportBtn = document.getElementById("export-btn");
     const addForm = document.getElementById("add-word-form");
     const updateForm = document.getElementById("update-word-form");
     const searchBtn = document.getElementById("searchBtn");
     const searchInput = document.getElementById("searchInput");
     const searchResult = document.getElementById("searchResult");
-
-    const hasAccess = checkAccessByRule(ALL_RULES.MANAGE_DICTIONARY);
-    if (!hasAccess) {
-        redirectToMenu();
-    }
 
     // ВЫГРУЗКА СЛОВ
     exportBtn.addEventListener("click", async () => {
