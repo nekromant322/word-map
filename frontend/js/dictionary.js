@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const exportBtn = document.getElementById("export-btn");
+    const addWordModal = document.getElementById("addWordModal");
+    const updateWordModal = document.getElementById("updateWordModal");
     const addForm = document.getElementById("add-word-form");
     const updateForm = document.getElementById("update-word-form");
     const searchBtn = document.getElementById("searchBtn");
@@ -61,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             } else {
                 alert("Слово добавлено");
                 addForm.reset();
+                bootstrap.Modal.getInstance(addWordModal).hide();
             }
         } catch (err) {
             alert(err.message);
@@ -85,16 +88,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (response.status === 404) {
                 alert("Слово с таким ID не найдено");
+            } else if (response.status === 400) {
+                alert("Слово существует с другим id");
             } else if (!response.ok) {
                 throw new Error("Ошибка обновления слова");
             } else {
                 alert("Слово обновлено успешно");
-                updateForm.reset();
-                const modal = document.getElementById("updateWordModal");
-                modal.hide();
             }
         } catch (err) {
             alert("Ошибка: " + err.message);
+        } finally {
+            updateForm.reset();
+            bootstrap.Modal.getInstance(updateWordModal).hide();
         }
     });
 
