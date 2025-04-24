@@ -69,7 +69,7 @@ export async function checkAuthorization() {
     }
 }
 
-async function tryRefreshToken(token) {
+export async function tryRefreshToken(token) {
     try {
         const response = await refreshAccessToken(token);
 
@@ -98,5 +98,5 @@ export function checkAccessByRule(rule) {
     const role = payload.role || "";
     const rules = payload.rules || [];
 
-    return role === "ADMIN" || rules.contains(rule);
+    return role === "ADMIN" || rules.includes(rule);
 }

@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await checkAuthorization();
 
     const hasAccess = checkAccessByRule(ALL_RULES.MANAGE_ROLE);
+
     if (!hasAccess) {
         redirectToMenu();
     }
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
             adminDetails.classList.remove("d-none");
         } catch (err) {
+            console.log(err.message);
             alert("Ошибка: " + err.message);
         }
     }
@@ -91,7 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 rulesList.appendChild(li);
             });
         } catch (err) {
-            console.error(err.message);
+            console.log(err.message);
             alert("Ошибка загрузки правил: " + err.message);
         }
     }

@@ -1,62 +1,40 @@
 import {CONFIG} from "../config/api-config.js";
+import {authorizedFetch} from "./util.js";
 
 export async function getWordsJson() {
-    const token = localStorage.getItem("access-token");
-
-    const response = await fetch(`${CONFIG.API_BASE_URL}/dictionary/word/list`, {
-        method: "GET",
-        headers: {
-            "Authorization": 'Bearer ' + token
-        }
-    });
-    return response;
+    return await authorizedFetch(`${CONFIG.API_BASE_URL}/dictionary/word/list`, {
+        method: "GET"
+    })
 }
 
 export async function findWord(query) {
-    const token = localStorage.getItem("access-token");
-    const response = await fetch(`${CONFIG.API_BASE_URL}/dictionary/word/${encodeURIComponent(query)}`, {
-        method: "GET",
-        headers: {
-            "Authorization": "Bearer " + token
-        }
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/dictionary/word/${encodeURIComponent(query)}`, {
+        method: "GET"
     });
-
-    return response;
 }
 
 export async function addNewWord(word, description) {
-    const token = localStorage.getItem("access-token");
-    const response = await fetch(`${CONFIG.API_BASE_URL}/dictionary/word`, {
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/dictionary/word`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({ word, description })
     });
-    return response;
 }
 
 export async function updateWord(id, word, description){
-    const token = localStorage.getItem("access-token");
-    const response = await fetch(`${CONFIG.API_BASE_URL}/dictionary/word`, {
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/dictionary/word`, {
         method: "PUT",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({ id, word, description })
     });
-    return response;
 }
 
 export async function deleteWord(wordId) {
-    const token = localStorage.getItem("access-token");
-    const response = await fetch(`${CONFIG.API_BASE_URL}/dictionary/word/${encodeURIComponent(wordId)}`, {
-        method: "DELETE",
-        headers: {
-            "Authorization": "Bearer " + token
-        }
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/dictionary/word/${encodeURIComponent(wordId)}`, {
+        method: "DELETE"
     });
-    return response
 }
