@@ -26,13 +26,13 @@ export function deleteRefreshToken() {
 }
 
 export const availableBlocks = [
-    { name: "Управление словарем", page: "../pages/dictionary.html", rule: ALL_RULES.MANAGE_DICTIONARY },
-    { name: "Очистка словаря", page: "../pages/dictionary.html", rule: ALL_RULES.WIPE_DICTIONARY},
-    { name: "Управление рейтингом игроков", page: "rating.html", rule: ALL_RULES.MANAGE_RATING},
-    { name: "Управление мирами", page: "worlds.html", rule: ALL_RULES.MANAGE_WORLD},
-    { name: "Управление пользователями", page: "../pages/admins.html", rule: ALL_RULES.MANAGE_ROLE },
-    { name: "Управление ивентами (игровыми событиями)", page: "ivents.html", rule: ALL_RULES.MANAGE_IVENT},
-    { name: "Управление магазином", page: "shop.html", rule: ALL_RULES.MANAGE_SHOP}
+    { name: "Управление словарем", page: "/dictionary", rule: ALL_RULES.MANAGE_DICTIONARY },
+    { name: "Очистка словаря", page: "/dictionary", rule: ALL_RULES.WIPE_DICTIONARY},
+    { name: "Управление рейтингом игроков", page: "/rating", rule: ALL_RULES.MANAGE_RATING},
+    { name: "Управление мирами", page: "/worlds", rule: ALL_RULES.MANAGE_WORLD},
+    { name: "Управление пользователями", page: "/admins", rule: ALL_RULES.MANAGE_ROLE },
+    { name: "Управление ивентами (игровыми событиями)", page: "/ivents", rule: ALL_RULES.MANAGE_IVENT},
+    { name: "Управление магазином", page: "/shop", rule: ALL_RULES.MANAGE_SHOP}
 ];
 
 export function parseJwt(token) {
@@ -88,7 +88,7 @@ export async function tryRefreshToken(token) {
 export function redirectToLogin() {
     deleteAccessToken();
     deleteRefreshToken();
-    window.location.href = "../../pages/login.html";
+    window.location.href = "/login";
 }
 
 export function checkAccessByRule(rule) {

@@ -1,5 +1,6 @@
 import {confirmLoginCode, requestLoginCode} from "./api/admin-auth-api.js";
 import {setAccessToken, setRefreshToken} from "./util/jwt.js";
+import {redirectToMenu} from "./util/redirect.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("login-form");
@@ -62,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 setAccessToken(tokenResponse.accessToken);
                 setRefreshToken(tokenResponse.refreshToken);
-                window.location.href = "../pages/menu.html";
+                redirectToMenu();
             } else if (response.status === 400) {
                 resultDiv.textContent = "❌ Неверный код подтверждения";
                 resultDiv.className = "alert alert-danger mt-3";
