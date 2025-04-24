@@ -35,7 +35,7 @@ jobs:
       - name: Сборка Docker-образа бэка
         run: |
           echo "Сборка Docker-образа бэка..."
-          docker build -t megokolos/word_map_game:001 -f word-map/Dockerfile .
+          docker build -t megokolos/word_map_game:001 -f word-map/Dockerfile word-map
           echo "Сборка завершена."
 
       - name: Пуш Docker-образа бэка на Docker Hub
@@ -45,7 +45,7 @@ jobs:
       - name: Сборка Docker-образа фронта
         run: |
           echo "Сборка Docker-образа фронта..."
-          docker build -t megokolos/word-map-adm-frontend:001 -f frontend/Dockerfile .
+          docker build -t megokolos/word-map-adm-frontend:001 -f frontend/Dockerfile frontend
           echo "Сборка завершена."
 
       - name: Пуш Docker-образа фронта на Docker Hub
@@ -73,5 +73,6 @@ jobs:
           script: |
             docker-compose -f /home/kolos/docker-compose.yaml down
             docker pull megokolos/word_map_game:001
+            docker pull megokolos/word-map-adm-frontend:001
             docker-compose -f /home/kolos/docker-compose.yaml up -d
             docker image prune -f
