@@ -42,7 +42,7 @@ public class GridController {
 
     @GetMapping("/new")
     public void createMap() {
-        gridService.createRandomMap(10, 500);
+        gridService.createRandomMap(16, 500);
     }
 
     @DeleteMapping("/end")

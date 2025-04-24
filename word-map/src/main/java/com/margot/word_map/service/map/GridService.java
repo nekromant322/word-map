@@ -46,7 +46,7 @@ public class GridService {
     private final GridRepository gridRepository;
     private final ObjectMapper objectMapper;
     private final GridMapper gridMapper;
-
+    private final GridBatchSaver gridBatchSaver;
     private final LetterRepository letterRepository;
     private final UserRepository userRepository;
     private final TileRepository tileRepository;
@@ -58,13 +58,15 @@ public class GridService {
     public void update(WordAndLettersWithCoordinates word, User user) {
         List<Grid> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
-            Optional<Grid> optimalMapTitle = gridRepository.findByPoint(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
+            Optional<Grid> optimalMapTitle = gridRepository.findByPoint(
+                    convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
                     word.getLettersWithCoordinates().get(i).getPosition().getY()));
             if (optimalMapTitle.isPresent()) {
                 Grid mapTitle = optimalMapTitle.get();
                 mapTitle.setLetter(word.getLettersWithCoordinates().get(i).getLetter());
                 mapTitle.setUser(user);
-                mapTitle.setLetterObj(letterRepository.findByLetter(word.getLettersWithCoordinates().get(i).getLetter().toString()));
+                mapTitle.setLetterObj(letterRepository.findByLetter(
+                        word.getLettersWithCoordinates().get(i).getLetter().toString()));
                 gridRepository.saveAll(titles);
             } else {
                 throw new NoSuchElementException("Нет такой клетки");
@@ -87,30 +89,16 @@ public class GridService {
         }
     }
 
-    @Transactional
     public void createMap(int radius, int batchSize) {
         LocalDateTime start = LocalDateTime.now();
         if (!gridRepository.existsBy()) {
             List<Grid> grids = createList(radius);
-            saveInBatches(grids, batchSize);
+            gridBatchSaver.saveInBatches(grids, batchSize);
         } else {
             throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица не пустая");
         }
         Duration durationBetween = Duration.between(start, LocalDateTime.now());
         log.info("Table created in {} seconds", durationBetween.getSeconds());
-    }
-
-    @Transactional
-    public void saveInBatches(List<Grid> grids, int batchSize) {
-        for (int i = 0; i < grids.size(); i++) {
-            entityManager.persist(grids.get(i));
-            if (i % batchSize == 0 && i > 0) {
-                entityManager.flush();
-                entityManager.clear();
-            }
-        }
-        entityManager.flush();
-        entityManager.clear();
     }
 
     public List<Grid> createList(int radius) {
@@ -129,9 +117,9 @@ public class GridService {
     //Тестовый метод проверить скорость работы
     public List<Grid> createRandomList(int radius) {
         List<Grid> grids = new ArrayList<>();
-        User user = userRepository.findById(1L).get();
-        Letter letter = letterRepository.findById((short) 13).get();
-        Tile tile = tileRepository.findById((short) 2).get();
+        User user = entityManager.find(User.class, 1L);
+        Letter letter = entityManager.find(Letter.class, (short) 13);
+        Tile tile = entityManager.find(Tile.class, (short) 2);
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 Grid grid = Grid.builder()
@@ -144,15 +132,15 @@ public class GridService {
                 grids.add(grid);
             }
         }
+        log.info("Создано {} Grid объектов", grids.size());
         return grids;
     }
 
-    @Transactional
     public void createRandomMap(int radius, int batchSize) {
         LocalDateTime start = LocalDateTime.now();
         if (!gridRepository.existsBy()) {
             List<Grid> grids = createRandomList(radius);
-            saveInBatches(grids, batchSize);
+            gridBatchSaver.saveInBatches(grids, batchSize);
         } else {
             throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица не пустая");
         }
