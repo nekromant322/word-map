@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-letters
+      author: bahertylop
+      changes:
+        - loadData:
+            file: data/letters.csv
+            separator: ","
+            tableName: letters
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-letters-id-sequence
+      author: bahertylop
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval('letters_id_seq', (SELECT MAX(id) FROM letters));

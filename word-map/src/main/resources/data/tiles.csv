@@ -1,0 +1,9 @@
+id,bonus,letter,multiplier
+0,Letter,All,1
+1,Letter,All,2
+2,Word,None,2
+3,Letter,All,3
+4,Word,None,3
+5,Letter,Consonant,5
+6,Letter,Vowel,5
+7,Word,None,5
