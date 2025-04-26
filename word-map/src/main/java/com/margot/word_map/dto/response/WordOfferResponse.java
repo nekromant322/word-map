@@ -21,4 +21,7 @@ public class WordOfferResponse {
 
     @Schema(description = "Описание предложенного слова", example = "Сочный плод с красной мякотью")
     private String description;
+
+    @Schema(description = "Id пользователя, кто предложил слово", example = "1")
+    private Long userId;
 }

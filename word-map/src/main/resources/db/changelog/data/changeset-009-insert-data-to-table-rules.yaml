@@ -38,10 +38,16 @@ databaseChangeLog:
             columns:
               - column:
                   name: name
-                  value: MANAGE_IVENT
+                  value: MANAGE_EVENT
         - insert:
             tableName: rules
             columns:
               - column:
                   name: name
                   value: MANAGE_SHOP
+        - insert:
+            tableName: rules
+            columns:
+              - column:
+                  name: name
+                  value: MANAGE_OFFER

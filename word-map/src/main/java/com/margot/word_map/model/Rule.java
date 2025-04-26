@@ -33,7 +33,7 @@ public class Rule implements GrantedAuthority {
         MANAGE_RATING,
         MANAGE_WORLD,
         MANAGE_ROLE,
-        MANAGE_IVENT,
+        MANAGE_EVENT,
         MANAGE_SHOP
     }
 }

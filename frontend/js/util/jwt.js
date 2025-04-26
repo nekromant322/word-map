@@ -31,8 +31,9 @@ export const availableBlocks = [
     { name: "Управление рейтингом игроков", page: "/rating", rule: ALL_RULES.MANAGE_RATING},
     { name: "Управление мирами", page: "/worlds", rule: ALL_RULES.MANAGE_WORLD},
     { name: "Управление пользователями", page: "/admins", rule: ALL_RULES.MANAGE_ROLE },
-    { name: "Управление ивентами (игровыми событиями)", page: "/ivents", rule: ALL_RULES.MANAGE_IVENT},
-    { name: "Управление магазином", page: "/shop", rule: ALL_RULES.MANAGE_SHOP}
+    { name: "Управление ивентами (игровыми событиями)", page: "/events", rule: ALL_RULES.MANAGE_EVENT},
+    { name: "Управление магазином", page: "/shop", rule: ALL_RULES.MANAGE_SHOP},
+    { name: "Проверка слов", page: "/word-offers", rule: ALL_RULES.MANAGE_OFFER}
 ];
 
 export function parseJwt(token) {

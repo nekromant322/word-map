@@ -13,7 +13,7 @@ services:
       - pg_data:/var/lib/postgresql/data
 
   app:
-    image: bahertylop/word_map_game:001
+    image: megokolos/word_map_game:001
     build:
       context: word-map
     container_name: word_map_game
@@ -33,7 +33,7 @@ services:
       - "2507:8080"
 
   nginx:
-    image: bahertylop/word-map-adm-frontend:001
+    image: megokolos/word-map-adm-frontend:001
     build:
       context: frontend
     container_name: nginx-frontend
