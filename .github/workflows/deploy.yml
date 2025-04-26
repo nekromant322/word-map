@@ -25,10 +25,6 @@ jobs:
           echo "YANDEX_CLIENT_SECRET=${{ secrets.YANDEX_CLIENT_SECRET }}" >> .env
           cat .env
 
-      - name: Копирование docker-compose.yaml
-        run: |
-          cp docker-compose.yaml .
-
       - name: Логин в Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u megokolos --password-stdin
 
