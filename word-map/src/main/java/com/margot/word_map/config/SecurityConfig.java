@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -46,8 +47,9 @@ public class SecurityConfig {
         PATH_TO_RULE_MAP.put("/rating", Rule.RULE.MANAGE_RATING);
         PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
         PATH_TO_RULE_MAP.put("/admins", Rule.RULE.MANAGE_ROLE);
-        PATH_TO_RULE_MAP.put("/ivent", Rule.RULE.MANAGE_IVENT);
+        PATH_TO_RULE_MAP.put("/event", Rule.RULE.MANAGE_EVENT);
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
+        PATH_TO_RULE_MAP.put("/wordsOffer", Rule.RULE.MANAGE_OFFER);
     }
 
     private static final List<String> USER_PATHS = List.of(
@@ -59,6 +61,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/admins").access(authorizationManager())
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
