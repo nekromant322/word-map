@@ -47,8 +47,9 @@ public class SecurityConfig {
         PATH_TO_RULE_MAP.put("/rating", Rule.RULE.MANAGE_RATING);
         PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
         PATH_TO_RULE_MAP.put("/admins", Rule.RULE.MANAGE_ROLE);
-        PATH_TO_RULE_MAP.put("/ivent", Rule.RULE.MANAGE_IVENT);
+        PATH_TO_RULE_MAP.put("/event", Rule.RULE.MANAGE_EVENT);
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
+        PATH_TO_RULE_MAP.put("/wordsOffer", Rule.RULE.MANAGE_OFFER);
     }
 
     private static final List<String> USER_PATHS = List.of(

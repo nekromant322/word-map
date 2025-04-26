@@ -81,7 +81,8 @@ public abstract class AbstractAuthService<T> extends AuthService {
         T entity = authSubjectService.getByEmail(email);
         confirmCodeService.verifyConfirmCode(code, authSubjectService.getId(entity), userType);
 
-        String accessToken = jwtService.generateAccessToken(email, authSubjectService.extractRole(entity), authSubjectService.extractRules(entity));
+        String accessToken = jwtService.generateAccessToken(
+                email, authSubjectService.extractRole(entity), authSubjectService.extractRules(entity));
         String refreshToken = refreshTokenService.generateAndSaveRefreshToken(
                 authSubjectService.getId(entity), email, userType
         );

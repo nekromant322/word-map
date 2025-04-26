@@ -14,7 +14,7 @@ services:
     mem_limit: 200m
 
   app:
-    image: bahertylop/word_map_game:001
+    image: megokolos/word_map_game:001
     build:
       context: word-map
     container_name: word_map_game
@@ -35,7 +35,7 @@ services:
     mem_limit: 400m
 
   nginx:
-    image: bahertylop/word-map-adm-frontend:001
+    image: megokolos/word-map-adm-frontend:001
     build:
       context: frontend
     container_name: nginx-frontend
