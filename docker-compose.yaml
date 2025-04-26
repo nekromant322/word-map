@@ -14,6 +14,8 @@ services:
 
   app:
     image: megokolos/word_map_game:001
+    build:
+      context: word-map
     container_name: word_map_game
     depends_on:
       - database
@@ -29,6 +31,14 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     ports:
       - "2507:8080"
+
+  nginx:
+    image: megokolos/word-map-adm-frontend:001
+    build:
+      context: frontend
+    container_name: nginx-frontend
+    ports:
+      - "80:80"
 
 volumes:
   pg_data:

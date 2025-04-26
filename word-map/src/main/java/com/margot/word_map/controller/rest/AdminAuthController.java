@@ -110,7 +110,7 @@ public class AdminAuthController {
     @PostMapping("/refresh")
     public TokenResponse refreshAccessToken(
             @Parameter(description = "кука со значением refresh токена")
-            @CookieValue(value = "refreshToken", required = false) String refreshToken
+            @RequestHeader(value = "Refresh", required = true) String refreshToken
     ) {
         if (refreshToken == null) {
             throw new InvalidTokenException("refresh token is missing");
