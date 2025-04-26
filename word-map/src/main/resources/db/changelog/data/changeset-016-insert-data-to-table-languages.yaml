@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-languages
+      author: bahertylop
+      changes:
+        - loadData:
+            file: data/languages.csv
+            separator: ","
+            tableName: languages
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-languages-id-sequence
+      author: bahertylop
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval('languages_id_seq', (SELECT MAX(id) FROM languages));
