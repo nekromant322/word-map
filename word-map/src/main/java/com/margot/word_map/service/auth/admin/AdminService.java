@@ -2,6 +2,7 @@ package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;
+import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
@@ -113,5 +114,13 @@ public class AdminService {
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
+    }
+
+    @Transactional
+    public void changeAccess(ChangeAdminAccessRequest request) {
+        Admin admin = getAdminById(request.getId());
+
+        admin.setAccess(request.getAccess());
+        adminRepository.save(admin);
     }
 }

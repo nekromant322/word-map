@@ -1,9 +1,6 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.request.AdminManagementRequest;
-import com.margot.word_map.dto.request.ConfirmRequest;
-import com.margot.word_map.dto.request.CreateAdminRequest;
-import com.margot.word_map.dto.request.UpdateAdminRequest;
+import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
@@ -188,4 +185,27 @@ public class AdminAuthController {
     public void updateAdmin(@RequestBody @Validated UpdateAdminRequest request) {
         adminService.updateAdmin(request);
     }
+
+    @Operation(
+            summary = "Изменение доступа админа/модератора",
+            description = "Запрос позволяет поменять запретить или разрешить доступ админу/модератору",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204603402/POST+auth+admin+access"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Доступ успешно изменен"),
+                    @ApiResponse(responseCode = "404", description = "Админ с таким id не найден"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
+                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+            }
+    )
+    @PostMapping("/admin/access")
+    public void changeAdminAccess(@RequestBody @Validated ChangeAdminAccessRequest request) {
+        adminService.changeAccess(request);
+    }
+
 }
