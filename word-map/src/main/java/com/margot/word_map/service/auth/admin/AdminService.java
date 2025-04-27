@@ -3,6 +3,7 @@ package com.margot.word_map.service.auth.admin;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
+import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
@@ -78,18 +79,6 @@ public class AdminService {
     }
 
     @Transactional
-    public HttpStatus manageAdmin(AdminManagementRequest request) {
-        Optional<Admin> adminOp = adminRepository.findByEmail(request.getEmail());
-
-        if (adminOp.isPresent()) {
-            updateAdmin(adminOp.get(), request);
-            return HttpStatus.OK;
-        } else {
-            return HttpStatus.CREATED;
-        }
-    }
-
-    @Transactional
     public void createAdmin(CreateAdminRequest request) {
         if (isAdminExistsByEmail(request.getEmail())) {
             log.info("admin with email {} already exists", request.getEmail());
@@ -107,8 +96,10 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
-    private void updateAdmin(Admin admin, AdminManagementRequest request) {
-        admin.setAccess(request.getAccess());
+    @Transactional
+    public void updateAdmin(UpdateAdminRequest request) {
+        Admin admin = getAdminById(request.getId());
+
         admin.setRole(Admin.ROLE.valueOf(request.getRole()));
         admin.setRules(getAdminRules(request.getNameRules(), request.getRole()));
 
