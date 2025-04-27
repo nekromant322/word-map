@@ -2,6 +2,7 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.AdminManagementRequest;
 import com.margot.word_map.dto.request.ConfirmRequest;
+import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -159,5 +161,28 @@ public class AdminAuthController {
     @PostMapping("/admins")
     public ResponseEntity<Void> adminManagement(@RequestBody @Validated AdminManagementRequest request) {
         return new ResponseEntity<>(adminService.manageAdmin(request));
+    }
+
+    @Operation(
+            summary = "Создание админа/модератора",
+            description = "запрос для создания админа/модератора",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204800006/POST+auth+admin"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "201", description = "Админ/модератор создан"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
+                    @ApiResponse(responseCode = "400", description = "Почта уже использована"),
+                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+            }
+    )
+    @PostMapping("/admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createAdmin(@RequestBody @Validated CreateAdminRequest request) {
+        adminService.createAdmin(request);
     }
 }

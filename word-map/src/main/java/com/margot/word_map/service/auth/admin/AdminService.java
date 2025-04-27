@@ -2,6 +2,7 @@ package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.AdminManagementRequest;
+import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
@@ -72,6 +73,10 @@ public class AdminService {
         });
     }
 
+    public boolean isAdminExistsByEmail(String email) {
+        return adminRepository.existsByEmail(email);
+    }
+
     @Transactional
     public HttpStatus manageAdmin(AdminManagementRequest request) {
         Optional<Admin> adminOp = adminRepository.findByEmail(request.getEmail());
@@ -80,12 +85,17 @@ public class AdminService {
             updateAdmin(adminOp.get(), request);
             return HttpStatus.OK;
         } else {
-            createAdmin(request);
             return HttpStatus.CREATED;
         }
     }
 
-    private void createAdmin(AdminManagementRequest request) {
+    @Transactional
+    public void createAdmin(CreateAdminRequest request) {
+        if (isAdminExistsByEmail(request.getEmail())) {
+            log.info("admin with email {} already exists", request.getEmail());
+            throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
+        }
+
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .dateCreation(LocalDateTime.now())
