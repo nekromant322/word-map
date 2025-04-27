@@ -1,6 +1,5 @@
 package com.margot.word_map.dto.request;
 
-import com.margot.word_map.dto.AdminType;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import io.swagger.v3.oas.annotations.media.Schema;

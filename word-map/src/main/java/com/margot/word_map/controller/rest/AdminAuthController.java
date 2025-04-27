@@ -18,7 +18,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -207,5 +206,4 @@ public class AdminAuthController {
     public void changeAdminAccess(@RequestBody @Validated ChangeAdminAccessRequest request) {
         adminService.changeAccess(request);
     }
-
 }
