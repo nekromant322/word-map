@@ -4,17 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.GridDto;
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
+import com.margot.word_map.dto.request.WorldRequest;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
 import com.margot.word_map.exception.BaseIsNotEmptyExceptions;
 import com.margot.word_map.mapper.GridMapper;
+import com.margot.word_map.model.Language;
 import com.margot.word_map.model.User;
 import com.margot.word_map.model.map.Grid;
-import com.margot.word_map.model.map.Letter;
-import com.margot.word_map.model.map.Tile;
+import com.margot.word_map.model.map.Platform;
+import com.margot.word_map.model.map.World;
 import com.margot.word_map.repository.UserRepository;
-import com.margot.word_map.repository.map.GridRepository;
-import com.margot.word_map.repository.map.LetterRepository;
-import com.margot.word_map.repository.map.TileRepository;
+import com.margot.word_map.repository.map.*;
+import com.margot.word_map.service.language.LanguageService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,9 @@ public class GridService {
     private final LetterRepository letterRepository;
     private final UserRepository userRepository;
     private final TileRepository tileRepository;
+    private final WorldRepository worldRepository;
+    private final PlatformRepository platformRepository;
+    private final LanguageService languageService;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -114,43 +118,27 @@ public class GridService {
         return grids;
     }
 
-    //Тестовый метод проверить скорость работы
-    public List<Grid> createRandomList(int radius) {
-        List<Grid> grids = new ArrayList<>();
-        User user = entityManager.find(User.class, 1L);
-        Letter letter = entityManager.find(Letter.class, (short) 13);
-        Tile tile = entityManager.find(Tile.class, (short) 2);
-        for (int x = -radius; x < radius; x++) {
-            for (int y = -radius; y < radius; y++) {
-                Grid grid = Grid.builder()
-                        .point(convertToPoint(x, y))
-                        .user(user)
-                        .tile(tile)
-                        .letter(letter.getLetter().charAt(0))
-                        .letterObj(letter)
-                        .build();
-                grids.add(grid);
-            }
-        }
-        log.info("Создано {} Grid объектов", grids.size());
-        return grids;
-    }
-
-    public void createRandomMap(int radius, int batchSize) {
-        LocalDateTime start = LocalDateTime.now();
-        if (!gridRepository.existsBy()) {
-            List<Grid> grids = createRandomList(radius);
-            gridBatchSaver.saveInBatches(grids, batchSize);
-        } else {
-            throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица не пустая");
-        }
-        Duration durationBetween = Duration.between(start, LocalDateTime.now());
-        log.info("Table created in {} seconds", durationBetween.getSeconds());
-    }
-
     @Transactional
-    public void truncateTable() {
-        entityManager.createNativeQuery("TRUNCATE TABLE grid RESTART IDENTITY").executeUpdate();
+    public void dropTable() {
+        entityManager.createNativeQuery("DROP TABLE grid").executeUpdate();
+    }
+
+    public boolean isActive(WorldRequest worldRequest) {
+        Language language;
+        if (languageService.findById(worldRequest.getLanguage()).isPresent()) {
+            language = languageService.findById(worldRequest.getLanguage()).get();
+        } else {
+            throw new NoSuchElementException("Нет языка с таким id");
+        }
+        Platform platform;
+        if (platformRepository.findById(worldRequest.getPlatform()).isPresent()) {
+            platform = platformRepository.findById(worldRequest.getPlatform()).get();
+        } else {
+            throw new NoSuchElementException("Нет платформы с таким id");
+        }
+        Optional<World> worldOptional =
+                worldRepository.findByActiveIsTrueAndLanguageAndPlatform(language.getName(), platform.getName());
+        return worldOptional.isPresent();
     }
 
     public File getTableJson() throws IOException {

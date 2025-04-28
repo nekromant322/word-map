@@ -1,6 +1,9 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
+import com.margot.word_map.dto.request.WorldRequest;
+import com.margot.word_map.dto.response.WorldCreatingResponse;
+import com.margot.word_map.exception.GridIsDuplicatedException;
 import com.margot.word_map.model.User;
 import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.word.WordService;
@@ -40,15 +43,23 @@ public class GridController {
         gridService.update(word, user);
     }
 
-    @GetMapping("/new")
-    public void createMap() {
-        gridService.createRandomMap(16, 500);
+    @PostMapping("/new")
+    public ResponseEntity<WorldCreatingResponse> createMap(@RequestBody WorldRequest request) {
+        if (gridService.isActive(request)) {
+            throw new GridIsDuplicatedException("Не может существовать два одинаковых мира в активном статусе");
+        } else {
+            gridService.createMap(25, 500);
+        }
+        //Todo что дклаем с id?
+        Long id = 1L;
+        WorldCreatingResponse response = new WorldCreatingResponse(id);
+        return ResponseEntity.status(201).body(response);
     }
 
     @DeleteMapping("/end")
     public File delete() throws IOException {
         File file = gridService.getTableJson();
-        gridService.truncateTable();
+        gridService.dropTable();
         return file;
     }
 

@@ -4,7 +4,7 @@ databaseChangeLog:
       author: Alex_Kolosov
       changes:
         - createTable:
-            tableName: world
+            tableName: worlds
             columns:
               - column:
                   name: id
@@ -20,7 +20,7 @@ databaseChangeLog:
                   type: VARCHAR(255)
               - column:
                   name: platform
-                  type: BIGINT
+                  type: VARCHAR(255)
               - column:
                   name: active
                   type: BOOLEAN

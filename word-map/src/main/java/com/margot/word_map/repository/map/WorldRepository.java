@@ -4,8 +4,12 @@ import com.margot.word_map.model.map.World;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface WorldRepository extends JpaRepository<World, Long> {
 
-    World findByGridId(Long id);
+    Optional<World> findByActiveIsTrueAndLanguageAndPlatform(String language, String platform);
+
+    Optional<World> findByGridId(Long id);
 }

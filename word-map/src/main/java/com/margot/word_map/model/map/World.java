@@ -20,7 +20,7 @@ public class World {
 
     private String language;
 
-    private Long platform;
+    private String platform;
 
     private Boolean active;
 }
