@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-admins
+      author: bahertylop
+      changes:
+        - loadData:
+            file: data/admins.csv
+            separator: ","
+            tableName: admins
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-admis-id-sequence
+      author: bahertylop
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval('admins_id_seq', (SELECT MAX(id) FROM admins));

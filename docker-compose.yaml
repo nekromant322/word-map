@@ -11,9 +11,12 @@ services:
       - "5120:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    mem_limit: 200m
 
   app:
     image: megokolos/word_map_game:001
+    build:
+      context: word-map
     container_name: word_map_game
     depends_on:
       - database
@@ -29,6 +32,16 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     ports:
       - "2507:8080"
+    mem_limit: 400m
+
+  nginx:
+    image: megokolos/word-map-adm-frontend:001
+    build:
+      context: frontend
+    container_name: nginx-frontend
+    ports:
+      - "80:80"
+    mem_limit: 120m
 
 volumes:
   pg_data:

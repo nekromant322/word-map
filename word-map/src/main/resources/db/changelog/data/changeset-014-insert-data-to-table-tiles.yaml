@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-tiles
+      author: bahertylop
+      changes:
+        - loadData:
+            file: data/tiles.csv
+            separator: ","
+            tableName: tiles
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-tiles-id-sequence
+      author: bahertylop
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval('tiles_id_seq', (SELECT MAX(id) FROM tiles));

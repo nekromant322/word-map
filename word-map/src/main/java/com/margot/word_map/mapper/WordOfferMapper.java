@@ -12,6 +12,7 @@ public class WordOfferMapper {
                 .id(wordOffer.getId())
                 .word(wordOffer.getWord())
                 .description(wordOffer.getDescription())
+                .userId(wordOffer.getUserId())
                 .build();
     }
 }
