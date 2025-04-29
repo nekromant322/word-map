@@ -20,7 +20,8 @@ public class GridBatchSaver {
     public void saveInBatches(List<Grid> grids, int batchSize, String tableName) {
 
         for (int i = 0; i < grids.size(); i += batchSize) {
-            StringBuilder insertSql = new StringBuilder("INSERT INTO " + tableName + " (point, letter, platform_id) VALUES ");
+            StringBuilder insertSql =
+                    new StringBuilder("INSERT INTO " + tableName + " (point, letter, platform_id) VALUES ");
             List<String> values = new ArrayList<>();
             for (int j = i; j < Math.min(i + batchSize, grids.size()); j++) {
                 Grid grid = grids.get(j);
