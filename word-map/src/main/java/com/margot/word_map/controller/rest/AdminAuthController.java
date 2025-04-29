@@ -1,7 +1,6 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.request.AdminManagementRequest;
-import com.margot.word_map.dto.request.ConfirmRequest;
+import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
@@ -18,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
@@ -64,8 +63,8 @@ public class AdminAuthController {
     public ConfirmResponse loginAdmin(@PathVariable @Email(
             regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
             message = "Invalid email format. Example: example@mail.com")
-                                    @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
-                                    @NotBlank String email) {
+                                      @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
+                                      @NotBlank String email) {
         return adminAuthService.login(email);
     }
 
@@ -140,24 +139,71 @@ public class AdminAuthController {
     }
 
     @Operation(
-            summary = "Управление админами",
-            description = "Создать/обновить админа/модератора",
+            summary = "Создание админа/модератора",
+            description = "запрос для создания админа/модератора",
             externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/POST+auth+admins"
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204800006/POST+auth+admin"
             )
     )
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Данные успешно обновлены"),
-                    @ApiResponse(responseCode = "201", description = "Пользователь добавлен"),
+                    @ApiResponse(responseCode = "201", description = "Админ/модератор создан"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
+                    @ApiResponse(responseCode = "400", description = "Почта уже использована"),
+                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+            }
+    )
+    @PostMapping("/admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createAdmin(@RequestBody @Validated CreateAdminRequest request) {
+        adminService.createAdmin(request);
+    }
+
+    @Operation(
+            summary = "Обновление роли/прав админа/модератора",
+            description = "1. возможность изменения роли (админ -> модератор и наоборот), " +
+                    "для роли модератора указываются права," +
+                    "2. возможность указания новых прав для модератора ",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/PUT+auth+admin"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные обновлены успешно"),
+                    @ApiResponse(responseCode = "404", description = "Админ с таким id не найден"),
                     @ApiResponse(responseCode = "400", description = "Невалидные данные"),
                     @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
                     @ApiResponse(responseCode = "403", description = "Нет доступа")
             }
     )
-    @PostMapping("/admins")
-    public ResponseEntity<Void> adminManagement(@RequestBody @Validated AdminManagementRequest request) {
-        return new ResponseEntity<>(adminService.manageAdmin(request));
+    @PutMapping("/admin")
+    public void updateAdmin(@RequestBody @Validated UpdateAdminRequest request) {
+        adminService.updateAdmin(request);
+    }
+
+    @Operation(
+            summary = "Изменение доступа админа/модератора",
+            description = "Запрос позволяет поменять запретить или разрешить доступ админу/модератору",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204603402/POST+auth+admin+access"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Доступ успешно изменен"),
+                    @ApiResponse(responseCode = "404", description = "Админ с таким id не найден"),
+                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
+                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
+                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+            }
+    )
+    @PostMapping("/admin/access")
+    public void changeAdminAccess(@RequestBody @Validated ChangeAdminAccessRequest request) {
+        adminService.changeAccess(request);
     }
 }

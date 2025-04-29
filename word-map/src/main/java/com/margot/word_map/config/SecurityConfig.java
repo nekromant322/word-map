@@ -46,6 +46,7 @@ public class SecurityConfig {
         PATH_TO_RULE_MAP.put("/dictionary", Rule.RULE.MANAGE_DICTIONARY);
         PATH_TO_RULE_MAP.put("/rating", Rule.RULE.MANAGE_RATING);
         PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
+        PATH_TO_RULE_MAP.put("/auth/admin/admin", Rule.RULE.MANAGE_ROLE);
         PATH_TO_RULE_MAP.put("/admins", Rule.RULE.MANAGE_ROLE);
         PATH_TO_RULE_MAP.put("/event", Rule.RULE.MANAGE_EVENT);
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
@@ -62,7 +63,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/admins").access(authorizationManager())
+                        .requestMatchers("/auth/admin/admin/**").access(authorizationManager())
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
@@ -112,6 +113,10 @@ public class SecurityConfig {
 
     private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal() instanceof Admin admin) {
+            if (!admin.getAccess()) {
+                return new AuthorizationDecision(false);
+            }
+
             String path = request.getRequestURI();
             if (matchesPath(path, USER_PATHS)) {
                 return new AuthorizationDecision(false);
@@ -128,6 +133,10 @@ public class SecurityConfig {
                             .orElse(false)
             );
         } else if (authentication.getPrincipal() instanceof User user) {
+            if (!user.getAccess()) {
+                return new AuthorizationDecision(false);
+            }
+
             return new AuthorizationDecision(
                     matchesPath(request.getRequestURI(), USER_PATHS)
             );
