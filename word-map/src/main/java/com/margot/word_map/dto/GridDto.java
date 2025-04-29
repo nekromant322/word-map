@@ -17,6 +17,8 @@ public class GridDto {
 
     private Long userId;
 
+    private String platform;
+
     private Short tileId;
 
     private Short letterId;

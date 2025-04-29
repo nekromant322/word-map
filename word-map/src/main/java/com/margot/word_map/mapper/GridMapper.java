@@ -12,10 +12,11 @@ public class GridMapper {
                 .id(grid.getId())
                 .coordinateX(grid.getPoint().getX())
                 .coordinateY(grid.getPoint().getY())
-                .letter(grid.getLetter())
-                .letterId(grid.getLetterObj().getId())
-                .tileId(grid.getTile().getId())
-                .userId(grid.getUser().getId())
+                .platform(grid.getPlatform().getName())
+                .letter(grid.getLetter() != null ? grid.getLetter() : null)
+                .letterId(grid.getLetterObj() != null ? grid.getLetterObj().getId() : null)
+                .tileId(grid.getTile() != null ? grid.getTile().getId() : null)
+                .userId(grid.getUser() != null ? grid.getUser().getId() : null)
                 .build();
     }
 }

@@ -51,14 +51,14 @@ public class GridController {
     }
 
     @DeleteMapping("/end")
-    public File delete(Long worldId) throws IOException {
+    public File delete(@RequestParam Long worldId) throws IOException {
         File file = gridService.getTableJson(worldId);
         gridService.dropTable(worldId);
         return file;
     }
 
     @GetMapping("/export")
-    public ResponseEntity<Resource> exportGridData(Long worldId) throws IOException {
+    public ResponseEntity<Resource> exportGridData(@RequestParam Long worldId) throws IOException {
         File file = gridService.getTableJson(worldId);
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));

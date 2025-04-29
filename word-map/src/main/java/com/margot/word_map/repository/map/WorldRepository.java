@@ -10,6 +10,4 @@ import java.util.Optional;
 public interface WorldRepository extends JpaRepository<World, Long> {
 
     Optional<World> findByActiveIsTrueAndLanguageAndPlatform(String language, String platform);
-
-    Optional<World> findByGridId(Long id);
 }
