@@ -1,7 +1,9 @@
 package com.margot.word_map.service.auth.admin;
 
 import com.margot.word_map.dto.AdminDto;
-import com.margot.word_map.dto.request.AdminManagementRequest;
+import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
+import com.margot.word_map.dto.request.CreateAdminRequest;
+import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
@@ -15,14 +17,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -72,20 +72,17 @@ public class AdminService {
         });
     }
 
-    @Transactional
-    public HttpStatus manageAdmin(AdminManagementRequest request) {
-        Optional<Admin> adminOp = adminRepository.findByEmail(request.getEmail());
-
-        if (adminOp.isPresent()) {
-            updateAdmin(adminOp.get(), request);
-            return HttpStatus.OK;
-        } else {
-            createAdmin(request);
-            return HttpStatus.CREATED;
-        }
+    public boolean isAdminExistsByEmail(String email) {
+        return adminRepository.existsByEmail(email);
     }
 
-    private void createAdmin(AdminManagementRequest request) {
+    @Transactional
+    public void createAdmin(CreateAdminRequest request) {
+        if (isAdminExistsByEmail(request.getEmail())) {
+            log.info("admin with email {} already exists", request.getEmail());
+            throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
+        }
+
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .dateCreation(LocalDateTime.now())
@@ -97,8 +94,10 @@ public class AdminService {
         adminRepository.save(admin);
     }
 
-    private void updateAdmin(Admin admin, AdminManagementRequest request) {
-        admin.setAccess(request.getAccess());
+    @Transactional
+    public void updateAdmin(UpdateAdminRequest request) {
+        Admin admin = getAdminById(request.getId());
+
         admin.setRole(Admin.ROLE.valueOf(request.getRole()));
         admin.setRules(getAdminRules(request.getNameRules(), request.getRole()));
 
@@ -112,5 +111,13 @@ public class AdminService {
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
+    }
+
+    @Transactional
+    public void changeAccess(ChangeAdminAccessRequest request) {
+        Admin admin = getAdminById(request.getId());
+
+        admin.setAccess(request.getAccess());
+        adminRepository.save(admin);
     }
 }
