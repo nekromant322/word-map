@@ -13,9 +13,6 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: grid_id
-                  type: BIGINT
-              - column:
                   name: language
                   type: VARCHAR(255)
               - column:

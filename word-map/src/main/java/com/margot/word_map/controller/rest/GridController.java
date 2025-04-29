@@ -45,7 +45,7 @@ public class GridController {
 
     @PostMapping("/new")
     public ResponseEntity<WorldCreatingResponse> createMap(@RequestBody WorldRequest request) {
-        World world = gridService.createWorld(25, 500, request);
+        World world = gridService.createWorld(5, 500, request);
         WorldCreatingResponse response = new WorldCreatingResponse(world.getId());
         return ResponseEntity.status(201).body(response);
     }
