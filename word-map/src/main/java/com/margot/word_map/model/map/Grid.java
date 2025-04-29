@@ -23,6 +23,10 @@ public class Grid {
     private Character letter;
 
     @ManyToOne
+    @JoinColumn(name = "platform_id", referencedColumnName = "id")
+    private Platform platform;
+
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

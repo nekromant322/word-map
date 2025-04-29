@@ -3,6 +3,8 @@ package com.margot.word_map.model.map;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Setter
 @Getter
@@ -17,4 +19,7 @@ public class Platform {
     private Long id;
 
     private String name;
+
+    @OneToMany(mappedBy = "platform")
+    private List<Grid> grids;
 }

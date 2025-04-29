@@ -3,8 +3,8 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.dto.request.WorldRequest;
 import com.margot.word_map.dto.response.WorldCreatingResponse;
-import com.margot.word_map.exception.GridIsDuplicatedException;
 import com.margot.word_map.model.User;
+import com.margot.word_map.model.map.World;
 import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.word.WordService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/map")
+@RequestMapping("/grid")
 @RequiredArgsConstructor
 @Validated
 public class GridController {
@@ -32,7 +32,7 @@ public class GridController {
     private final WordService wordService;
 
     @PostMapping("/word")
-    public void sendWord (@Valid @RequestBody WordAndLettersWithCoordinates word, UserDetails userDetails) {
+    public void sendWord(@Valid @RequestBody WordAndLettersWithCoordinates word, UserDetails userDetails) {
         checkAndSave(word, userDetails);
     }
 
@@ -45,27 +45,21 @@ public class GridController {
 
     @PostMapping("/new")
     public ResponseEntity<WorldCreatingResponse> createMap(@RequestBody WorldRequest request) {
-        if (gridService.isActive(request)) {
-            throw new GridIsDuplicatedException("Не может существовать два одинаковых мира в активном статусе");
-        } else {
-            gridService.createMap(25, 500);
-        }
-        //Todo что дклаем с id?
-        Long id = 1L;
-        WorldCreatingResponse response = new WorldCreatingResponse(id);
+        World world = gridService.createWorld(25, 500, request);
+        WorldCreatingResponse response = new WorldCreatingResponse(world.getId());
         return ResponseEntity.status(201).body(response);
     }
 
     @DeleteMapping("/end")
-    public File delete() throws IOException {
-        File file = gridService.getTableJson();
-        gridService.dropTable();
+    public File delete(Long worldId) throws IOException {
+        File file = gridService.getTableJson(worldId);
+        gridService.dropTable(worldId);
         return file;
     }
 
     @GetMapping("/export")
-    public ResponseEntity<Resource> exportGridData() throws IOException {
-        File file = gridService.getTableJson();
+    public ResponseEntity<Resource> exportGridData(Long worldId) throws IOException {
+        File file = gridService.getTableJson(worldId);
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 

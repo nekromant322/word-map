@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,17 +17,24 @@ public class GridBatchSaver {
     private EntityManager entityManager;
 
     @Transactional
-    public void saveInBatches(List<Grid> grids, int batchSize) {
-        for (int i = 0; i < grids.size(); i++) {
-            entityManager.persist(grids.get(i));
-            if (i % batchSize == 0 && i > 0) {
-                entityManager.flush();
-                entityManager.clear();
+    public void saveInBatches(List<Grid> grids, int batchSize, String tableName) {
+
+        for (int i = 0; i < grids.size(); i += batchSize) {
+            StringBuilder insertSql = new StringBuilder("INSERT INTO " + tableName + " (point, letter, platform_id) VALUES ");
+            List<String> values = new ArrayList<>();
+            for (int j = i; j < Math.min(i + batchSize, grids.size()); j++) {
+                Grid grid = grids.get(j);
+                String point = grid.getPoint() != null ? "ST_GeomFromText('POINT(%f %f)', 0)".formatted(
+                        grid.getPoint().getX(), grid.getPoint().getY()) : "NULL";
+                String letter = grid.getLetter() != null ? "'" + grid.getLetter() + "'" : "NULL";
+                Long platformId = grid.getPlatform() != null ? grid.getPlatform().getId() : null;
+                values.add("(%s, %s, %s)".formatted(point, letter, platformId != null ? platformId : "NULL"));
             }
+            insertSql.append(String.join(",", values));
+            entityManager.createNativeQuery(insertSql.toString()).executeUpdate();
         }
-        entityManager.flush();
-        entityManager.clear();
-        log.info("saved {}", grids.size());
+
+        log.info("Saved {} grids to {}", grids.size(), tableName);
     }
 }
 

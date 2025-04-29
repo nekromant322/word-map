@@ -16,8 +16,6 @@ public class World {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long gridId;
-
     private String language;
 
     private String platform;

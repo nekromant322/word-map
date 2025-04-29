@@ -7,6 +7,7 @@ import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.dto.request.WorldRequest;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
 import com.margot.word_map.exception.BaseIsNotEmptyExceptions;
+import com.margot.word_map.exception.PlatformNotFoundException;
 import com.margot.word_map.mapper.GridMapper;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.User;
@@ -18,14 +19,13 @@ import com.margot.word_map.repository.map.*;
 import com.margot.word_map.service.language.LanguageService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +37,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +53,8 @@ public class GridService {
     private final WorldRepository worldRepository;
     private final PlatformRepository platformRepository;
     private final LanguageService languageService;
+
+    private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory(new PrecisionModel(), 0);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -93,24 +94,30 @@ public class GridService {
         }
     }
 
-    public void createMap(int radius, int batchSize) {
+    @Transactional
+    public World createWorld(int radius, int batchSize, WorldRequest request) {
         LocalDateTime start = LocalDateTime.now();
-        if (!gridRepository.existsBy()) {
-            List<Grid> grids = createList(radius);
-            gridBatchSaver.saveInBatches(grids, batchSize);
+        World world;
+        if (!isActive(request)) {
+            world = createTableGrid(request);
+            List<Grid> grids = createList(radius, request.getPlatform());
+            gridBatchSaver.saveInBatches(grids, batchSize, "grid_" + world.getId());
         } else {
-            throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица не пустая");
+            throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица уже активна");
         }
         Duration durationBetween = Duration.between(start, LocalDateTime.now());
         log.info("Table created in {} seconds", durationBetween.getSeconds());
+
+        return world;
     }
 
-    public List<Grid> createList(int radius) {
+    public List<Grid> createList(int radius, Long platformId) {
         List<Grid> grids = new ArrayList<>();
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 Grid grid = Grid.builder()
                         .point(convertToPoint(x, y))
+                        .platform(platformRepository.findById(platformId).get())
                         .build();
                 grids.add(grid);
             }
@@ -119,8 +126,57 @@ public class GridService {
     }
 
     @Transactional
-    public void dropTable() {
-        entityManager.createNativeQuery("DROP TABLE grid").executeUpdate();
+    public World createTableGrid(WorldRequest request) {
+        Platform platform = platformRepository.findById(request.getPlatform()).orElseThrow(
+                () -> new PlatformNotFoundException("Платформы с таким id нет"));
+        String language = languageService.getLanguageById(request.getLanguage()).getName();
+
+        World world = World.builder()
+                .platform(platform.getName())
+                .language(language)
+                .active(true)
+                .build();
+
+        worldRepository.save(world);
+
+        String tableName = "grid_" + world.getId();
+        String createTableSql = """
+                CREATE TABLE %s (
+                    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+                    point GEOMETRY(Point,0),
+                    letter CHAR(1),
+                    platform_id BIGINT,
+                    user_id BIGINT,
+                    tile_id SMALLINT,
+                    letter_id SMALLINT,
+                    CONSTRAINT fk_%s_platform FOREIGN KEY (platform_id) REFERENCES platforms(id),
+                    CONSTRAINT fk_%s_user FOREIGN KEY (user_id) REFERENCES users(id),
+                    CONSTRAINT fk_%s_tile FOREIGN KEY (tile_id) REFERENCES tiles(id),
+                    CONSTRAINT fk_%s_letter FOREIGN KEY (letter_id) REFERENCES letters(id)
+                );
+                CREATE INDEX idx_%s_platform_id ON %s(platform_id);
+                """.formatted(
+                    tableName, tableName, tableName, tableName, tableName, tableName, tableName
+            );
+        entityManager.createNativeQuery(createTableSql).executeUpdate();
+        log.info("Table {} created successfully", tableName);
+
+        return world;
+    }
+
+    @Transactional
+    public void dropTable(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid world ID: " + id);
+        }
+        World world = worldRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        world.setActive(false);
+        worldRepository.save(world);
+
+        String tableName = "grid_" + id;
+        String dropTableSql = "DROP TABLE IF EXISTS " + tableName;
+        entityManager.createNativeQuery(dropTableSql).executeUpdate();
+        log.info("Table {} dropped successfully", tableName);
     }
 
     public boolean isActive(WorldRequest worldRequest) {
@@ -141,43 +197,49 @@ public class GridService {
         return worldOptional.isPresent();
     }
 
-    public File getTableJson() throws IOException {
-        File outputFile = new File(LocalDate.now() + "_grid_export.json");
+    public File getTableJson(Long id) throws IOException {
+        String tableName = "grid_" + id;
+
+        boolean tableExists = (boolean) entityManager.createNativeQuery(
+                "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = :tableName)"
+        ).setParameter("tableName", tableName).getSingleResult();
+        if (!tableExists) {
+            throw new IllegalStateException("Table " + tableName + " does not exist");
+        }
+
+        String fileName = String.format("%s_grid_%d_export.json", LocalDate.now().toString(), id);
+        File outputFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write("[\n");
 
-            int page = 0;
+            Query query = entityManager.createNativeQuery("SELECT * FROM " + tableName, Grid.class);
+            List<Grid> grids = query.getResultList();
             boolean first = true;
-            while (true) {
-                Page<Grid> gridPage = gridRepository.findAll(PageRequest.of(page, 500));
-                List<GridDto> gridDtoPage = gridPage.stream().map(gridMapper::convertToGridDto).toList();
-                if (gridPage.isEmpty()) break;
 
-                for (GridDto gridDto : gridDtoPage) {
-                    if (!first) writer.write(",\n");
-                    else first = false;
-
-                    try {
-                        String json = objectMapper.writeValueAsString(gridDto);
-                        writer.write(json);
-                    } catch (JsonProcessingException e) {
-                        log.warn("Ошибка сериализации объекта с id {}: {} \n {}",
-                                gridDto.getId(),
-                                e.getMessage(),
-                                Arrays.stream(e.getStackTrace())
-                                        .limit(5).map(StackTraceElement::toString).collect(Collectors.joining("\n")));
-                    }
+            for (Grid grid : grids) {
+                GridDto gridDto = gridMapper.convertToGridDto(grid);
+                if (!first) {
+                    writer.write(",\n");
+                } else {
+                    first = false;
                 }
 
-                page++;
+                try {
+                    String json = objectMapper.writeValueAsString(gridDto);
+                    writer.write(json);
+                } catch (JsonProcessingException e) {
+                    log.warn("Ошибка сериализации объекта с id {}: {}", gridDto.getId(), e.getMessage());
+                }
             }
+
             writer.write("\n]");
         }
+
         return outputFile;
     }
 
     private Point convertToPoint(double x, double y) {
-        GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 0);
-        return geometryFactory.createPoint(new Coordinate(x, y));
+        return GEOMETRY_FACTORY.createPoint(new Coordinate(x, y));
     }
 }

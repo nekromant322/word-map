@@ -19,6 +19,9 @@ databaseChangeLog:
                   name: letter
                   type: CHAR(1)
               - column:
+                  name: platform_id
+                  type: BIGINT
+              - column:
                   name: user_id
                   type: BIGINT
               - column:
@@ -48,3 +51,10 @@ databaseChangeLog:
             referencedTableName: letters
             referencedColumnNames: id
             constraintName: fk_grid_letter
+
+        - addForeignKeyConstraint:
+            baseTableName: grid
+            baseColumnNames: platform_id
+            referencedTableName: platforms
+            referencedColumnNames: id
+            constraintName: fk_grid_platform
