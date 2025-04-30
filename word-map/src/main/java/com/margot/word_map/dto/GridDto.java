@@ -22,4 +22,6 @@ public class GridDto {
     private Short tileId;
 
     private Short letterId;
+
+    private Long worldId;
 }

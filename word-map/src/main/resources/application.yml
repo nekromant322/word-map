@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://45.8.230.91:5120/word_map_game
+    url: jdbc:postgresql://database:5432/word_map_game
     username: word_map_game_user
     password: word_map_game_password
     driver-class-name: org.postgresql.Driver

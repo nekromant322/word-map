@@ -17,6 +17,7 @@ public class GridMapper {
                 .letterId(grid.getLetterObj() != null ? grid.getLetterObj().getId() : null)
                 .tileId(grid.getTile() != null ? grid.getTile().getId() : null)
                 .userId(grid.getUser() != null ? grid.getUser().getId() : null)
+                .worldId(grid.getWorld().getId())
                 .build();
     }
 }

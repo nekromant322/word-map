@@ -37,4 +37,8 @@ public class Grid {
     @ManyToOne
     @JoinColumn(name = "letter_id", referencedColumnName = "id")
     private Letter letterObj;
+
+    @ManyToOne
+    @JoinColumn(name = "world_id", referencedColumnName = "id")
+    private World world;
 }

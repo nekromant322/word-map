@@ -100,7 +100,7 @@ public class GridService {
         World world;
         if (!isActive(request)) {
             world = createTableGrid(request);
-            List<Grid> grids = createList(radius, request.getPlatform());
+            List<Grid> grids = createList(radius, request.getPlatform(), world.getId());
             gridBatchSaver.saveInBatches(grids, batchSize, "grid_" + world.getId());
         } else {
             throw new BaseIsNotEmptyExceptions("Ошибка создания, таблица уже активна");
@@ -111,13 +111,15 @@ public class GridService {
         return world;
     }
 
-    public List<Grid> createList(int radius, Long platformId) {
+    @Transactional
+    public List<Grid> createList(int radius, Long platformId, Long worldId) {
         List<Grid> grids = new ArrayList<>();
         for (int x = -radius; x < radius; x++) {
             for (int y = -radius; y < radius; y++) {
                 Grid grid = Grid.builder()
                         .point(convertToPoint(x, y))
                         .platform(platformRepository.findById(platformId).get())
+                        .world(worldRepository.findById(worldId).get())
                         .build();
                 grids.add(grid);
             }
@@ -141,22 +143,11 @@ public class GridService {
 
         String tableName = "grid_" + world.getId();
         String createTableSql = """
-                CREATE TABLE %s (
-                    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-                    point GEOMETRY(Point,0),
-                    letter CHAR(1),
-                    platform_id BIGINT,
-                    user_id BIGINT,
-                    tile_id SMALLINT,
-                    letter_id SMALLINT,
-                    CONSTRAINT fk_%s_platform FOREIGN KEY (platform_id) REFERENCES platforms(id),
-                    CONSTRAINT fk_%s_user FOREIGN KEY (user_id) REFERENCES users(id),
-                    CONSTRAINT fk_%s_tile FOREIGN KEY (tile_id) REFERENCES tiles(id),
-                    CONSTRAINT fk_%s_letter FOREIGN KEY (letter_id) REFERENCES letters(id)
-                );
-                CREATE INDEX idx_%s_platform_id ON %s(platform_id);
+                CREATE TABLE IF NOT EXISTS %s
+                PARTITION OF grid
+                FOR VALUES IN (%d);
                 """.formatted(
-                    tableName, tableName, tableName, tableName, tableName, tableName, tableName
+                    tableName, world.getId()
             );
         entityManager.createNativeQuery(createTableSql).executeUpdate();
         log.info("Table {} created successfully", tableName);
@@ -165,16 +156,16 @@ public class GridService {
     }
 
     @Transactional
-    public void dropTable(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Invalid world ID: " + id);
+    public void dropTable(Long worldId) {
+        if (worldId == null || worldId <= 0) {
+            throw new IllegalArgumentException("Invalid world ID: " + worldId);
         }
-        World world = worldRepository.findById(id).orElseThrow(NoSuchElementException::new);
+        World world = worldRepository.findById(worldId).orElseThrow(NoSuchElementException::new);
         world.setActive(false);
         worldRepository.save(world);
 
-        String tableName = "grid_" + id;
-        String dropTableSql = "DROP TABLE IF EXISTS " + tableName;
+        String tableName = "grid_" + worldId;
+        String dropTableSql = "DROP TABLE " + tableName ;
         entityManager.createNativeQuery(dropTableSql).executeUpdate();
         log.info("Table {} dropped successfully", tableName);
     }
@@ -208,7 +199,7 @@ public class GridService {
         }
 
         String fileName = String.format("%s_grid_%d_export.json", LocalDate.now().toString(), id);
-        File outputFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+        File outputFile = new File("/app/exports", fileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write("[\n");
@@ -234,6 +225,15 @@ public class GridService {
             }
 
             writer.write("\n]");
+            writer.flush();
+            log.info("File {} written successfully with {} records", outputFile.getAbsolutePath(), grids.size());
+        } catch (IOException e) {
+            log.error("Failed to write to file {}: {}", outputFile.getAbsolutePath(), e.getMessage());
+            throw e;
+        }
+
+        if (!outputFile.exists()) {
+            throw new IllegalStateException("File was not created: " + outputFile.getAbsolutePath());
         }
 
         return outputFile;
