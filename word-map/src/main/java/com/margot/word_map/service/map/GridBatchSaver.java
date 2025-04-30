@@ -20,8 +20,8 @@ public class GridBatchSaver {
     public void saveInBatches(List<Grid> grids, int batchSize, String tableName) {
 
         for (int i = 0; i < grids.size(); i += batchSize) {
-            StringBuilder insertSql =
-                    new StringBuilder("INSERT INTO " + tableName + " (point, letter, platform_id) VALUES ");
+            StringBuilder insertSql = new StringBuilder(
+                    "INSERT INTO " + tableName + " (point, letter, platform_id, world_id) VALUES ");
             List<String> values = new ArrayList<>();
             for (int j = i; j < Math.min(i + batchSize, grids.size()); j++) {
                 Grid grid = grids.get(j);
@@ -29,7 +29,8 @@ public class GridBatchSaver {
                         grid.getPoint().getX(), grid.getPoint().getY()) : "NULL";
                 String letter = grid.getLetter() != null ? "'" + grid.getLetter() + "'" : "NULL";
                 Long platformId = grid.getPlatform() != null ? grid.getPlatform().getId() : null;
-                values.add("(%s, %s, %s)".formatted(point, letter, platformId != null ? platformId : "NULL"));
+                Long worldId = grid.getWorld().getId();
+                values.add("(%s, %s, %s, %s)".formatted(point, letter, platformId, worldId));
             }
             insertSql.append(String.join(",", values));
             entityManager.createNativeQuery(insertSql.toString()).executeUpdate();

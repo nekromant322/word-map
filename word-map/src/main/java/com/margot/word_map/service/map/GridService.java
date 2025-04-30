@@ -139,9 +139,9 @@ public class GridService {
                 .active(true)
                 .build();
 
-        worldRepository.save(world);
+        World savedWorld = worldRepository.saveAndFlush(world);
 
-        String tableName = "grid_" + world.getId();
+        String tableName = "grid_" + savedWorld.getId();
         String createTableSql = """
                 CREATE TABLE IF NOT EXISTS %s
                 PARTITION OF grid
@@ -199,7 +199,7 @@ public class GridService {
         }
 
         String fileName = String.format("%s_grid_%d_export.json", LocalDate.now().toString(), id);
-        File outputFile = new File("/app/exports", fileName);
+        File outputFile = new File("/app", fileName);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write("[\n");
