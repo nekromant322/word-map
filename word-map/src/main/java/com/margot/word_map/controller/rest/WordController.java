@@ -105,7 +105,7 @@ public class WordController {
     @PostMapping("/word")
     public void createNewWord(@AuthenticationPrincipal UserDetails userDetails,
                               @RequestBody @Validated CreateWordRequest request) {
-        wordService.createNewWord(userDetails, request);
+        wordService.createNewWord(userDetails, request.getWord(), request.getDescription());
     }
 
     @Operation(
