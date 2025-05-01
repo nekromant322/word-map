@@ -13,6 +13,7 @@ public class WordOfferMapper {
                 .word(wordOffer.getWord())
                 .userId(wordOffer.getUserId())
                 .createdAt(wordOffer.getCreatedAt())
+                .status(wordOffer.getStatus().name())
                 .build();
     }
 }

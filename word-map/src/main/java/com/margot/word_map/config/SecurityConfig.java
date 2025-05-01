@@ -70,7 +70,6 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        .requestMatchers("/map/**").authenticated()
                         .anyRequest().access(authorizationManager())
                 )
                 .oauth2Login(oauth2 -> oauth2

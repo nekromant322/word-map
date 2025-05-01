@@ -25,6 +25,8 @@ public class WordOffer {
 
     private LocalDateTime createdAt;
 
+    private Long languageId;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private STATUS status = STATUS.UNCHECKED;

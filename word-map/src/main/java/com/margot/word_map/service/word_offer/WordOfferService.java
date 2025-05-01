@@ -1,6 +1,7 @@
 package com.margot.word_map.service.word_offer;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
+import com.margot.word_map.dto.request.WordOfferChangeStatus;
 import com.margot.word_map.dto.response.WordOfferResponse;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
@@ -57,6 +58,7 @@ public class WordOfferService {
                 .word(request.getWord())
                 .userId(user.getId())
                 .createdAt(LocalDateTime.now())
+                .languageId(request.getLanguageId())
                 .build();
 
         wordOfferRepository.save(wordOffer);
@@ -79,27 +81,44 @@ public class WordOfferService {
 
         Specification<WordOffer> spec = Specification.where(null);
 
-        if (statusFilter != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("status"), WordOffer.STATUS.valueOf(statusFilter.toUpperCase()))
-            );
+        if (statusFilter != null && !statusFilter.isBlank()) {
+            try {
+                WordOffer.STATUS statusEnum = WordOffer.STATUS.valueOf(statusFilter.toUpperCase());
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), statusEnum));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Неверный статус: " + statusFilter);
+            }
         }
+
         return wordOfferRepository.findAll(spec, pageable).map(wordOfferMapper::toResponse);
     }
 
     //Todo Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
     public void approve(UserDetails userDetails, Long id, String description) {
+        Admin admin = (Admin) userDetails;
+
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
             throw new WordNotFoundException("word offer with " + id + " not found");
         }
         WordOffer wordOffer = wordOfferOptional.get();
 
-        wordService.createNewWord(userDetails, wordOffer.getWord(), description);
+        wordService.createNewWord(userDetails, new CreateWordRequest(
+                wordOffer.getWord(), description, wordOffer.getLanguageId()));
 
         wordOffer.setStatus(WordOffer.STATUS.APPROVED);
         wordOfferRepository.save(wordOffer);
+        log.info("APPROVE WORD админ {} добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+    }
+
+    @Transactional
+    public void changeStatus(WordOfferChangeStatus status) {
+        WordOffer wordOffer = wordOfferRepository.findById(status.getId()).orElseThrow(() ->
+                new  WordNotFoundException("Нет слова с таким id в предложке"));
+        wordOffer.setStatus(WordOffer.STATUS.valueOf(status.getStatus()));
+        wordOfferRepository.save(wordOffer);
+        log.info("Статус слова с id {} изменен на {}", status.getId(), status.getStatus());
     }
 
     @Transactional
@@ -113,6 +132,6 @@ public class WordOfferService {
         WordOffer wordOffer = wordOfferOptional.get();
         wordOffer.setStatus(WordOffer.STATUS.REJECTED);
         wordOfferRepository.save(wordOffer);
-        log.info("REJECT WORD Пользователь {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+        log.info("REJECT WORD админ {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
     }
 }

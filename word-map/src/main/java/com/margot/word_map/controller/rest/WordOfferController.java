@@ -1,6 +1,7 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
+import com.margot.word_map.dto.request.WordOfferChangeStatus;
 import com.margot.word_map.dto.request.WordOffersSortRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
 import com.margot.word_map.service.word_offer.WordOfferService;
@@ -75,6 +76,18 @@ public class WordOfferController {
             @RequestBody WordOffersSortRequest request) {
         return wordOfferService.getOffers(
                 request.getStatus(), request.getPage(), request.getSize(), request.getSortBy(), request.getSortDir());
+    }
+
+    @Operation(
+            summary = "Метод для изменения статусов слов",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/209813505/POST+offer+status"
+            )
+    )
+    @PostMapping("/status")
+    public void changeStatus(@RequestBody WordOfferChangeStatus status) {
+        wordOfferService.changeStatus(status);
     }
 
     @Operation(
