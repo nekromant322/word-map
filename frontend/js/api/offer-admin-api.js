@@ -1,14 +1,26 @@
 import {CONFIG} from "../config/api-config.js";
 import {authorizedFetch} from "./util.js";
 
-export async function getWordOffers(page) {
-    return authorizedFetch(`${CONFIG.API_BASE_URL}/wordsOffer/admin/check?page=${page}`, {
-        method: "GET"
+export async function getWordOffers(page = 0, size = 10, sortBy = "createdAt", sortDir = "desc", status = "") {
+    const body = {
+        page,
+        size,
+        sortBy,
+        sortDir,
+        status
+    };
+
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/wordsOffer/admin/list`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
     });
 }
 
-export async function approveWord(id) {
-    return authorizedFetch(`${CONFIG.API_BASE_URL}/wordsOffer/admin/approve/${id}`, {
+export async function approveWord(id, description) {
+    return authorizedFetch(`${CONFIG.API_BASE_URL}/wordsOffer/admin/approve/${id}?description=${encodeURIComponent(description)}`, {
         method: "POST"
     });
 }

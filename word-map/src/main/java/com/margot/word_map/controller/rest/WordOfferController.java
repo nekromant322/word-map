@@ -1,6 +1,7 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
+import com.margot.word_map.dto.request.WordOffersSortRequest;
 import com.margot.word_map.dto.response.WordOfferResponse;
 import com.margot.word_map.service.word_offer.WordOfferService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -13,8 +14,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,7 @@ public class WordOfferController {
     @Operation(
             summary = "Метод для предложения слова",
             externalDocs = @ExternalDocumentation(
-                    description = "Метод еще не описан в Confluence"
+                    description = "https://override-platform.atlassian.net/wiki/spaces/W/pages/209715201/POST+offer"
             )
     )
     @ApiResponses(
@@ -59,7 +58,8 @@ public class WordOfferController {
     @Operation(
             summary = "Метод для просмотра предложений",
             externalDocs = @ExternalDocumentation(
-                    description = "Метод еще не описан в Confluence"
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/207945769/POST+offer+list"
             )
     )
     @ApiResponses(
@@ -70,14 +70,11 @@ public class WordOfferController {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    @GetMapping("/admin/check")
-    public Page<WordOfferResponse> checkOffers(
-            @Parameter(description = "номер страницы", example = "2")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "количество элементов на странице", example = "20")
-            @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return wordOfferService.getAllWordsOffersNotChecked(pageable);
+    @PostMapping("/admin/list")
+    public Page<WordOfferResponse> getWordOffers(
+            @RequestBody WordOffersSortRequest request) {
+        return wordOfferService.getOffers(
+                request.getStatus(), request.getPage(), request.getSize(), request.getSortBy(), request.getSortDir());
     }
 
     @Operation(
@@ -121,7 +118,9 @@ public class WordOfferController {
     @PostMapping("/admin/approve/{id}")
     public void approveWord(@AuthenticationPrincipal UserDetails userDetails,
                             @Parameter(description = "id предложения", example = "12")
-                            @PathVariable Long id) {
-        wordOfferService.approve(userDetails, id);
+                            @PathVariable Long id,
+                            @Parameter(description = "Описание слова", example = "Инструмент для ковки")
+                            @RequestParam String description) {
+        wordOfferService.approve(userDetails, id, description);
     }
 }

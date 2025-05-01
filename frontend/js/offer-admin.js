@@ -15,31 +15,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     const offerList = document.getElementById("offers-list");
     const nextPageBtn = document.getElementById("nextPage");
     const prevPageBtn = document.getElementById("prevPage");
+    const descriptionModal = new bootstrap.Modal(document.getElementById("descriptionModal"));
+    const descriptionInput = document.getElementById("descriptionInput");
+    const confirmApproveBtn = document.getElementById("confirmApproveBtn");
 
     let currentPage = 0;
+    let pageSize = 10;
+    let sortBy = "createdAt";
+    let sortDir = "desc";
+    let statusFilter = "";
+    let currentApproveId = null;
 
+    const statusSelect = document.getElementById("statusSelect");
+
+    statusSelect.addEventListener("change", () => {
+        statusFilter = statusSelect.value;
+        currentPage = 0;
+        loadOffers();
+    });
     async function loadOffers() {
         try {
-            const response = await getWordOffers(currentPage);
+            const response = await getWordOffers(currentPage, pageSize, sortBy, sortDir, statusFilter);
             if (!response.ok) throw new Error("Ошибка при загрузке предложений");
 
             const pageData = await response.json();
             offerList.innerHTML = "";
 
+            if (pageData.content.length === 0) {
+                offerList.innerHTML = "<div class='text-muted'>Нет предложений для отображения</div>";
+                return;
+            }
+
             pageData.content.forEach(offer => {
                 const li = document.createElement("li");
                 li.className = "list-group-item d-flex justify-content-between align-items-center";
                 li.innerHTML = `
-                    <div>
-                        <strong>${offer.word}</strong> — ${offer.description}
-                        <br/>
-                        Автор: ${offer.userId  || "неизвестен"}
-                    </div>
-                    <div>
-                        <button class="btn btn-success btn-sm me-2" data-id="${offer.id}" data-action="approve">✔️</button>
-                        <button class="btn btn-danger btn-sm" data-id="${offer.id}" data-action="reject">❌</button>
-                    </div>
-                `;
+                <div>
+                    <strong>${offer.word}</strong>
+                    <br/>
+                    Автор: ${offer.userId || "неизвестен"}<br/>
+                    Статус: ${offer.status}
+                </div>
+                <div>
+                    <button class="btn btn-success btn-sm me-2" data-id="${offer.id}" data-action="approve">✔️</button>
+                    <button class="btn btn-danger btn-sm" data-id="${offer.id}" data-action="reject">❌</button>
+                </div>
+            `;
                 offerList.appendChild(li);
             });
 
@@ -49,12 +70,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const action = e.target.dataset.action;
 
                     if (action === "approve") {
-                        await approveWord(id);
+                        currentApproveId = id;
+                        descriptionInput.value = "";
+                        descriptionModal.show();
                     } else if (action === "reject") {
                         await rejectWord(id);
+                        await loadOffers();
                     }
-
-                    await loadOffers(); // reload page
                 });
             });
 
@@ -63,6 +85,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Ошибка: " + err.message);
         }
     }
+
+    confirmApproveBtn.addEventListener("click", async () => {
+        const description = descriptionInput.value.trim();
+        if (!description) {
+            alert("Введите описание.");
+            return;
+        }
+
+        await approveWord(currentApproveId, description);
+        descriptionModal.hide();
+        await loadOffers();
+    });
 
     nextPageBtn.addEventListener("click", () => {
         currentPage++;

@@ -11,8 +11,8 @@ public class WordOfferMapper {
         return WordOfferResponse.builder()
                 .id(wordOffer.getId())
                 .word(wordOffer.getWord())
-                .description(wordOffer.getDescription())
                 .userId(wordOffer.getUserId())
+                .createdAt(wordOffer.getCreatedAt())
                 .build();
     }
 }

@@ -2,7 +2,6 @@ package com.margot.word_map.service.word;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.exception.WordAlreadyExists;
@@ -39,25 +38,25 @@ public class WordService {
         }));
     }
 
-    public void createNewWord(UserDetails userDetails, CreateWordRequest request) {
+    public void createNewWord(UserDetails userDetails, String newWord, String description) {
         Admin admin = (Admin) userDetails;
 
-        wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
+        wordRepository.findWordByWord(newWord).ifPresentOrElse(
                 (word) -> {
-                    log.info("word {} already exists", request.getWord());
-                    throw new WordAlreadyExists("word " + word.getWord() + " already exists");
+                    log.info("word {} already exists", newWord);
+                    throw new WordAlreadyExists("word " + newWord + " already exists");
                 },
                 () -> {
                     Word word = Word.builder()
-                            .word(request.getWord())
-                            .description(request.getDescription())
-                            .wordLength(request.getWord().length())
+                            .word(newWord)
+                            .description(description)
+                            .wordLength(newWord.length())
                             .dateCreation(LocalDateTime.now())
                             .createdBy(admin)
                             .build();
 
                     wordRepository.save(word);
-                    log.info("CREATE WORD Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
+                    log.info("CREATE WORD Пользователь {} добавил новое слово {}", admin.getEmail(), newWord);
                 }
         );
     }
