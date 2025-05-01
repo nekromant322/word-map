@@ -21,7 +21,7 @@ public class WordOfferResponse {
     @Schema(description = "Предложенное слово", example = "арбуз")
     private String word;
 
-    @Schema(description = "Предложенно слово в ", example = "2020-08-01 12-33")
+    @Schema(description = "Дата создания", example = "2020-08-01 12-33")
     private LocalDateTime createdAt;
 
     @Schema(description = "Статус", example = "APPROVED")

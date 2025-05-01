@@ -9,6 +9,7 @@ import com.margot.word_map.mapper.WordOfferMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.User;
 import com.margot.word_map.model.WordOffer;
+import com.margot.word_map.model.WordOfferStatus;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.word.WordService;
@@ -58,6 +59,7 @@ public class WordOfferService {
                 .word(request.getWord())
                 .userId(user.getId())
                 .createdAt(LocalDateTime.now())
+                .status(WordOfferStatus.UNCHECKED)
                 .languageId(request.getLanguageId())
                 .build();
 
@@ -83,7 +85,7 @@ public class WordOfferService {
 
         if (statusFilter != null && !statusFilter.isBlank()) {
             try {
-                WordOffer.STATUS statusEnum = WordOffer.STATUS.valueOf(statusFilter.toUpperCase());
+                WordOfferStatus statusEnum = WordOfferStatus.valueOf(statusFilter.toUpperCase());
                 spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), statusEnum));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Неверный статус: " + statusFilter);
@@ -107,7 +109,7 @@ public class WordOfferService {
         wordService.createNewWord(userDetails, new CreateWordRequest(
                 wordOffer.getWord(), description, wordOffer.getLanguageId()));
 
-        wordOffer.setStatus(WordOffer.STATUS.APPROVED);
+        wordOffer.setStatus(WordOfferStatus.APPROVED);
         wordOfferRepository.save(wordOffer);
         log.info("APPROVE WORD админ {} добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
     }
@@ -116,7 +118,7 @@ public class WordOfferService {
     public void changeStatus(WordOfferChangeStatus status) {
         WordOffer wordOffer = wordOfferRepository.findById(status.getId()).orElseThrow(() ->
                 new  WordNotFoundException("Нет слова с таким id в предложке"));
-        wordOffer.setStatus(WordOffer.STATUS.valueOf(status.getStatus()));
+        wordOffer.setStatus(WordOfferStatus.valueOf(status.getStatus()));
         wordOfferRepository.save(wordOffer);
         log.info("Статус слова с id {} изменен на {}", status.getId(), status.getStatus());
     }
@@ -130,7 +132,7 @@ public class WordOfferService {
             throw new WordNotFoundException("word offer with " + id + " not found");
         }
         WordOffer wordOffer = wordOfferOptional.get();
-        wordOffer.setStatus(WordOffer.STATUS.REJECTED);
+        wordOffer.setStatus(WordOfferStatus.REJECTED);
         wordOfferRepository.save(wordOffer);
         log.info("REJECT WORD админ {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
     }

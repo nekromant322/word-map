@@ -29,11 +29,5 @@ public class WordOffer {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private STATUS status = STATUS.UNCHECKED;
-
-    public enum STATUS {
-        UNCHECKED,
-        APPROVED,
-        REJECTED
-    }
+    private WordOfferStatus status = WordOfferStatus.UNCHECKED;
 }

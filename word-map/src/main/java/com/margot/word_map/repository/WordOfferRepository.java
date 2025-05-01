@@ -11,5 +11,4 @@ import java.util.Optional;
 public interface WordOfferRepository extends JpaRepository<WordOffer, Long>, JpaSpecificationExecutor<WordOffer> {
 
     Optional<WordOffer> findByWord(String word);
-
 }
