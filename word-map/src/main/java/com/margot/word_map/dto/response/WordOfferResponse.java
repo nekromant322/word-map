@@ -24,6 +24,9 @@ public class WordOfferResponse {
     @Schema(description = "Предложенно слово в ", example = "2020-08-01 12-33")
     private LocalDateTime createdAt;
 
+    @Schema(description = "Статус", example = "APPROVED")
+    private String status;
+
     @Schema(description = "Id пользователя, кто предложил слово", example = "1")
     private Long userId;
 }
