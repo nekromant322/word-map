@@ -60,7 +60,7 @@ public class WordController {
     )
     @PostMapping("/list")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
-        return DictionaryListResponse.builder().build();
+        return wordService.getWordsByFilters(request);
     }
 
     @Operation(

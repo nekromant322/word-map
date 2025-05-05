@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface LanguageRepository extends JpaRepository<Language, Long> {
 
     Optional<Language> getLanguageByPrefix(String prefix);
+
+    Optional<Language> findByName(String name);
 }
