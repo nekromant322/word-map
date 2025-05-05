@@ -11,7 +11,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     Optional<Word> findWordByWord(String word);
 
-    Optional<List<Word>> findByLanguageAndWordLength(Language language, int wordLength);
+    List<Word> findByLanguageAndWordLength(Language language, int wordLength);
 
-    Optional<List<Word>> findByLanguage(Language language);
+    List<Word> findByLanguage(Language language);
 }

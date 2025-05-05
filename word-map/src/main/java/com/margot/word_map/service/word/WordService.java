@@ -8,6 +8,7 @@ import com.margot.word_map.dto.request.SymbolPosition;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordMapper;
@@ -135,7 +136,7 @@ public class WordService {
     @Transactional(readOnly = true)
     public DictionaryListResponse getWordsByFilters(DictionaryListRequest request) {
         Language language = languageService.findByName(request.getLanguage())
-                .orElseThrow(() -> new NoSuchElementException("Нет такого языка"));
+                .orElseThrow(() -> new LanguageNotFoundException("Нет такого языка"));
         int wordLength = request.getWordLength();
         boolean reuse = request.getReuse();
         String lettersUsed = request.getLettersUsed();
@@ -145,11 +146,9 @@ public class WordService {
         List<Word> filtredWordList;
 
         if (wordLength != 0) {
-            filtredWordList = wordRepository.findByLanguageAndWordLength(language, wordLength)
-                    .orElseThrow(() -> new  NoSuchElementException("Слова с такими параметрами не найдены"));
+            filtredWordList = wordRepository.findByLanguageAndWordLength(language, wordLength);
         } else {
-            filtredWordList = wordRepository.findByLanguage(language)
-                    .orElseThrow(() -> new  NoSuchElementException("Слова с такими параметрами не найдены"));;
+            filtredWordList = wordRepository.findByLanguage(language);
         }
 
         List<String> words = filtredWordList.stream().map(Word::getWord).collect(Collectors.toList());
@@ -177,20 +176,32 @@ public class WordService {
             }
         }
 
-        if (!reuse && lettersUsed != null) {
-            Map<Character, Long> usedLetterCount = lettersUsed.chars()
+        if (lettersUsed != null && !lettersUsed.isEmpty()) {
+            Set<Character> requiredLetters = lettersUsed.chars()
                     .mapToObj(c -> (char) c)
-                    .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+                    .collect(Collectors.toSet());
 
             words = words.stream()
-                    .filter(word -> {
-                        Map<Character, Long> wordCount = word.chars()
-                                .mapToObj(c -> (char) c)
-                                .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
-                        return usedLetterCount.entrySet().stream()
-                                .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
-                    })
+                    .filter(word -> word.chars()
+                            .mapToObj(c -> (char) c)
+                            .allMatch(requiredLetters::contains))
                     .collect(Collectors.toList());
+
+            if (!reuse) {
+                Map<Character, Long> usedLetterCount = lettersUsed.chars()
+                        .mapToObj(c -> (char) c)
+                        .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+
+                words = words.stream()
+                        .filter(word -> {
+                            Map<Character, Long> wordCount = word.chars()
+                                    .mapToObj(c -> (char) c)
+                                    .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+                            return usedLetterCount.entrySet().stream()
+                                    .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
+                        })
+                        .collect(Collectors.toList());
+            }
         }
 
         return DictionaryListResponse.builder()
