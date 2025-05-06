@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -55,6 +56,11 @@ public class GridController {
         File file = gridService.getTableJson(worldId);
         gridService.dropTable(worldId);
         return file;
+    }
+
+    @PostMapping("/wipe")
+    public void wipe(@AuthenticationPrincipal UserDetails userDetails, @RequestParam Long id) {
+        gridService.wipe(userDetails, id);
     }
 
     @GetMapping("/export")

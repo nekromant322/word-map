@@ -9,6 +9,7 @@ import com.margot.word_map.exception.BadAttemptToMakeTheWord;
 import com.margot.word_map.exception.BaseIsNotEmptyExceptions;
 import com.margot.word_map.exception.PlatformNotFoundException;
 import com.margot.word_map.mapper.GridMapper;
+import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.User;
 import com.margot.word_map.model.map.Grid;
@@ -26,6 +27,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -237,6 +239,21 @@ public class GridService {
         }
 
         return outputFile;
+    }
+
+    @Transactional
+    public void wipe(UserDetails userDetails, Long id) {
+        Admin admin = (Admin) userDetails;
+        String tableName = "grid_" + id;
+        boolean tableExists = (boolean) entityManager.createNativeQuery(
+                "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = :tableName)"
+        ).setParameter("tableName", tableName).getSingleResult();
+        if (!tableExists) {
+            throw new IllegalStateException("Table " + tableName + " does not exist");
+        }
+        entityManager.createNativeQuery("TRUNCATE TABLE " + tableName + " RESTART IDENTITY").executeUpdate();
+        //Todo обавить потом заполнение по патерну
+        log.info("{}: WIPE GRID Пользователь {} очистил мир.", LocalDateTime.now(), admin.getEmail());
     }
 
     private Point convertToPoint(double x, double y) {
