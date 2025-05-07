@@ -17,6 +17,8 @@ import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.language.LanguageService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,6 +36,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class WordService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final LanguageService languageService;
     private final WordRepository wordRepository;
@@ -143,29 +148,64 @@ public class WordService {
         String lettersExclude = request.getLettersExclude();
         List<SymbolPosition> positions = request.getPositions();
 
-        List<Word> filtredWordList;
+        StringBuilder sql = new StringBuilder("SELECT word FROM words WHERE id_language = :id_language");
+        for (char c : lettersExclude.toCharArray()) {
+            sql.append(" AND word NOT LIKE '%").append(c).append("%'");
+        }
+
+        List<String> words = (List<String>) entityManager
+                .createNativeQuery(sql.toString())
+                .setParameter("id_language", language.getId())
+                .getResultList();
 
         if (wordLength != 0) {
-            filtredWordList = wordRepository.findByLanguageAndWordLength(language, wordLength);
-        } else {
-            filtredWordList = wordRepository.findByLanguage(language);
+            words = words.stream().filter(w -> w.length() == wordLength).collect(Collectors.toList());
         }
 
-        List<String> words = filtredWordList.stream().map(Word::getWord).collect(Collectors.toList());
+        words = filterByLettersOnPositions(positions, words);
 
-        if (wordLength > 0) {
-            words = words.stream()
-                    .filter(word -> word.length() == wordLength)
-                    .collect(Collectors.toList());
+        if (lettersUsed != null && !lettersUsed.isEmpty()) {
+            words = filterByLetters(lettersUsed, words);
+            if (!reuse) {
+                words = filterByUniqueLetters(lettersUsed, words);
+            }
         }
+        return DictionaryListResponse.builder()
+                .word(words)
+                .build();
+    }
 
-        if (lettersExclude != null && !lettersExclude.isEmpty()) {
-            Set<Character> excludeSet = lettersExclude.chars().mapToObj(c -> (char) c).collect(Collectors.toSet());
-            words = words.stream()
-                    .filter(word -> word.chars().noneMatch(c -> excludeSet.contains((char) c)))
-                    .collect(Collectors.toList());
-        }
+    private static List<String> filterByLetters(String lettersUsed, List<String> words) {
+        Set<Character> requiredLetters = lettersUsed.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toSet());
 
+        words = words.stream()
+                .filter(word -> word.chars()
+                        .mapToObj(c -> (char) c)
+                        .allMatch(requiredLetters::contains))
+                .collect(Collectors.toList());
+        return words;
+    }
+
+    private static List<String> filterByUniqueLetters(String lettersUsed, List<String> words) {
+        Map<Character, Long> usedLetterCount = lettersUsed.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+
+        words = words.stream()
+                .filter(word -> {
+                    Map<Character, Long> wordCount = word.chars()
+                            .mapToObj(c -> (char) c)
+                            .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+                    return usedLetterCount.entrySet().stream()
+                            .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
+                })
+                .collect(Collectors.toList());
+        return words;
+    }
+
+    private List<String> filterByLettersOnPositions(List<SymbolPosition> positions, List<String> words) {
         if (positions != null && !positions.isEmpty()) {
             for (SymbolPosition pos : positions) {
                 int index = pos.getNumber();
@@ -175,38 +215,7 @@ public class WordService {
                         .collect(Collectors.toList());
             }
         }
-
-        if (lettersUsed != null && !lettersUsed.isEmpty()) {
-            Set<Character> requiredLetters = lettersUsed.chars()
-                    .mapToObj(c -> (char) c)
-                    .collect(Collectors.toSet());
-
-            words = words.stream()
-                    .filter(word -> word.chars()
-                            .mapToObj(c -> (char) c)
-                            .allMatch(requiredLetters::contains))
-                    .collect(Collectors.toList());
-
-            if (!reuse) {
-                Map<Character, Long> usedLetterCount = lettersUsed.chars()
-                        .mapToObj(c -> (char) c)
-                        .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
-
-                words = words.stream()
-                        .filter(word -> {
-                            Map<Character, Long> wordCount = word.chars()
-                                    .mapToObj(c -> (char) c)
-                                    .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
-                            return usedLetterCount.entrySet().stream()
-                                    .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
-                        })
-                        .collect(Collectors.toList());
-            }
-        }
-
-        return DictionaryListResponse.builder()
-                .word(words)
-                .build();
+        return words;
     }
 }
 
