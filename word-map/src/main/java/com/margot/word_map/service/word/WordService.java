@@ -148,15 +148,8 @@ public class WordService {
         String lettersExclude = request.getLettersExclude();
         List<SymbolPosition> positions = request.getPositions();
 
-        StringBuilder sql = new StringBuilder("SELECT word FROM words WHERE id_language = :id_language");
-        for (char c : lettersExclude.toCharArray()) {
-            sql.append(" AND word NOT LIKE '%").append(c).append("%'");
-        }
-
-        List<String> words = (List<String>) entityManager
-                .createNativeQuery(sql.toString())
-                .setParameter("id_language", language.getId())
-                .getResultList();
+        String regex = ".*[" + lettersExclude + "].*";
+        List<String> words = wordRepository.findWordsByLanguageNotMatchingRegex(language.getId(), regex);
 
         if (wordLength != 0) {
             words = words.stream().filter(w -> w.length() == wordLength).collect(Collectors.toList());
