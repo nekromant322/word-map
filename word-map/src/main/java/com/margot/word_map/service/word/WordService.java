@@ -3,14 +3,22 @@ package com.margot.word_map.service.word;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.request.CreateWordRequest;
+import com.margot.word_map.dto.request.DictionaryListRequest;
+import com.margot.word_map.dto.request.SymbolPosition;
 import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
+import com.margot.word_map.service.language.LanguageService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,15 +29,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class WordService {
 
-    private final WordRepository wordRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
+    private final LanguageService languageService;
+    private final WordRepository wordRepository;
     private final WordMapper wordMapper;
 
     public DictionaryWordResponse getWordInfo(String word) {
@@ -88,6 +100,7 @@ public class WordService {
         wordRepository.save(wordToUpdate);
     }
 
+    @Transactional
     public void deleteWord(UserDetails userDetails, Long id) {
         Admin admin = (Admin) userDetails;
 
@@ -124,4 +137,78 @@ public class WordService {
             }
         };
     }
+
+    @Transactional(readOnly = true)
+    public DictionaryListResponse getWordsByFilters(DictionaryListRequest request) {
+        Language language = languageService.findByName(request.getLanguage())
+                .orElseThrow(() -> new LanguageNotFoundException("Нет такого языка"));
+        int wordLength = request.getWordLength();
+        boolean reuse = request.getReuse();
+        String lettersUsed = request.getLettersUsed();
+        String lettersExclude = request.getLettersExclude();
+        List<SymbolPosition> positions = request.getPositions();
+
+        String regex = ".*[" + lettersExclude + "].*";
+        List<String> words = wordRepository.findWordsByLanguageNotMatchingRegex(language.getId(), regex);
+
+        if (wordLength != 0) {
+            words = words.stream().filter(w -> w.length() == wordLength).collect(Collectors.toList());
+        }
+
+        words = filterByLettersOnPositions(positions, words);
+
+        if (lettersUsed != null && !lettersUsed.isEmpty()) {
+            words = filterByLetters(lettersUsed, words);
+            if (!reuse) {
+                words = filterByUniqueLetters(lettersUsed, words);
+            }
+        }
+        return DictionaryListResponse.builder()
+                .word(words)
+                .build();
+    }
+
+    private static List<String> filterByLetters(String lettersUsed, List<String> words) {
+        Set<Character> requiredLetters = lettersUsed.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.toSet());
+
+        words = words.stream()
+                .filter(word -> word.chars()
+                        .mapToObj(c -> (char) c)
+                        .allMatch(requiredLetters::contains))
+                .collect(Collectors.toList());
+        return words;
+    }
+
+    private static List<String> filterByUniqueLetters(String lettersUsed, List<String> words) {
+        Map<Character, Long> usedLetterCount = lettersUsed.chars()
+                .mapToObj(c -> (char) c)
+                .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+
+        words = words.stream()
+                .filter(word -> {
+                    Map<Character, Long> wordCount = word.chars()
+                            .mapToObj(c -> (char) c)
+                            .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+                    return usedLetterCount.entrySet().stream()
+                            .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
+                })
+                .collect(Collectors.toList());
+        return words;
+    }
+
+    private List<String> filterByLettersOnPositions(List<SymbolPosition> positions, List<String> words) {
+        if (positions != null && !positions.isEmpty()) {
+            for (SymbolPosition pos : positions) {
+                int index = pos.getNumber();
+                char expectedChar = pos.getLetter();
+                words = words.stream()
+                        .filter(word -> word.length() > index && word.charAt(index) == expectedChar)
+                        .collect(Collectors.toList());
+            }
+        }
+        return words;
+    }
 }
+

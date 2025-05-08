@@ -3,12 +3,14 @@ package com.margot.word_map.service.language;
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
+import com.margot.word_map.model.Language;
 import com.margot.word_map.repository.LanguageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,6 +23,10 @@ public class LanguageService {
 
     public List<LanguageDto> getLanguages() {
         return languageRepository.findAll().stream().map(languageMapper::toDto).toList();
+    }
+
+    public Optional<Language> findByName(String name) {
+        return languageRepository.findByName(name);
     }
 
     public LanguageDto getLanguageByPrefix(String prefix) {
