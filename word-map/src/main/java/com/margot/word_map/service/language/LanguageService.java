@@ -25,6 +25,10 @@ public class LanguageService {
         return languageRepository.findAll().stream().map(languageMapper::toDto).toList();
     }
 
+    public Optional<Language> findByName(String name) {
+        return languageRepository.findByName(name);
+    }
+
     public LanguageDto getLanguageByPrefix(String prefix) {
         return languageMapper.toDto(languageRepository.getLanguageByPrefix(prefix).orElseThrow(() -> {
             log.info("language with prefix {} not found", prefix);
