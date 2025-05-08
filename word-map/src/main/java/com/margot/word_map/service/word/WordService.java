@@ -17,8 +17,6 @@ import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.language.LanguageService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,14 +29,13 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class WordService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final LanguageService languageService;
     private final WordRepository wordRepository;
@@ -53,11 +50,13 @@ public class WordService {
 
     public void createNewWord(UserDetails userDetails, CreateWordRequest request) {
         Admin admin = (Admin) userDetails;
+        Language language = languageService.findById(request.getLanguageId())
+                .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
 
         wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
                     log.info("word {} already exists", request.getWord());
-                    throw new WordAlreadyExists("word " + word.getWord() + " already exists");
+                    throw new WordAlreadyExists("word " + request.getWord() + " already exists");
                 },
                 () -> {
                     Word word = Word.builder()
@@ -65,6 +64,8 @@ public class WordService {
                             .description(request.getDescription())
                             .wordLength(request.getWord().length())
                             .dateCreation(LocalDateTime.now())
+                            .editedBy(admin)
+                            .language(language)
                             .createdBy(admin)
                             .build();
 
@@ -211,4 +212,3 @@ public class WordService {
         return words;
     }
 }
-

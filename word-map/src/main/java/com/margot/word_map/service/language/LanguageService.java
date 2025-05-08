@@ -43,6 +43,10 @@ public class LanguageService {
         }));
     }
 
+    public Optional<Language> findById(Long id) {
+        return languageRepository.findById(id);
+    }
+
     public void createLanguage() {
 
     }
