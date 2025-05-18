@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,8 +21,11 @@ public class WordOfferResponse {
     @Schema(description = "Предложенное слово", example = "арбуз")
     private String word;
 
-    @Schema(description = "Описание предложенного слова", example = "Сочный плод с красной мякотью")
-    private String description;
+    @Schema(description = "Дата создания", example = "2020-08-01 12-33")
+    private LocalDateTime createdAt;
+
+    @Schema(description = "Статус", example = "APPROVED")
+    private String status;
 
     @Schema(description = "Id пользователя, кто предложил слово", example = "1")
     private Long userId;

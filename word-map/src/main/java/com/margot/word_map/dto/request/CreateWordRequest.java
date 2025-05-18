@@ -14,11 +14,14 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Запрос на создание нового слова в словаре")
 public class CreateWordRequest {
 
-    @NotBlank(message = "слово не может быть пустым")
+    @NotBlank(message = "Слово не может быть пустым")
     @Schema(description = "Слово, добавляемое в словарь", example = "лопата")
     private String word;
 
-    @NotBlank(message = "описание слова не может быть пустым")
     @Schema(description = "Описание слова", example = "Инструмент для копания земли")
     private String description;
+
+    @NotBlank(message = "Id языка не может быть пустым")
+    @Schema(description = "Id языка", example = "1")
+    private Long languageId;
 }

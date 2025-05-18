@@ -3,6 +3,8 @@ package com.margot.word_map.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -10,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "words_offer")
+@Table(name = "offers")
 public class WordOffer {
 
     @Id
@@ -19,13 +21,13 @@ public class WordOffer {
 
     private String word;
 
-    private String description;
-
     private Long userId;
 
-    @Builder.Default
-    private Boolean approved = false;
+    private LocalDateTime createdAt;
 
-    @Builder.Default
-    private Boolean checked = false;
+    private Long languageId;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private WordOfferStatus status = WordOfferStatus.UNCHECKED;
 }
