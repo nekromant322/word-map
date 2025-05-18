@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LetterRepository extends JpaRepository<Letter, Short> {
+
+    Letter findByLetter(String letter);
 }

@@ -1,0 +1,9 @@
+databaseChangeLog:
+- changeSet:
+    id: enable-postgis
+    author: Alex_Kolosov
+    changes:
+      - sql:
+          splitStatements: false
+          stripComments: true
+          sql: CREATE EXTENSION IF NOT EXISTS postgis;
