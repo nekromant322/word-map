@@ -5,9 +5,14 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface GridRepository extends JpaRepository<Grid, Long> {
     Optional<Grid> findByPoint(Point point);
+
+    List<Grid> findByPlatformId(Long platformId);
+
+    List<Grid> findByPlatformName(String platformName);
 }

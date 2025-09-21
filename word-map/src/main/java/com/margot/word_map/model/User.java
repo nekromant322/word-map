@@ -1,5 +1,6 @@
 package com.margot.word_map.model;
 
+import com.margot.word_map.model.map.Grid;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,6 +38,9 @@ public class User implements UserDetails {
 
     @Column(name = "access", nullable = false)
     private Boolean access;
+
+    @OneToMany(mappedBy = "user")
+    private List<Grid> grids;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
