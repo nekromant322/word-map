@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-admin-languages
+      author: retrolad
+      changes:
+        - createTable:
+            tableName: admin_languages
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_admin_languages
+                    nullable: false
+              - column:
+                  name: admin_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: language_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_used_at
+                  type: timestamp
+        - addForeignKeyConstraint:
+            baseTableName: admin_languages
+            baseColumnNames: admin_id
+            constraintName: fk_admin_languages_admins
+            referencedTableName: admins
+            referencedColumnNames: id
+            onDelete: cascade
+        - addForeignKeyConstraint:
+            baseTableName: admin_languages
+            baseColumnNames: language_id
+            constraintName: fk_admin_languages_languages
+            referencedTableName: languages
+            referencedColumnNames: id
+            onDelete: cascade
