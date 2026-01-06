@@ -53,7 +53,7 @@ public class Admin implements UserDetails {
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<AdminLanguages> languages = new HashSet<>();
+    private Set<AdminLanguage> languages = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

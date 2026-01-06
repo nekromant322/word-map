@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @ToString(exclude = {"admin", "language"})
 @Builder
 @Table(name = "admin_languages")
-public class AdminLanguages {
+public class AdminLanguage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
