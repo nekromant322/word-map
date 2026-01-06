@@ -53,6 +53,6 @@ public class AdminAuthSubjectServiceImpl implements AuthSubjectService<AdminDto>
 
     @Override
     public List<String> extractRules(AdminDto entity) {
-        return entity.getAdminRules().stream().map(RuleDto::getRule).toList();
+        return entity.getRules().stream().map(RuleDto::getRuleName).toList();
     }
 }

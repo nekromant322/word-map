@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RuleDto {
+public class AdminLanguageDto {
 
-    private Long ruleID;
+    private Long languageID;
 
-    private String ruleName;
+    private String languagePrefix;
 }
