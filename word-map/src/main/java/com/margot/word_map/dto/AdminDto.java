@@ -27,4 +27,6 @@ public class AdminDto {
     private Boolean access;
 
     private List<RuleDto> adminRules;
+
+    private List<AdminLanguageDto> languages;
 }
