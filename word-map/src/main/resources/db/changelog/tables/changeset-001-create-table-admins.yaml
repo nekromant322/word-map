@@ -12,6 +12,7 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_admins
                     nullable: false
               - column:
                   name: email
@@ -19,21 +20,24 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
+                    uniqueConstraintName: uk_admins_email
               - column:
-                  name: date_creation
+                  name: created_at
                   type: timestamp
                   constraints:
                     nullable: false
+                  defaultValueComputed: current_timestamp
               - column:
                   name: date_active
                   type: timestamp
-              - column:
-                  name: access
-                  type: boolean
-                  constraints:
-                    nullable: false
               - column:
                   name: role
                   type: varchar(50)
                   constraints:
                     nullable: false
+              - column:
+                  name: access
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: 'true'

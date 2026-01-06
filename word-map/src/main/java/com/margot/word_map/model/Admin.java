@@ -29,8 +29,8 @@ public class Admin implements UserDetails {
     @NonNull
     private String email;
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime dateCreation;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "date_active")
     private LocalDateTime dateActive;
