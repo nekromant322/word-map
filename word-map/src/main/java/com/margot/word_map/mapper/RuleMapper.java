@@ -9,8 +9,8 @@ public class RuleMapper {
 
     public RuleDto toDto(Rule rule) {
         return RuleDto.builder()
-                .id(rule.getId())
-                .rule(rule.getName().name())
+                .ruleID(rule.getId())
+                .ruleName(rule.getName().name())
                 .build();
     }
 }

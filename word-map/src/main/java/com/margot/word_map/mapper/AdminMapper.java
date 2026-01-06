@@ -16,11 +16,10 @@ public class AdminMapper {
         return AdminDto.builder()
                 .id(admin.getId())
                 .email(admin.getEmail())
-                .dateCreation(admin.getDateCreation())
                 .dateActive(admin.getDateActive())
                 .role(admin.getRole().name())
                 .access(admin.getAccess())
-                .adminRules(admin.getRules().stream().map(ruleMapper::toDto).toList())
+                .rules(admin.getRules().stream().map(ruleMapper::toDto).toList())
                 .languages(admin.getLanguages().stream().map(adminLanguageMapper::toDto).toList())
                 .build();
     }

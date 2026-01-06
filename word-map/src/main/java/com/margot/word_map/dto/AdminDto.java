@@ -1,5 +1,6 @@
 package com.margot.word_map.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,15 +19,14 @@ public class AdminDto {
 
     private String email;
 
-    private LocalDateTime dateCreation;
-
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime dateActive;
-
-    private String role;
 
     private Boolean access;
 
-    private List<RuleDto> adminRules;
+    private String role;
+
+    private List<RuleDto> rules;
 
     private List<AdminLanguageDto> languages;
 }

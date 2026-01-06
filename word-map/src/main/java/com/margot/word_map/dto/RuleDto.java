@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RuleDto {
 
-    private Long id;
+    private Long ruleID;
 
-    private String rule;
+    private String ruleName;
 }
