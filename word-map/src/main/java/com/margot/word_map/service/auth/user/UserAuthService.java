@@ -49,7 +49,7 @@ public class UserAuthService extends AbstractAuthService<UserDto> {
         User createdUser = userService.createUser(request.getEmail(), request.getUsername());
         log.debug("user with id {} created", createdUser.getId());
 
-        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(UserType.USER, createdUser.getId());
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(createdUser.getId());
         emailService.sendConfirmEmail(ConfirmRequest.builder()
                 .code(String.valueOf(codeDto.getCode()))
                 .email(request.getEmail())

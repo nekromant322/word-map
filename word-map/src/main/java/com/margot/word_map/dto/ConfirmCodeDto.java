@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ConfirmCodeDto {
 
-    private Integer code;
+    private String code;
 
     private Long codeId;
 

@@ -47,7 +47,7 @@ public abstract class AbstractAuthService<T> extends AuthService {
             throw authSubjectService.createNoAccessException(email);
         }
 
-        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(userType, authSubjectService.getId(entity));
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(authSubjectService.getId(entity));
         emailService.sendConfirmEmail(ConfirmRequest.builder()
                 .code(String.valueOf(codeDto.getCode()))
                 .email(email)
@@ -76,10 +76,9 @@ public abstract class AbstractAuthService<T> extends AuthService {
     }
 
     @Override
-    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String codeStr) {
-        Integer code = parseCode(codeStr);
+    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String code) {
         T entity = authSubjectService.getByEmail(email);
-        confirmCodeService.verifyConfirmCode(code, authSubjectService.getId(entity), userType);
+        confirmCodeService.verifyConfirmCode(code, authSubjectService.getId(entity));
 
         String accessToken = jwtService.generateAccessToken(
                 email, authSubjectService.extractRole(entity), authSubjectService.extractRules(entity));
