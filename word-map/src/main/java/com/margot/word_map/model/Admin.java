@@ -44,7 +44,7 @@ public class Admin implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "admins_rules",
+            name = "admin_rules",
             joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 
