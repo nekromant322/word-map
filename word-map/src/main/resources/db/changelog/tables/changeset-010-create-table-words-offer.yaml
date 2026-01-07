@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-words-offer-table
+      author: Alex_Kolosov
+      changes:
+        - createTable:
+            tableName: offers
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_offers
+                    nullable: false
+              - column:
+                  name: word
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: language_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    references: languages(id)
+                    foreignKeyName: fk_words_languages
+                    deleteCascade: true
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    references: users(id)
+                    foreignKeyName: fk_words_users
+                    deleteCascade: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: current_timestamp
+              - column:
+                  name: status
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'check'

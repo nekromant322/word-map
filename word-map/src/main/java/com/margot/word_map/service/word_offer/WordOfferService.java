@@ -59,7 +59,7 @@ public class WordOfferService {
                 .word(request.getWord())
                 .userId(user.getId())
                 .createdAt(LocalDateTime.now())
-                .status(WordOfferStatus.UNCHECKED)
+                .status(WordOfferStatus.CHECK)
                 .languageId(request.getLanguageId())
                 .build();
 
@@ -74,7 +74,8 @@ public class WordOfferService {
         return wordOfferRepository.findByWord(word).isPresent();
     }
 
-    public Page<WordOfferResponse> getOffers(String statusFilter, int page, int size, String sortBy, String sortDir) {
+    public Page<WordOfferResponse> getOffers(WordOfferStatus statusFilter, int page, int size,
+                                             String sortBy, String sortDir) {
         Pageable pageable = PageRequest.of(
                 page,
                 size,
@@ -83,10 +84,9 @@ public class WordOfferService {
 
         Specification<WordOffer> spec = Specification.where(null);
 
-        if (statusFilter != null && !statusFilter.isBlank()) {
+        if (statusFilter != null) {
             try {
-                WordOfferStatus statusEnum = WordOfferStatus.valueOf(statusFilter.toUpperCase());
-                spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), statusEnum));
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), statusFilter));
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Неверный статус: " + statusFilter);
             }

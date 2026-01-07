@@ -19,15 +19,19 @@ public class WordOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "word", nullable = false, length = 100)
     private String word;
 
-    private Long userId;
-
-    private LocalDateTime createdAt;
-
+    @Column(name = "language_id", nullable = false)
     private Long languageId;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private WordOfferStatus status = WordOfferStatus.UNCHECKED;
+    @Builder.Default
+    private WordOfferStatus status = WordOfferStatus.CHECK;
 }
