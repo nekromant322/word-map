@@ -8,22 +8,38 @@ databaseChangeLog:
               columns:
                 - column:
                     name: id
-                    type: SMALLINT
+                    type: bigint
                     autoIncrement: true
                     constraints:
                       primaryKey: true
+                      primaryKeyName: pk_letters
                 - column:
-                    name: language
-                    type: VARCHAR(100)
+                    name: language_id
+                    type: bigint
+                    constraints:
+                      nullable: true
+                      references: languages(id)
+                      foreignKeyName: fk_letters_languages
+                      deleteCascade: true
                 - column:
                     name: letter
-                    type: VARCHAR(10)
+                    type: varchar(1)
+                    constraints:
+                      nullable: false
                 - column:
                     name: type
-                    type: VARCHAR(100)
+                    type: varchar(10)
                 - column:
                     name: multiplier
-                    type: SMALLINT
+                    type: smallint
+                    constraints:
+                      nullable: false
                 - column:
                     name: weight
-                    type: SMALLINT
+                    type: smallint
+                    constraints:
+                      nullable: false
+          - addUniqueConstraint:
+              tableName: letters
+              columnNames: letter, language_id
+              constraintName: uk_letters__letter_language_id

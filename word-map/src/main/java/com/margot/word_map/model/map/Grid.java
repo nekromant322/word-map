@@ -17,7 +17,7 @@ public class Grid {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "geometry(Point,0)")
+    @Column(columnDefinition = "geometry(Point,0)", nullable = false)
     private Point point;
 
     private Character letter;
@@ -27,7 +27,7 @@ public class Grid {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "tile_id", referencedColumnName = "id")
+    @JoinColumn(name = "tile_id", referencedColumnName = "id", nullable = false)
     private Tile tile;
 
     @ManyToOne
