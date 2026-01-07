@@ -8,14 +8,23 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_languages
                     nullable: false
               - column:
                   name: prefix
-                  type: VARCHAR
+                  type: varchar(2)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_languages_prefix
               - column:
                   name: name
-                  type: VARCHAR
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_languages_name

@@ -16,9 +16,9 @@ public class Language {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "prefix")
+    @Column(name = "prefix", unique = true)
     private String prefix;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 }
