@@ -2,6 +2,7 @@ package com.margot.word_map.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class CreateWordRequest {
     @Schema(description = "Описание слова", example = "Инструмент для копания земли")
     private String description;
 
-    @NotBlank(message = "Id языка не может быть пустым")
+    @NotNull(message = "Id языка не может быть пустым")
     @Schema(description = "Id языка", example = "1")
     private Long languageId;
 }

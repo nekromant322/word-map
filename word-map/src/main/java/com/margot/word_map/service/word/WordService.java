@@ -63,7 +63,7 @@ public class WordService {
                             .word(request.getWord())
                             .description(request.getDescription())
                             .wordLength(request.getWord().length())
-                            .dateCreation(LocalDateTime.now())
+                            .createdAt(LocalDateTime.now())
                             .editedBy(admin)
                             .language(language)
                             .createdBy(admin)
@@ -96,7 +96,7 @@ public class WordService {
         wordToUpdate.setWord(request.getWord());
         wordToUpdate.setDescription(request.getDescription());
         wordToUpdate.setWordLength(request.getWord().length());
-        wordToUpdate.setDateEdited(LocalDateTime.now());
+        wordToUpdate.setEditedAt(LocalDateTime.now());
         wordToUpdate.setEditedBy(admin);
         wordRepository.save(wordToUpdate);
     }

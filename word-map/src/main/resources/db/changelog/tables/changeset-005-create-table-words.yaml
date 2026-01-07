@@ -8,47 +8,63 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_words
                     nullable: false
               - column:
                   name: word
-                  type: VARCHAR
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_words_word
               - column:
                   name: description
-                  type: VARCHAR
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
               - column:
                   name: word_length
-                  type: INT
-              - column:
-                  name: id_language
-                  type: BIGINT
+                  type: int
                   constraints:
-                    nullable: true
-                    references: languages(id)
-                    foreignKeyName: fk_words_languages
-                    deleteCascade: false
+                    nullable: false
               - column:
-                  name: date_creation
-                  type: DATETIME
-              - column:
-                  name: date_edited
-                  type: DATETIME
-              - column:
-                  name: id_creation
-                  type: BIGINT
+                  name: created_at
+                  type: timestamp
                   constraints:
-                    nullable: true
+                    nullable: false
+                  defaultValueComputed: current_timestamp
+              - column:
+                  name: edited_at
+                  type: timestamp
+              - column:
+                  name: created_id
+                  type: bigint
+                  constraints:
+                    nullable: false
                     references: admins(id)
                     foreignKeyName: fk_words_admins_created_by
                     deleteCascade: false
               - column:
-                  name: id_edited
-                  type: BIGINT
+                  name: edited_id
+                  type: bigint
                   constraints:
                     nullable: true
                     references: admins(id)
                     foreignKeyName: fk_words_admins_edited_by
                     deleteCascade: false
+              - column:
+                  name: language_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    references: languages(id)
+                    foreignKeyName: fk_words_languages
+                    deleteCascade: true
+        - addUniqueConstraint:
+            tableName: words
+            constraintName: uk_words__word_language_id
+            columnNames: word, language_id
