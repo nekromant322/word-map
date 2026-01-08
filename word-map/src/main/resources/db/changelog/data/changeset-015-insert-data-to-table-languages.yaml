@@ -16,4 +16,4 @@ databaseChangeLog:
         - sql:
             dbms: postgresql
             sql: |
-              SELECT setval('languages_id_seq', (SELECT MAX(id) FROM languages));
+              SELECT setval(pg_get_serial_sequence('languages', 'id'), coalesce(max(id), 1)) from languages;

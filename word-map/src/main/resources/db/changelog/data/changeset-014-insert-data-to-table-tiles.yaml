@@ -16,4 +16,4 @@ databaseChangeLog:
         - sql:
             dbms: postgresql
             sql: |
-              SELECT setval('tiles_id_seq', (SELECT MAX(id) FROM tiles));
+              SELECT setval(pg_get_serial_sequence('tiles', 'id'), coalesce(max(id), 1)) from tiles;
