@@ -3,7 +3,6 @@ package com.margot.word_map.service.auth;
 import com.margot.word_map.dto.ConfirmCodeDto;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
 import com.margot.word_map.model.Confirm;
-import com.margot.word_map.model.UserType;
 import com.margot.word_map.repository.ConfirmRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,22 +21,22 @@ public class ConfirmCodeService {
     private Integer confirmCodeExpirationTime;
 
     @Transactional
-    public ConfirmCodeDto generateConfirmCode(UserType userType, Long userId) {
-        Integer code = generateRandomCode();
-        Confirm confirm = confirmRepository.findByUserIdAndUserType(userId, userType)
-                .orElseGet(() -> new Confirm(code, userId, userType));
+    public ConfirmCodeDto generateConfirmCode(Long adminId) {
+        String code = Integer.toString(generateRandomCode());
+        Confirm confirm = confirmRepository.findByAdminId(adminId)
+                .orElseGet(() -> new Confirm(code, adminId));
 
         confirm.setCode(code);
         confirm.setCreatedAt(LocalDateTime.now());
-        confirm.setExpirationTime(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
+        confirm.setExpiryAt(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
 
         Confirm savedConfirm = confirmRepository.save(confirm);
         return new ConfirmCodeDto(code, savedConfirm.getId(), confirmCodeExpirationTime);
     }
 
     @Transactional
-    public void verifyConfirmCode(Integer code, Long userId, UserType userType) {
-        Confirm confirm = confirmRepository.findByUserIdAndUserType(userId, userType)
+    public void verifyConfirmCode(String code, Long adminId) {
+        Confirm confirm = confirmRepository.findByAdminId(adminId)
                 .orElseThrow(InvalidConfirmCodeException::new);
 
         validateConfirmCode(confirm, code);
@@ -45,16 +44,17 @@ public class ConfirmCodeService {
         confirmRepository.delete(confirm);
     }
 
-    private void validateConfirmCode(Confirm confirm, Integer code) {
+    private void validateConfirmCode(Confirm confirm, String code) {
         if (!confirm.getCode().equals(code)) {
             throw new InvalidConfirmCodeException();
         }
-        if (confirm.getExpirationTime().isBefore(LocalDateTime.now())) {
+        if (confirm.getExpiryAt().isBefore(LocalDateTime.now())) {
             throw new InvalidConfirmCodeException();
         }
     }
 
     private Integer generateRandomCode() {
+        // TODO Нужен SecureRandom
         return (int) (Math.random() * 900000) + 100000;
     }
 }

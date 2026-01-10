@@ -2,8 +2,8 @@ package com.margot.word_map.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.CommonErrorDto;
-import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.auth.AdminDetailsService;
+import com.margot.word_map.service.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

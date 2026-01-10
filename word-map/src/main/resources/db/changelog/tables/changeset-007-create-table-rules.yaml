@@ -8,13 +8,16 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_rules
                     nullable: false
               - column:
                   name: name
-                  type: VARCHAR
+                  type: varchar(25)
                   constraints:
+                    nullable: false
                     unique: true
+                    uniqueConstraintName: uk_rules_name

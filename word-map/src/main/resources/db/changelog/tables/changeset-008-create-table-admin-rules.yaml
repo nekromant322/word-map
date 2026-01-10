@@ -1,43 +1,43 @@
 databaseChangeLog:
   - changeSet:
-      id: create-table-admins-rules
+      id: create-table-admin-rules
       author: bahertylop
       changes:
         - createTable:
-            tableName: admins_rules
+            tableName: admin_rules
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
                     primaryKeyName: pk_admins_rules
               - column:
                   name: admin_id
-                  type: BIGINT
+                  type: bigint
                   constraints:
                     nullable: false
               - column:
                   name: rule_id
-                  type: BIGINT
+                  type: bigint
                   constraints:
                     nullable: false
         - addForeignKeyConstraint:
-            baseTableName: admins_rules
+            baseTableName: admin_rules
             baseColumnNames: admin_id
-            constraintName: fk_admins_admins_rules
+            constraintName: fk_admin_rules_admins
             referencedTableName: admins
             referencedColumnNames: id
-            onDelete: CASCADE
+            onDelete: cascade
         - addForeignKeyConstraint:
-            baseTableName: admins_rules
+            baseTableName: admin_rules
             baseColumnNames: rule_id
-            constraintName: fk_rules_admins_rules
+            constraintName: fk_admin_rules_rules
             referencedTableName: rules
             referencedColumnNames: id
-            onDelete: CASCADE
+            onDelete: cascade
         - addUniqueConstraint:
-            tableName: admins_rules
+            tableName: admin_rules
             columnNames: admin_id, rule_id
-            constraintName: uq_admins_rules_unique_pair
+            constraintName: uk_admin_rules__admin_id_rule_id

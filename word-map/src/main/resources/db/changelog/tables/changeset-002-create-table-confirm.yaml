@@ -12,27 +12,31 @@ databaseChangeLog:
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_confirm
                     nullable: false
               - column:
                   name: code
-                  type: integer
+                  type: varchar(6)
                   constraints:
                     nullable: false
               - column:
                   name: created_at
                   type: timestamp
-              - column:
-                  name: expiration_time
-                  type: timestamp
                   constraints:
                     nullable: false
+                  defaultValueComputed: current_timestamp
               - column:
-                  name: user_id
+                  name: admin_id
                   type: bigint
                   constraints:
                     nullable: false
               - column:
-                  name: user_type
-                  type: varchar
-                  constraints:
-                    nullable: false
+                  name: expiry_at
+                  type: timestamp
+        - addForeignKeyConstraint:
+            baseTableName: confirm
+            baseColumnNames: admin_id
+            constraintName: fk_confirm_admins
+            referencedTableName: admins
+            referencedColumnNames: id
+            onDelete: cascade

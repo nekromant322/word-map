@@ -8,43 +8,56 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: BIGINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_grid
               - column:
                   name: point
                   type: geometry(Point,0)
-              - column:
-                  name: letter
-                  type: CHAR(1)
-              - column:
-                  name: user_id
-                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_grid_point
               - column:
                   name: tile_id
-                  type: SMALLINT
+                  type: bigint
+                  constraints:
+                    nullable: false
               - column:
                   name: letter_id
-                  type: SMALLINT
+                  type: bigint
+                  constraints:
+                    nullable: true
+              - column:
+                  name: letter
+                  type: char(1)
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    nullable: true
 
         - addForeignKeyConstraint:
             baseTableName: grid
             baseColumnNames: user_id
             referencedTableName: users
             referencedColumnNames: id
-            constraintName: fk_grid_user
+            constraintName: fk_grid_users
+            onDelete: set null
 
         - addForeignKeyConstraint:
             baseTableName: grid
             baseColumnNames: tile_id
             referencedTableName: tiles
             referencedColumnNames: id
-            constraintName: fk_grid_tile
+            constraintName: fk_grid_tiles
 
         - addForeignKeyConstraint:
             baseTableName: grid
             baseColumnNames: letter_id
             referencedTableName: letters
             referencedColumnNames: id
-            constraintName: fk_grid_letter
+            constraintName: fk_grid_letters
+            onDelete: set null

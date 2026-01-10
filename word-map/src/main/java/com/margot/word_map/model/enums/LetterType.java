@@ -3,14 +3,14 @@ package com.margot.word_map.model;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.margot.word_map.model.enums.PersistableEnum;
 
-public enum WordOfferStatus implements PersistableEnum {
-    CHECK("check"),
-    APPROVED("approved"),
-    REJECTED("rejected");
+public enum LetterType implements PersistableEnum {
+    ALL("All"),
+    VOWEL("Vowel"),
+    CONSONANT("Consonant");
 
     private final String value;
 
-    WordOfferStatus(String value) {
+    LetterType(String value) {
         this.value = value;
     }
 

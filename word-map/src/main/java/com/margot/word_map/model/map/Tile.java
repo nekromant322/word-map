@@ -1,5 +1,7 @@
 package com.margot.word_map.model.map;
 
+import com.margot.word_map.model.BonusType;
+import com.margot.word_map.model.LetterType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,12 +18,15 @@ public class Tile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Short id;
+    private Long id;
 
-    private String bonus;
+    @Column(name = "bonus", nullable = false, length = 10)
+    private BonusType bonus;
 
-    private String letter;
+    @Column(name = "letter", nullable = false, length = 10)
+    private LetterType letter;
 
+    @Column(name = "multiplier", nullable = false)
     private Short multiplier;
 
     @OneToMany(mappedBy = "tile")

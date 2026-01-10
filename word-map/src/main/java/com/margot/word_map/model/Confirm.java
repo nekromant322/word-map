@@ -19,21 +19,17 @@ public class Confirm {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "code", nullable = false, length = 6)
     @NonNull
-    private Integer code;
+    private String code;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "expiration_time", nullable = false)
-    private LocalDateTime expirationTime;
-
-    @Column(name = "user_id")
+    @Column(name = "admin_id", nullable = false)
     @NonNull
-    private Long userId;
+    private Long adminId;
 
-    @Column(name = "user_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    @NonNull
-    private UserType userType;
+    @Column(name = "expiry_at")
+    private LocalDateTime expiryAt;
 }

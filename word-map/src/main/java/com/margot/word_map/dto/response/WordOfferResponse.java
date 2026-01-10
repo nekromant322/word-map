@@ -1,5 +1,6 @@
 package com.margot.word_map.dto.response;
 
+import com.margot.word_map.model.WordOfferStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,8 @@ public class WordOfferResponse {
     @Schema(description = "Дата создания", example = "2020-08-01 12-33")
     private LocalDateTime createdAt;
 
-    @Schema(description = "Статус", example = "APPROVED")
-    private String status;
+    @Schema(description = "Статус", example = "approved")
+    private WordOfferStatus status;
 
     @Schema(description = "Id пользователя, кто предложил слово", example = "1")
     private Long userId;

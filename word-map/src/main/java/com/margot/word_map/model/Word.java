@@ -18,30 +18,30 @@ public class Word {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "word")
+    @Column(name = "word", length = 100, nullable = false, unique = true)
     private String word;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 200, nullable = false)
     private String description;
 
-    @Column(name = "word_length")
+    @Column(name = "word_length", nullable = false)
     private Integer wordLength;
 
     @ManyToOne
-    @JoinColumn(name = "id_language")
+    @JoinColumn(name = "language_id")
     private Language language;
 
-    @Column(name = "date_creation")
-    private LocalDateTime dateCreation;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
-    @Column(name = "date_edited")
-    private LocalDateTime dateEdited;
+    @Column(name = "edited_at", nullable = false)
+    private LocalDateTime editedAt;
 
     @ManyToOne
-    @JoinColumn(name = "id_creation")
+    @JoinColumn(name = "created_id", nullable = false)
     private Admin createdBy;
 
     @ManyToOne
-    @JoinColumn(name = "id_edited")
+    @JoinColumn(name = "edited_id", nullable = false)
     private Admin editedBy;
 }

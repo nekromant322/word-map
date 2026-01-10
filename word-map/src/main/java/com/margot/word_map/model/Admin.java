@@ -29,8 +29,8 @@ public class Admin implements UserDetails {
     @NonNull
     private String email;
 
-    @Column(name = "date_creation", nullable = false)
-    private LocalDateTime dateCreation;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "date_active")
     private LocalDateTime dateActive;
@@ -44,7 +44,7 @@ public class Admin implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "admins_rules",
+            name = "admin_rules",
             joinColumns = @JoinColumn(name = "admin_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 

@@ -1,5 +1,7 @@
 package com.margot.word_map.model.map;
 
+import com.margot.word_map.model.Language;
+import com.margot.word_map.model.LetterType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,16 +18,22 @@ public class Letter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Short id;
+    private Long id;
 
-    private String language;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "language_id")
+    private Language language;
 
-    private String letter;
+    @Column(name = "letter", nullable = false)
+    private Character letter;
 
-    private String type;
+    @Column(name = "type", length = 10)
+    private LetterType type;
 
+    @Column(name = "multiplier", nullable = false)
     private Short multiplier;
 
+    @Column(name = "weight", nullable = false)
     private Short weight;
 
     @OneToMany(mappedBy = "letterObj")

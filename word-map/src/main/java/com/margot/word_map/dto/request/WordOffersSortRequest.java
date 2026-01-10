@@ -1,5 +1,6 @@
 package com.margot.word_map.dto.request;
 
+import com.margot.word_map.model.WordOfferStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,6 @@ public class WordOffersSortRequest {
     private String sortBy = "createdAt";
     @Schema(description = "Сортировка по возрастанию/убыванию", example = "desc")
     private String sortDir = "desc";
-    @Schema(description = "Статус", example = "UNCHECKED")
-    private String status = "UNCHECKED";
+    @Schema(description = "Статус", example = "check")
+    private WordOfferStatus status = WordOfferStatus.CHECK;
 }

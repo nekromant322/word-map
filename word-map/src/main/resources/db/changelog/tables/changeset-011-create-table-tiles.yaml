@@ -8,16 +8,24 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: SMALLINT
+                  type: bigint
                   autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_tiles
+                    nullable: false
               - column:
                   name: bonus
-                  type: VARCHAR(255)
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
               - column:
                   name: letter
-                  type: VARCHAR(10)
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
               - column:
                   name: multiplier
-                  type: SMALLINT
+                  type: smallint
+                  constraints:
+                    nullable: false
