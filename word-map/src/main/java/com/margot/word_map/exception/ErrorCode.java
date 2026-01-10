@@ -42,7 +42,9 @@ public enum ErrorCode {
     PLATFORM_ASSIGNED_TO_PLAYERS(HttpStatus.CONFLICT, "error.platform.assigned_to_players"),
 
     CODE_SPOILED(HttpStatus.GONE, "error.code.spoiled"),
-    ACTIVE_CODE_EXISTS(HttpStatus.TOO_MANY_REQUESTS, "error.code.active_exists");
+    ACTIVE_CODE_EXISTS(HttpStatus.TOO_MANY_REQUESTS, "error.code.active_exists"),
+
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "error.server.internal");
 
     private final HttpStatus status;
     private final String propertyName;
