@@ -1,4 +1,4 @@
-package com.margot.word_map.service.auth.admin;
+package com.margot.word_map.service.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
@@ -88,7 +88,7 @@ public class AdminService {
                 .createdAt(LocalDateTime.now())
                 .role(Admin.ROLE.valueOf(request.getRole()))
                 .rules(getAdminRules(request.getNameRules(), request.getRole()))
-                .access(request.getAccess())
+                .accessGranted(request.getAccess())
                 .build();
 
         adminRepository.save(admin);
@@ -117,7 +117,7 @@ public class AdminService {
     public void changeAccess(ChangeAdminAccessRequest request) {
         Admin admin = getAdminById(request.getId());
 
-        admin.setAccess(request.getAccess());
+        admin.setAccessGranted(request.getAccess());
         adminRepository.save(admin);
     }
 }

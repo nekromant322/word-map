@@ -18,7 +18,7 @@ public class AdminMapper {
                 .email(admin.getEmail())
                 .dateActive(admin.getDateActive())
                 .role(admin.getRole().name())
-                .access(admin.getAccess())
+                .access(admin.isAccessGranted())
                 .rules(admin.getRules().stream().map(ruleMapper::toDto).toList())
                 .languages(admin.getLanguages().stream().map(adminLanguageMapper::toDto).toList())
                 .build();
