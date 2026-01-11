@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -52,6 +54,20 @@ public class GlobalExceptionHandler {
         ErrorCode code = ErrorCode.valueOf(violation.getMessage());
 
         return buildResponse(code, locale);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AuthenticationException ex, Locale locale) {
+        log.warn(ex.getMessage(), ex);
+
+        return buildResponse(ErrorCode.UNAUTHORIZED, locale);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, Locale locale) {
+        log.warn(ex.getMessage(), ex);
+
+        return buildResponse(ErrorCode.USER_NOT_PERMISSIONS, locale);
     }
 
     @ExceptionHandler(Exception.class)

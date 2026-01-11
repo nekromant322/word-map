@@ -44,6 +44,7 @@ public enum ErrorCode {
     CODE_SPOILED(HttpStatus.GONE, "error.code.spoiled"),
     ACTIVE_CODE_EXISTS(HttpStatus.TOO_MANY_REQUESTS, "error.code.active_exists"),
 
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "error.unauthorized"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "error.server.internal");
 
     private final HttpStatus status;
