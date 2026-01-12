@@ -1,7 +1,6 @@
 package com.margot.word_map.config.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margot.word_map.dto.CommonErrorDto;
+import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import com.margot.word_map.service.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,10 +10,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,13 +20,12 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -38,7 +34,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final RequestAttributeSecurityContextRepository repo;
 
-    private final ObjectMapper om;
+    private final HandlerExceptionResolver resolver;
+
+    public JwtFilter(JwtService jwtService, AdminDetailsService myUserDetailsService,
+                     RequestAttributeSecurityContextRepository repo,
+                     @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.jwtService = jwtService;
+        this.myUserDetailsService = myUserDetailsService;
+        this.repo = repo;
+        this.resolver = resolver;
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -68,31 +73,9 @@ public class JwtFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            log.error("expired jwt token:", e);
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(
-                    om.writeValueAsString(
-                            CommonErrorDto.builder()
-                                    .code(HttpStatus.UNAUTHORIZED.value())
-                                    .message("expired jwt token")
-                                    .date(LocalDateTime.now())
-                                    .build()
-                    )
-            );
+            resolver.resolveException(request, response, null, new InvalidTokenException("Expired JWT token"));
         } catch (JwtException e) {
-            log.error("invalid jwt token:", e);
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(
-                    om.writeValueAsString(
-                            CommonErrorDto.builder()
-                                    .code(HttpStatus.UNAUTHORIZED.value())
-                                    .message("invalid jwt token")
-                                    .date(LocalDateTime.now())
-                                    .build()
-                    )
-            );
+            resolver.resolveException(request, response, null, new InvalidTokenException());
         }
     }
 }
