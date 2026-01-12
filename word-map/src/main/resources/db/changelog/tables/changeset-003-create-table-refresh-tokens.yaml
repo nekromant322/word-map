@@ -8,28 +8,39 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: UUID
-                  defaultValueComputed: gen_random_uuid()
+                  type: bigint
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
+                    primaryKeyName: pk_refresh_tokens
               - column:
-                  name: user_id
-                  type: BIGINT
-                  constraints:
-                    nullable: false
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: current_timestamp
               - column:
-                  name: user_type
-                  type: varchar
-                  constraints:
-                    nullable: false
+                  name: device
+                  type: text
               - column:
-                  name: token
-                  type: TEXT
+                  name: refresh_token
+                  type: varchar(64)
                   constraints:
                     nullable: false
                     unique: true
+                    uniqueConstraintName: uk_refresh_tokens_refresh_token
               - column:
-                  name: expiration_time
-                  type: TIMESTAMP
+                  name: admin_id
+                  type: bigint
                   constraints:
                     nullable: false
+              - column:
+                  name: expiration_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: refresh_tokens
+            baseColumnNames: admin_id
+            constraintName: fk_refresh_tokens_admins
+            referencedTableName: admins
+            referencedColumnNames: id
+            onDelete: cascade

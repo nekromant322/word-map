@@ -1,12 +1,8 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
-import com.margot.word_map.dto.request.ConfirmRequest;
-import com.margot.word_map.dto.request.CreateAdminRequest;
-import com.margot.word_map.dto.request.UpdateAdminRequest;
+import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.auth.AuthService;
@@ -18,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -90,9 +87,11 @@ public class AdminAuthController {
     )
     @PostMapping("/confirm")
     public TokenResponse verifyConfirmCode(
-            @RequestBody @Validated ConfirmRequest confirmRequest
+            @RequestBody @Validated ConfirmRequest confirmRequest,
+            @RequestHeader("User-Agent") String device
     ) {
-        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode());
+        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode(),
+                device);
     }
 
     @Operation(
@@ -112,14 +111,10 @@ public class AdminAuthController {
     )
     @PostMapping("/refresh")
     public TokenResponse refreshAccessToken(
-            @Parameter(description = "кука со значением refresh токена")
-            @RequestHeader(value = "Refresh", required = true) String refreshToken
+            @Valid @RequestBody RefreshTokenRequest request,
+            @RequestHeader(value = "User-Agent", defaultValue = "Unknown") String device
     ) {
-        if (refreshToken == null) {
-            throw new InvalidTokenException("refresh token is missing");
-        }
-
-        return authService.refreshAccessToken(refreshToken);
+        return authService.refreshTokens(request.refreshToken(), device);
     }
 
     @Operation(

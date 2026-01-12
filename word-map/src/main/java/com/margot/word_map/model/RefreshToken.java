@@ -3,10 +3,8 @@ package com.margot.word_map.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "refresh_tokens")
@@ -14,20 +12,21 @@ import java.util.UUID;
 @Setter
 public class RefreshToken {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
-    @Column(updatable = false, nullable = false)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "user_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserType userType;
+    @Column(name = "device")
+    private String device;
 
-    @Column(nullable = false, unique = true)
-    private String token;
+    @Column(name = "refresh_token", unique = true, nullable = false)
+    private String tokenHash;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false)
+    private Admin admin;
 
     @Column(name = "expiration_time", nullable = false)
     private LocalDateTime expirationTime;
