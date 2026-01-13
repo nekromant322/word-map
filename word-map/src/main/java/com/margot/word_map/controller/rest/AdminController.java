@@ -3,7 +3,7 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.service.auth.admin.AdminService;
+import com.margot.word_map.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

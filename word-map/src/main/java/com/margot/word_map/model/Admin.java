@@ -39,8 +39,8 @@ public class Admin implements UserDetails {
     @Enumerated(EnumType.STRING)
     private ROLE role;
 
-    @Column(nullable = false)
-    private Boolean access;
+    @Column(name = "access", nullable = false)
+    private boolean accessGranted;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -77,7 +77,7 @@ public class Admin implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return access;
+        return accessGranted;
     }
 
     @Override

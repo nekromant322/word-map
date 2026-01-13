@@ -1,18 +1,22 @@
 package com.margot.word_map.controller.rest;
 
-import com.margot.word_map.dto.request.*;
+import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
+import com.margot.word_map.dto.request.ConfirmRequest;
+import com.margot.word_map.dto.request.CreateAdminRequest;
+import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.InvalidTokenException;
 import com.margot.word_map.model.Admin;
-import com.margot.word_map.service.auth.admin.AdminAuthService;
-import com.margot.word_map.service.auth.admin.AdminService;
+import com.margot.word_map.service.admin.AdminService;
+import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +39,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth/admin")
 public class AdminAuthController {
 
-    private final AdminAuthService adminAuthService;
+    private final AuthService authService;
 
     private final AdminService adminService;
 
@@ -65,7 +69,7 @@ public class AdminAuthController {
             message = "Invalid email format. Example: example@mail.com")
                                       @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
                                       @NotBlank String email) {
-        return adminAuthService.login(email);
+        return authService.login(email);
     }
 
     @Operation(
@@ -88,7 +92,7 @@ public class AdminAuthController {
     public TokenResponse verifyConfirmCode(
             @RequestBody @Validated ConfirmRequest confirmRequest
     ) {
-        return adminAuthService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode());
+        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode());
     }
 
     @Operation(
@@ -115,7 +119,7 @@ public class AdminAuthController {
             throw new InvalidTokenException("refresh token is missing");
         }
 
-        return adminAuthService.refreshAccessToken(refreshToken);
+        return authService.refreshAccessToken(refreshToken);
     }
 
     @Operation(
@@ -135,7 +139,7 @@ public class AdminAuthController {
     )
     @PostMapping("/logout")
     public void logoutAdmin(@AuthenticationPrincipal UserDetails userDetails) {
-        adminAuthService.logout(((Admin) userDetails).getId());
+        authService.logout(((Admin) userDetails).getId());
     }
 
     @Operation(
@@ -185,6 +189,7 @@ public class AdminAuthController {
         adminService.updateAdmin(request);
     }
 
+    @SecurityRequirement(name = "JWT")
     @Operation(
             summary = "Изменение доступа админа/модератора",
             description = "Запрос позволяет поменять запретить или разрешить доступ админу/модератору",

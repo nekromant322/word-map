@@ -1,5 +1,6 @@
 package com.margot.word_map.service.jwt;
 
+import com.margot.word_map.dto.AdminJwtInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -12,7 +13,6 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.function.Function;
 
 @Service
@@ -25,23 +25,23 @@ public class JwtService {
     @Value("${jwt.expiration.refresh-token-expiration}")
     private Duration refreshTokenExpiration;
 
-    public String generateToken(String email, String role, List<String> rules, Duration expiration) {
+    public String generateToken(AdminJwtInfo jwtInfo, Duration expiration) {
         return Jwts.builder()
-                .subject(email)
-                .claim("role", role)
-                .claim("rules", rules)
+                .subject(jwtInfo.email())
+                .claim("role", jwtInfo.role())
+                .claim("rules", jwtInfo.rules())
                 .issuedAt(new Date())
                 .expiration(Date.from(Instant.now().plus(expiration)))
                 .signWith(getKey())
                 .compact();
     }
 
-    public String generateAccessToken(String email, String role, List<String> rules) {
-        return generateToken(email, role, rules, accessTokenExpiration);
+    public String generateAccessToken(AdminJwtInfo jwtInfo) {
+        return generateToken(jwtInfo, accessTokenExpiration);
     }
 
     public String generateRefreshToken(String email) {
-        return generateToken(email, null, null, refreshTokenExpiration);
+        return generateToken(new AdminJwtInfo(email, null, null), refreshTokenExpiration);
     }
 
     private SecretKey getKey() {

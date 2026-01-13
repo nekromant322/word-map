@@ -112,7 +112,7 @@ public class SecurityConfig {
 
     private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {
         if (authentication.getPrincipal() instanceof Admin admin) {
-            if (!admin.getAccess()) {
+            if (!admin.isAccessGranted()) {
                 return new AuthorizationDecision(false);
             }
 
