@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 resultDiv.textContent = "❌ Пользователь не найден";
                 resultDiv.className = "alert alert-danger mt-3";
             } else if (response.status === 403) {
-                resultDiv.textContent = "❌ Нет доступа";
+                resultDiv.textContent = "❌ Аккаунт заблокирован";
                 resultDiv.className = "alert alert-warning mt-3";
-            } else if (response.status === 401) {
+            } else if (response.status === 400) {
                 resultDiv.textContent = "❌ Невалидный формат почты";
                 resultDiv.className = "alert alert-danger mt-3";
             } else {

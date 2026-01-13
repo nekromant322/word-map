@@ -1,7 +1,13 @@
 import { CONFIG } from "../config/api-config.js"
 
 export async function requestLoginCode(email) {
-    const response = await fetch(`${CONFIG.API_BASE_URL}/auth/admin/login/${encodeURIComponent(email)}`);
+    const response = await fetch(`${CONFIG.API_BASE_URL}/auth/admin/login`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email })
+    });
     return response;
 }
 

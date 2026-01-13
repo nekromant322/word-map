@@ -60,4 +60,4 @@ jwt:
 auth:
   confirm-by-email: true
 confirm:
-  code-expiration-time: 300
+  code-expiration-time: 180

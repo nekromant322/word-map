@@ -8,15 +8,12 @@ import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,27 +43,23 @@ public class AdminAuthController {
             externalDocs = @ExternalDocumentation(
                     description = "документация в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
-                            "152567831/GET+auth+login+email"
+                            "152567831/POST+auth+admin+login"
             )
     )
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Успешный вход. Код отправлен"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content),
-                    @ApiResponse(responseCode = "401",
-                            description = "Почта введена в невалидном формате",
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат почты", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "404",
+                            description = "Аккаунт не найден",
                             content = @Content
                     )
             }
     )
-    @GetMapping("/login/{email}")
-    public ConfirmResponse loginAdmin(@PathVariable @Email(
-            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-            message = "Invalid email format. Example: example@mail.com")
-                                      @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
-                                      @NotBlank String email) {
-        return authService.login(email);
+    @PostMapping("/login")
+    public ConfirmResponse loginAdmin(@Valid @RequestBody AdminLoginRequest request) {
+        return authService.login(request.email());
     }
 
     @Operation(

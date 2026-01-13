@@ -26,6 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.security.SecureRandom;
 import java.util.*;
 
 @Configuration
@@ -108,6 +109,11 @@ public class SecurityConfig {
             HttpServletRequest request = context.getRequest();
             return checkAccessByUrl(authentication, request);
         };
+    }
+
+    @Bean
+    public SecureRandom secureRandom() {
+        return new SecureRandom();
     }
 
     private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {

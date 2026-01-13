@@ -55,10 +55,9 @@ public class AdminService {
     }
 
     public Admin getAdminById(Long id) {
-        return adminRepository.findById(id).orElseThrow(() -> {
-            log.info("admin with id {} not found", id);
-            return new AdminNotFoundException("admin with id " + id + " not found");
-        });
+        return adminRepository.findById(id).orElseThrow(() ->
+            new UserNotFoundException("admin with id " + id + " not found")
+        );
     }
 
     public AdminDto getAdminInfoByEmail(String email) {
@@ -66,10 +65,9 @@ public class AdminService {
     }
 
     public Admin getAdminByEmail(String email) {
-        return adminRepository.findByEmail(email).orElseThrow(() -> {
-            log.info("admin with email {} not found", email);
-            return new AdminNotFoundException("admin with email " + email + " not found");
-        });
+        return adminRepository.findByEmail(email).orElseThrow(() ->
+            new UserNotFoundException("admin with email " + email + " not found")
+        );
     }
 
     public boolean isAdminExistsByEmail(String email) {

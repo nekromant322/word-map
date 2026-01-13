@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 @Service
@@ -16,13 +17,14 @@ import java.time.LocalDateTime;
 public class ConfirmCodeService {
 
     private final ConfirmRepository confirmRepository;
+    private final SecureRandom secureRandom;
 
     @Value("${confirm.code-expiration-time}")
     private Integer confirmCodeExpirationTime;
 
     @Transactional
     public ConfirmCodeDto generateConfirmCode(Long adminId) {
-        String code = Integer.toString(generateRandomCode());
+        String code = generateRandomCode();
         Confirm confirm = confirmRepository.findByAdminId(adminId)
                 .orElseGet(() -> new Confirm(code, adminId));
 
@@ -53,8 +55,9 @@ public class ConfirmCodeService {
         }
     }
 
-    private Integer generateRandomCode() {
-        // TODO Нужен SecureRandom
-        return (int) (Math.random() * 900000) + 100000;
+    private String generateRandomCode() {
+        int code = secureRandom.nextInt(1_000_000);
+
+        return String.format("%06d", code);
     }
 }

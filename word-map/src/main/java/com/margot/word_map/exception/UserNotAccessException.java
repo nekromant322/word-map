@@ -1,15 +1,14 @@
 package com.margot.word_map.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class UserNotAccessException extends BusinessException {
 
-@ResponseStatus(HttpStatus.FORBIDDEN)
-public class UserNotAccessException extends BaseException {
+    private final static ErrorCode CODE = ErrorCode.USER_NOT_ACCESS;
 
     public UserNotAccessException() {
+        super(CODE);
     }
 
     public UserNotAccessException(String message) {
-        super(message);
+        super(message, CODE);
     }
 }

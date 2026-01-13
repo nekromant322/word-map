@@ -2,7 +2,6 @@ package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.AdminJwtInfo;
 import com.margot.word_map.dto.ConfirmCodeDto;
-import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.RefreshTokenException;
@@ -31,14 +30,11 @@ public class AuthService {
     public ConfirmResponse login(String email) {
         Admin admin = adminService.getAdminByEmail(email);
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException();
+            throw new UserNotAccessException("account is blocked: " + email);
         }
 
         ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(admin.getId());
-        emailService.sendConfirmEmail(ConfirmRequest.builder()
-                .code(String.valueOf(codeDto.getCode()))
-                .email(email)
-                .build());
+        emailService.sendConfirmEmail(codeDto.getCode(), email);
 
         return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
     }
