@@ -60,6 +60,15 @@ public class AdminService {
         );
     }
 
+    public Admin getActiveAdminById(Long id) {
+        Admin admin = getAdminById(id);
+        if (!admin.isAccessGranted()) {
+            throw new UserNotAccessException("account is blocked: " + admin.getEmail());
+        }
+
+        return admin;
+    }
+
     public AdminDto getAdminInfoByEmail(String email) {
         return adminMapper.toDto(getAdminByEmail(email));
     }

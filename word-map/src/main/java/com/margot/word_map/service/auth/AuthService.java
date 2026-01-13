@@ -36,10 +36,14 @@ public class AuthService {
             throw new UserNotAccessException("account is blocked: " + email);
         }
 
-        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(admin.getId());
-        emailService.sendConfirmEmail(codeDto.getCode(), email);
+        return generateAndSendConfirm(admin.getId(), email);
+    }
 
-        return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
+    public ConfirmResponse resendConfirm(Long confirmId) {
+        Confirm confirm = confirmCodeService.verifyConfirmById(confirmId);
+
+        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
+        return generateAndSendConfirm(admin.getId(), admin.getEmail());
     }
 
     public TokenResponse refreshTokens(String refreshToken, String device) {
@@ -63,18 +67,21 @@ public class AuthService {
                 request.getConfirmID(),
                 request.getCodeInput());
 
-        Admin admin = adminService.getAdminById(confirm.getAdminId());
+        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
         admin.setDateActive(LocalDateTime.now());
-
-        if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException();
-        }
 
         return generateTokens(admin, userAgent);
     }
 
     public void logout(Long id) {
         refreshTokenService.deleteRefreshTokenByAdminId(id);
+    }
+
+    private ConfirmResponse generateAndSendConfirm(Long adminId, String email) {
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(adminId);
+        emailService.sendConfirmEmail(codeDto.getCode(), email);
+
+        return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
     }
 
     private TokenResponse generateTokens(Admin admin, String userAgent) {

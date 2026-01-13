@@ -1,6 +1,7 @@
 package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
+import com.margot.word_map.exception.ActiveCodeExistsException;
 import com.margot.word_map.exception.ConfirmNotFoundException;
 import com.margot.word_map.exception.ErrorCode;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
@@ -24,27 +25,49 @@ public class ConfirmCodeService {
     @Value("${confirm.code-expiration-time}")
     private Integer confirmCodeExpirationTime;
 
+    public Confirm findById(Long confirmId) {
+        return confirmRepository.findById(confirmId)
+                .orElseThrow(ConfirmNotFoundException::new);
+    }
+
     @Transactional
     public ConfirmCodeDto generateConfirmCode(Long adminId) {
         String code = generateRandomCode();
         Confirm confirm = confirmRepository.findByAdminId(adminId)
-                .orElseGet(() -> new Confirm(code, adminId));
+                .orElse(null);
 
-        confirm.setCode(code);
-        confirm.setCreatedAt(LocalDateTime.now());
-        confirm.setExpiryAt(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
+        if (confirm != null) {
+            if (confirm.getExpiryAt().isAfter(LocalDateTime.now())) {
+                throw new ActiveCodeExistsException();
+            }
+            confirmRepository.delete(confirm);
+        }
 
-        Confirm savedConfirm = confirmRepository.save(confirm);
-        return new ConfirmCodeDto(code, savedConfirm.getId(), confirmCodeExpirationTime);
+        Confirm newConfirm = new Confirm(code, adminId);
+        newConfirm.setCode(code);
+        newConfirm.setCreatedAt(LocalDateTime.now());
+        newConfirm.setExpiryAt(LocalDateTime.now().plusSeconds(confirmCodeExpirationTime));
+
+        confirmRepository.save(newConfirm);
+        return new ConfirmCodeDto(code, newConfirm.getId(), confirmCodeExpirationTime);
     }
 
     @Transactional
     public Confirm verifyConfirmCode(Long confirmId, String code) {
-        Confirm confirm = confirmRepository.findById(confirmId)
-                .orElseThrow(ConfirmNotFoundException::new);
+        Confirm confirm = findById(confirmId);
 
         validateConfirmCode(confirm, code);
         confirmRepository.delete(confirm);
+
+        return confirm;
+    }
+
+    public Confirm verifyConfirmById(Long confirmId) {
+        Confirm confirm = findById(confirmId);
+
+        if (confirm.getExpiryAt().isAfter(LocalDateTime.now())) {
+            throw new ActiveCodeExistsException();
+        }
 
         return confirm;
     }
