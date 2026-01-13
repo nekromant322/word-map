@@ -74,17 +74,19 @@ public class AdminAuthController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Код подтвержден"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Указан неверный код", content = @Content)
+                    @ApiResponse(responseCode = "410", description = "Истек срок жизни кода", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Сессия подтверждения не найдена",
+                            content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "400", description = "Неверный код подтверждения", content = @Content)
             }
     )
     @PostMapping("/confirm")
     public TokenResponse verifyConfirmCode(
-            @RequestBody @Validated ConfirmRequest confirmRequest,
-            @RequestHeader("User-Agent") String device
+            @Valid @RequestBody ConfirmRequest confirmRequest,
+            @RequestHeader("User-Agent") String userAgent
     ) {
-        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode(),
-                device);
+        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest, userAgent);
     }
 
     @Operation(

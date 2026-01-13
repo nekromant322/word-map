@@ -11,13 +11,13 @@ export async function requestLoginCode(email) {
     return response;
 }
 
-export async function confirmLoginCode(email, code) {
+export async function confirmLoginCode(confirmID, codeInput) {
     const response = await fetch(`${CONFIG.API_BASE_URL}/auth/admin/confirm`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, code })
+        body: JSON.stringify({ confirmID, codeInput })
     });
     return response;
 }

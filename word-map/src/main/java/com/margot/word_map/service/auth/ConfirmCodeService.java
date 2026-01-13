@@ -1,6 +1,8 @@
 package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.ConfirmCodeDto;
+import com.margot.word_map.exception.ConfirmNotFoundException;
+import com.margot.word_map.exception.ErrorCode;
 import com.margot.word_map.exception.InvalidConfirmCodeException;
 import com.margot.word_map.model.Confirm;
 import com.margot.word_map.repository.ConfirmRepository;
@@ -37,13 +39,14 @@ public class ConfirmCodeService {
     }
 
     @Transactional
-    public void verifyConfirmCode(String code, Long adminId) {
-        Confirm confirm = confirmRepository.findByAdminId(adminId)
-                .orElseThrow(InvalidConfirmCodeException::new);
+    public Confirm verifyConfirmCode(Long confirmId, String code) {
+        Confirm confirm = confirmRepository.findById(confirmId)
+                .orElseThrow(ConfirmNotFoundException::new);
 
         validateConfirmCode(confirm, code);
-
         confirmRepository.delete(confirm);
+
+        return confirm;
     }
 
     private void validateConfirmCode(Confirm confirm, String code) {
@@ -51,7 +54,7 @@ public class ConfirmCodeService {
             throw new InvalidConfirmCodeException();
         }
         if (confirm.getExpiryAt().isBefore(LocalDateTime.now())) {
-            throw new InvalidConfirmCodeException();
+            throw new InvalidConfirmCodeException(ErrorCode.CODE_SPOILED);
         }
     }
 

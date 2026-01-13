@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const codeForm = document.getElementById("code-form");
     const codeInput = document.getElementById("code");
 
+    let confirmID;
+
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
 
@@ -23,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
+                confirmID = data.confirmID;
+
                 resultDiv.style.display = "none";
 
                 sendCodeBtn.style.display = "none";
@@ -52,11 +57,11 @@ document.addEventListener("DOMContentLoaded", function () {
     codeForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         const code = codeInput.value.trim();
-        const email = emailInput.value.trim();
         resultDiv.textContent = "";
 
         try {
-            const response = await confirmLoginCode(email, code);
+            console.log(confirmID)
+            const response = await confirmLoginCode(confirmID, code);
 
             if (response.ok) {
                 const tokenResponse = await response.json();

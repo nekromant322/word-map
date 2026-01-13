@@ -2,11 +2,13 @@ package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.AdminJwtInfo;
 import com.margot.word_map.dto.ConfirmCodeDto;
+import com.margot.word_map.dto.request.ConfirmRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.RefreshTokenException;
 import com.margot.word_map.exception.UserNotAccessException;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.Confirm;
 import com.margot.word_map.model.RefreshToken;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.email.EmailService;
@@ -14,6 +16,7 @@ import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -54,20 +57,29 @@ public class AuthService {
         return generateTokens(admin, device);
     }
 
-    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String code, String device) {
-        Admin admin = adminService.getAdminByEmail(email);
-        confirmCodeService.verifyConfirmCode(code, admin.getId());
+    @Transactional
+    public TokenResponse verifyConfirmCodeAndGenerateTokens(ConfirmRequest request, String userAgent) {
+        Confirm confirm = confirmCodeService.verifyConfirmCode(
+                request.getConfirmID(),
+                request.getCodeInput());
 
-        return generateTokens(admin, device);
+        Admin admin = adminService.getAdminById(confirm.getAdminId());
+        admin.setDateActive(LocalDateTime.now());
+
+        if (!admin.isAccessGranted()) {
+            throw new UserNotAccessException();
+        }
+
+        return generateTokens(admin, userAgent);
     }
 
     public void logout(Long id) {
         refreshTokenService.deleteRefreshTokenByAdminId(id);
     }
 
-    private TokenResponse generateTokens(Admin admin, String device) {
+    private TokenResponse generateTokens(Admin admin, String userAgent) {
         String accessToken = jwtService.generateAccessToken(AdminJwtInfo.from(admin));
-        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(admin, device);
+        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(admin, userAgent);
 
         return new TokenResponse(accessToken, refreshToken);
     }
