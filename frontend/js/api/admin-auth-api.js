@@ -36,12 +36,14 @@ export async function refreshAccessToken(refreshToken) {
 export async function logoutAdmin() {
     try {
         const accessToken = localStorage.getItem("access-token");
+        const refreshToken = localStorage.getItem("refresh-token");
 
         const response = await fetch(`http://localhost:8080/auth/admin/logout`, {
             method: "POST",
             headers: {
                 "Authorization": "Bearer " + accessToken
-            }
+            },
+            body: JSON.stringify({ refreshToken })
         });
     } catch (error) {
         // ignored

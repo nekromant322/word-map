@@ -3,7 +3,6 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -16,8 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -152,13 +150,14 @@ public class AdminAuthController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Успешный выход"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+                    @ApiResponse(responseCode = "401", description = "Сессия не найдена или истекла")
             }
     )
     @PostMapping("/logout")
-    public void logoutAdmin(@AuthenticationPrincipal UserDetails userDetails) {
-        authService.logout(((Admin) userDetails).getId());
+    public ResponseEntity<Void> logoutAdmin(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request.refreshToken());
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

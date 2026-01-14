@@ -73,8 +73,10 @@ public class AuthService {
         return generateTokens(admin, userAgent);
     }
 
-    public void logout(Long id) {
-        refreshTokenService.deleteRefreshTokenByAdminId(id);
+    public void logout(String refreshToken) {
+        RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
+                .orElseThrow(RefreshTokenException::new);
+        refreshTokenService.deleteRefreshToken(storedToken);
     }
 
     private ConfirmResponse generateAndSendConfirm(Long adminId, String email) {
