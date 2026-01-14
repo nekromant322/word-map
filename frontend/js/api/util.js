@@ -12,8 +12,7 @@ export async function authorizedFetch(input, init = {}) {
     let response = await fetch(input, init);
 
     if (response.status === 401) {
-        const refreshToken = localStorage.getItem("refresh-token");
-        const success = await tryRefreshToken(refreshToken);
+        const success = await tryRefreshToken();
 
         if (success) {
             // Обновим токен и повторим запрос

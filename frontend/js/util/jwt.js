@@ -13,10 +13,6 @@ export function setAccessToken(token) {
     localStorage.setItem("access-token", token);
 }
 
-export function setRefreshToken(token) {
-    localStorage.setItem("refresh-token", token);
-}
-
 export function deleteAccessToken() {
     localStorage.removeItem("access-token");
 }
@@ -52,9 +48,8 @@ export function parseJwt(token) {
 
 export async function checkAuthorization() {
     const accessToken = getAccessToken();
-    const refreshToken = getRefreshToken();
 
-    if (!accessToken || !refreshToken) {
+    if (!accessToken) {
         redirectToLogin();
         return;
     }
@@ -63,22 +58,21 @@ export async function checkAuthorization() {
     const now = Math.floor(Date.now() / 1000); // текущее время в секундах
 
     if (accessPayload.exp && accessPayload.exp < now) {
-        const success = await tryRefreshToken(refreshToken);
+        const success = await tryRefreshToken();
         if (!success) {
             redirectToLogin();
         }
     }
 }
 
-export async function tryRefreshToken(token) {
+export async function tryRefreshToken() {
     try {
-        const response = await refreshAccessToken(token);
+        const response = await refreshAccessToken();
 
         if (!response.ok) return false;
 
         const responseBody = await response.json();
         localStorage.setItem("access-token", responseBody.accessToken);
-        localStorage.setItem("refresh-token", responseBody.refreshToken);
         return true;
     } catch (error) {
         console.error("Ошибка обновления токена:", error);

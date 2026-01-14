@@ -1,5 +1,5 @@
 import {confirmLoginCode, requestLoginCode} from "./api/admin-auth-api.js";
-import {setAccessToken, setRefreshToken} from "./util/jwt.js";
+import {setAccessToken} from "./util/jwt.js";
 import {redirectToMenu} from "./util/redirect.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
                 confirmID = data.confirmID;
 
                 resultDiv.style.display = "none";
@@ -67,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const tokenResponse = await response.json();
 
                 setAccessToken(tokenResponse.accessToken);
-                setRefreshToken(tokenResponse.refreshToken);
                 redirectToMenu();
             } else if (response.status === 400) {
                 resultDiv.textContent = "❌ Неверный код подтверждения";
