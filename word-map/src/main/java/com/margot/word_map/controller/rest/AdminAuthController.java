@@ -3,26 +3,27 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.model.Admin;
+import com.margot.word_map.exception.RefreshTokenException;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Duration;
 
 @Tag(
         name = "AdminAuthController",
@@ -46,27 +47,52 @@ public class AdminAuthController {
             externalDocs = @ExternalDocumentation(
                     description = "документация в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
-                            "152567831/GET+auth+login+email"
+                            "152567831/POST+auth+admin+login"
             )
     )
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Успешный вход. Код отправлен"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа", content = @Content),
-                    @ApiResponse(responseCode = "401",
-                            description = "Почта введена в невалидном формате",
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат почты", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "404",
+                            description = "Аккаунт не найден",
                             content = @Content
                     )
             }
     )
-    @GetMapping("/login/{email}")
-    public ConfirmResponse loginAdmin(@PathVariable @Email(
-            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-            message = "Invalid email format. Example: example@mail.com")
-                                      @Parameter(description = "Почта пользователя", example = "mail123@gmail.com")
-                                      @NotBlank String email) {
-        return authService.login(email);
+    @PostMapping("/login")
+    public ConfirmResponse loginAdmin(@Valid @RequestBody AdminLoginRequest request) {
+        return authService.login(request.email());
+    }
+
+    @Operation(
+            summary = "Метод для повторной генерации кода проверки",
+            description = "Отправка кода подтверждения на введенную ранее почту",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
+                            "152567831/PUT+auth+admin+code+resend"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Успешный вход. Код отправлен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден", content = @Content),
+                    @ApiResponse(responseCode = "404",
+                            description = "Сессия подтверждения не найдена",
+                            content = @Content
+                    ),
+                    @ApiResponse(responseCode = "429",
+                            description = "Нельзя запросить новый код, пока не истек существующий",
+                            content = @Content),
+            }
+    )
+    @PutMapping("/code/resend")
+    public ConfirmResponse resendCode(
+            @Valid @RequestBody ConfirmResendRequest request) {
+        return authService.resendConfirm(request.confirmID());
     }
 
     @Operation(
@@ -81,17 +107,25 @@ public class AdminAuthController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Код подтвержден"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Указан неверный код", content = @Content)
+                    @ApiResponse(responseCode = "410", description = "Истек срок жизни кода", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Сессия подтверждения не найдена",
+                            content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "400", description = "Неверный код подтверждения", content = @Content)
             }
     )
     @PostMapping("/confirm")
     public TokenResponse verifyConfirmCode(
-            @RequestBody @Validated ConfirmRequest confirmRequest,
-            @RequestHeader("User-Agent") String device
+            @Valid @RequestBody ConfirmRequest confirmRequest,
+            @RequestHeader("User-Agent") String userAgent,
+            HttpServletResponse response
     ) {
-        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest.getEmail(), confirmRequest.getCode(),
-                device);
+        TokenResponse tokenResponse = authService.verifyConfirmCodeAndGenerateTokens(confirmRequest, userAgent);
+
+        ResponseCookie cookie = createTokenCookie(tokenResponse.getRefreshToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return tokenResponse;
     }
 
     @Operation(
@@ -111,12 +145,22 @@ public class AdminAuthController {
     )
     @PostMapping("/refresh")
     public TokenResponse refreshAccessToken(
-            @Valid @RequestBody RefreshTokenRequest request,
-            @RequestHeader(value = "User-Agent", defaultValue = "Unknown") String device
+            @Valid @RequestBody(required = false) RefreshTokenRequest bodyToken,
+            @RequestHeader(value = "User-Agent", defaultValue = "Unknown", required = false) String userAgent,
+            @CookieValue(value = "refresh_token", required = false) String cookieToken,
+            HttpServletResponse response
     ) {
-        return authService.refreshTokens(request.refreshToken(), device);
+        String oldToken = getTokenOrThrow(bodyToken, cookieToken);
+
+        TokenResponse tokenResponse = authService.refreshTokens(oldToken, userAgent);
+
+        ResponseCookie cookie = createTokenCookie(tokenResponse.getRefreshToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return tokenResponse;
     }
 
+    @SecurityRequirement(name = "JWT")
     @Operation(
             summary = "Заявка на выход",
             description = "Удаление рефреш токена и выход",
@@ -128,13 +172,28 @@ public class AdminAuthController {
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "200", description = "Успешный выход"),
-                    @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа")
+                    @ApiResponse(responseCode = "401", description = "Сессия не найдена или истекла")
             }
     )
     @PostMapping("/logout")
-    public void logoutAdmin(@AuthenticationPrincipal UserDetails userDetails) {
-        authService.logout(((Admin) userDetails).getId());
+    public ResponseEntity<Void> logoutAdmin(
+            @Valid @RequestBody(required = false) RefreshTokenRequest bodyToken,
+            @CookieValue(value = "refresh_token", required = false) String cookieToken,
+            HttpServletResponse response) {
+        String token = getTokenOrThrow(bodyToken, cookieToken);
+
+        authService.logout(token);
+
+        ResponseCookie deleteCookie = ResponseCookie.from("refresh_token")
+                .httpOnly(true)
+                .secure(false)
+                .path("/auth/admin")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
@@ -205,5 +264,26 @@ public class AdminAuthController {
     @PostMapping("/admin/access")
     public void changeAdminAccess(@RequestBody @Validated ChangeAdminAccessRequest request) {
         adminService.changeAccess(request);
+    }
+
+    private String getTokenOrThrow(RefreshTokenRequest bodyToken, String cookieToken) {
+        String token = (cookieToken != null) ? cookieToken :
+                (bodyToken != null) ? bodyToken.refreshToken() : null;
+
+        if (token == null) {
+            throw new RefreshTokenException("refresh token not set");
+        }
+
+        return token;
+    }
+
+    private ResponseCookie createTokenCookie(String token) {
+        return ResponseCookie.from("refresh_token", token)
+                .httpOnly(true)
+                .secure(false)
+                .path("/auth/admin")
+                .maxAge(Duration.ofDays(14))
+                .sameSite("Lax")
+                .build();
     }
 }

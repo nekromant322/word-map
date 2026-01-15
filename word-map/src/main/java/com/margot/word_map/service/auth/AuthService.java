@@ -8,6 +8,7 @@ import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.RefreshTokenException;
 import com.margot.word_map.exception.UserNotAccessException;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.Confirm;
 import com.margot.word_map.model.RefreshToken;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.email.EmailService;
@@ -15,6 +16,7 @@ import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -31,16 +33,17 @@ public class AuthService {
     public ConfirmResponse login(String email) {
         Admin admin = adminService.getAdminByEmail(email);
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException();
+            throw new UserNotAccessException("account is blocked: " + email);
         }
 
-        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(admin.getId());
-        emailService.sendConfirmEmail(ConfirmRequest.builder()
-                .code(String.valueOf(codeDto.getCode()))
-                .email(email)
-                .build());
+        return generateAndSendConfirm(admin.getId(), email);
+    }
 
-        return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
+    public ConfirmResponse resendConfirm(Long confirmId) {
+        Confirm confirm = confirmCodeService.verifyConfirmById(confirmId);
+
+        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
+        return generateAndSendConfirm(admin.getId(), admin.getEmail());
     }
 
     public TokenResponse refreshTokens(String refreshToken, String device) {
@@ -58,20 +61,34 @@ public class AuthService {
         return generateTokens(admin, device);
     }
 
-    public TokenResponse verifyConfirmCodeAndGenerateTokens(String email, String code, String device) {
-        Admin admin = adminService.getAdminByEmail(email);
-        confirmCodeService.verifyConfirmCode(code, admin.getId());
+    @Transactional
+    public TokenResponse verifyConfirmCodeAndGenerateTokens(ConfirmRequest request, String userAgent) {
+        Confirm confirm = confirmCodeService.verifyConfirmCode(
+                request.getConfirmID(),
+                request.getCodeInput());
 
-        return generateTokens(admin, device);
+        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
+        admin.setDateActive(LocalDateTime.now());
+
+        return generateTokens(admin, userAgent);
     }
 
-    public void logout(Long id) {
-        refreshTokenService.deleteRefreshTokenByAdminId(id);
+    public void logout(String refreshToken) {
+        RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
+                .orElseThrow(RefreshTokenException::new);
+        refreshTokenService.deleteRefreshToken(storedToken);
     }
 
-    private TokenResponse generateTokens(Admin admin, String device) {
+    private ConfirmResponse generateAndSendConfirm(Long adminId, String email) {
+        ConfirmCodeDto codeDto = confirmCodeService.generateConfirmCode(adminId);
+        emailService.sendConfirmEmail(codeDto.getCode(), email);
+
+        return new ConfirmResponse(codeDto.getCodeId(), codeDto.getExpirationTime());
+    }
+
+    private TokenResponse generateTokens(Admin admin, String userAgent) {
         String accessToken = jwtService.generateAccessToken(AdminJwtInfo.from(admin));
-        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(admin, device);
+        String refreshToken = refreshTokenService.generateAndSaveRefreshToken(admin, userAgent);
 
         return new TokenResponse(accessToken, refreshToken);
     }

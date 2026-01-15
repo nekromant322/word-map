@@ -45,11 +45,6 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    @Transactional
-    public void deleteRefreshTokenByAdminId(Long adminId) {
-        refreshTokenRepository.deleteByAdminId(adminId);
-    }
-
     public Optional<RefreshToken> findByToken(String rawToken) {
         return refreshTokenRepository.findByTokenHash(hash256(rawToken));
     }

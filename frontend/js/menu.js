@@ -32,6 +32,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("logout-btn").addEventListener("click", () => {
         logoutAdmin();
-        redirectToLogin();
     });
 });

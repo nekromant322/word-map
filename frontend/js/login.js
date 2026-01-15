@@ -1,5 +1,5 @@
 import {confirmLoginCode, requestLoginCode} from "./api/admin-auth-api.js";
-import {setAccessToken, setRefreshToken} from "./util/jwt.js";
+import {setAccessToken} from "./util/jwt.js";
 import {redirectToMenu} from "./util/redirect.js";
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const resultDiv = document.getElementById("result");
     const codeForm = document.getElementById("code-form");
     const codeInput = document.getElementById("code");
+
+    let confirmID;
 
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -23,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
                 const data = await response.json();
+                confirmID = data.confirmID;
+
                 resultDiv.style.display = "none";
 
                 sendCodeBtn.style.display = "none";
@@ -31,9 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 resultDiv.textContent = "❌ Пользователь не найден";
                 resultDiv.className = "alert alert-danger mt-3";
             } else if (response.status === 403) {
-                resultDiv.textContent = "❌ Нет доступа";
+                resultDiv.textContent = "❌ Аккаунт заблокирован";
                 resultDiv.className = "alert alert-warning mt-3";
-            } else if (response.status === 401) {
+            } else if (response.status === 400) {
                 resultDiv.textContent = "❌ Невалидный формат почты";
                 resultDiv.className = "alert alert-danger mt-3";
             } else {
@@ -52,17 +56,16 @@ document.addEventListener("DOMContentLoaded", function () {
     codeForm.addEventListener("submit", async function (e) {
         e.preventDefault();
         const code = codeInput.value.trim();
-        const email = emailInput.value.trim();
         resultDiv.textContent = "";
 
         try {
-            const response = await confirmLoginCode(email, code);
+            console.log(confirmID)
+            const response = await confirmLoginCode(confirmID, code);
 
             if (response.ok) {
                 const tokenResponse = await response.json();
 
                 setAccessToken(tokenResponse.accessToken);
-                setRefreshToken(tokenResponse.refreshToken);
                 redirectToMenu();
             } else if (response.status === 400) {
                 resultDiv.textContent = "❌ Неверный код подтверждения";

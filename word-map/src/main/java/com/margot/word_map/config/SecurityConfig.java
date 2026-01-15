@@ -26,7 +26,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.*;
+import java.security.SecureRandom;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
@@ -63,7 +67,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/admin/admin/**").access(authorizationManager())
+                        .requestMatchers("/auth/admin/admin/**", "/auth/admin/logout")
+                            .access(authorizationManager())
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
@@ -108,6 +113,11 @@ public class SecurityConfig {
             HttpServletRequest request = context.getRequest();
             return checkAccessByUrl(authentication, request);
         };
+    }
+
+    @Bean
+    public SecureRandom secureRandom() {
+        return new SecureRandom();
     }
 
     private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {

@@ -1,16 +1,14 @@
 package com.margot.word_map.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class UserNotFoundException extends BusinessException {
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class UserNotFoundException extends BaseException {
+    private final static ErrorCode CODE = ErrorCode.USER_NOT_FOUND;
 
     public UserNotFoundException() {
-        super();
+        super(CODE);
     }
 
     public UserNotFoundException(String message) {
-        super(message);
+        super(message, CODE);
     }
 }
