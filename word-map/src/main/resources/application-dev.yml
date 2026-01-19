@@ -1,18 +1,4 @@
 spring:
-  mail:
-    host: localhost
-    port: 12345
-    username: test
-    password: test
-    properties:
-      mail:
-        transport:
-          protocol: smtp
-        smtp:
-          auth: false
-        starttls:
-          enable: false
-          required: false
   security:
     oauth2:
       client:
@@ -37,5 +23,3 @@ jwt:
   expiration:
     access-token-expiration: 15m
     refresh-token-expiration: 14d
-auth:
-  confirm-by-email: false
