@@ -1,10 +1,11 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.jwt.JwtFilter;
+import com.margot.word_map.dto.security.AdminDetails;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
-import com.margot.word_map.model.User;
 import com.margot.word_map.service.auth.AdminDetailsService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,6 +42,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomAuthenticationEntryPoint customEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final SecurityAdminAccessor adminAccessor;
 
     private static final Map<String, Rule.RULE> PATH_TO_RULE_MAP = new LinkedHashMap<>();
 
@@ -56,10 +57,6 @@ public class SecurityConfig {
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
         PATH_TO_RULE_MAP.put("/wordsOffer", Rule.RULE.MANAGE_OFFER);
     }
-
-    private static final List<String> USER_PATHS = List.of(
-            "/user"
-    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -120,41 +117,21 @@ public class SecurityConfig {
         return new SecureRandom();
     }
 
-    private AuthorizationDecision checkAccessByUrl(Authentication authentication, HttpServletRequest request) {
-        if (authentication.getPrincipal() instanceof Admin admin) {
-            if (!admin.isAccessGranted()) {
-                return new AuthorizationDecision(false);
-            }
-
-            String path = request.getRequestURI();
-            if (matchesPath(path, USER_PATHS)) {
-                return new AuthorizationDecision(false);
-            }
-
-            if (admin.getRole() == Admin.ROLE.ADMIN) {
-                return new AuthorizationDecision(true);
-            }
-            Optional<Rule.RULE> requiredRule = getRuleByPath(path);
-            return new AuthorizationDecision(
-                    requiredRule.map(rule -> admin.getRules().stream()
-                                    .map(Rule::getName)
-                                    .anyMatch(r -> r == rule))
-                            .orElse(false)
-            );
-        } else if (authentication.getPrincipal() instanceof User user) {
-            if (!user.getAccess()) {
-                return new AuthorizationDecision(false);
-            }
-
-            return new AuthorizationDecision(
-                    matchesPath(request.getRequestURI(), USER_PATHS)
-            );
+    private AuthorizationDecision checkAccessByUrl(Authentication auth, HttpServletRequest request) {
+        AdminDetails adminDetails = (AdminDetails) auth.getPrincipal();
+        if (!adminDetails.isAccountNonLocked()) {
+            return new AuthorizationDecision(false);
         }
-        return new AuthorizationDecision(false);
-    }
 
-    private boolean matchesPath(String path, List<String> prefixes) {
-        return prefixes.stream().anyMatch(path::startsWith);
+        if (adminAccessor.hasRole(auth, Admin.ROLE.ADMIN)) {
+            return new AuthorizationDecision(true);
+        }
+
+        String path = request.getRequestURI();
+        Optional<Rule.RULE> requiredRule = getRuleByPath(path);
+        boolean hasAccess = requiredRule.isPresent() && adminAccessor.hasRule(auth, requiredRule.get());
+
+        return new AuthorizationDecision(hasAccess);
     }
 
     private Optional<Rule.RULE> getRuleByPath(String path) {

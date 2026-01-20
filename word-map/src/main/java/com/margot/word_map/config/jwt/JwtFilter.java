@@ -30,17 +30,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
-    private final AdminDetailsService myUserDetailsService;
+    private final AdminDetailsService adminDetailsService;
 
     private final RequestAttributeSecurityContextRepository repo;
 
     private final HandlerExceptionResolver resolver;
 
-    public JwtFilter(JwtService jwtService, AdminDetailsService myUserDetailsService,
+    public JwtFilter(JwtService jwtService, AdminDetailsService adminDetailsService,
                      RequestAttributeSecurityContextRepository repo,
                      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.jwtService = jwtService;
-        this.myUserDetailsService = myUserDetailsService;
+        this.adminDetailsService = adminDetailsService;
         this.repo = repo;
         this.resolver = resolver;
     }
@@ -60,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails details = myUserDetailsService.loadUserByUsername(username);
+                UserDetails details = adminDetailsService.loadUserByUsername(username);
 
                 if (jwtService.validateToken(token, details)) {
                     UsernamePasswordAuthenticationToken authToken =
