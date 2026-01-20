@@ -1,13 +1,14 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.AdminDto;
+import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.service.admin.AdminService;
+import com.margot.word_map.service.rule.RuleService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.margot.word_map.service.rule.RuleService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.List;
 @SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admins")
+@RequestMapping("/admin")
 public class AdminController {
 
     private final RuleService ruleService;
@@ -45,6 +46,11 @@ public class AdminController {
 
     @GetMapping("/{id}")
     public AdminDto getAdmin(@PathVariable Long id) {
-        return adminService.getAdminInfoById(id);
+        return adminService.getAdminDetailedInfoById(id);
+    }
+
+    @GetMapping("/info")
+    public AdminInfoDto getCurrentAdminInfo() {
+        return adminService.getCurrentAdminInfo();
     }
 }

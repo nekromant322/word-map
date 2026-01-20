@@ -1,6 +1,7 @@
 package com.margot.word_map.service.admin;
 
 import com.margot.word_map.dto.AdminDto;
+import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
@@ -11,6 +12,7 @@ import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.service.rule.RuleService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +38,8 @@ public class AdminService {
 
     private final RuleService ruleService;
 
+    private final SecurityAdminAccessor adminAccessor;
+
     public GetAdminsResponse getAdmins(Integer page, Integer size) {
         Long countAdmins = adminRepository.count();
 
@@ -50,7 +54,16 @@ public class AdminService {
                 .build();
     }
 
-    public AdminDto getAdminInfoById(Long id) {
+    @Transactional
+    public AdminInfoDto getCurrentAdminInfo() {
+        Long id = adminAccessor.getCurrentAdminId();
+        Admin admin = getAdminById(id);
+        admin.setDateActive(LocalDateTime.now());
+
+        return adminMapper.toInfoDto(admin);
+    }
+
+    public AdminDto getAdminDetailedInfoById(Long id) {
         return adminMapper.toDto(getAdminById(id));
     }
 
