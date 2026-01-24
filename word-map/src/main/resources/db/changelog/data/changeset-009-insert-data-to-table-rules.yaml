@@ -14,12 +14,6 @@ databaseChangeLog:
             columns:
               - column:
                   name: name
-                  value: WIPE_DICTIONARY
-        - insert:
-            tableName: rules
-            columns:
-              - column:
-                  name: name
                   value: MANAGE_RATING
         - insert:
             tableName: rules
@@ -27,12 +21,6 @@ databaseChangeLog:
               - column:
                   name: name
                   value: MANAGE_WORLD
-        - insert:
-            tableName: rules
-            columns:
-              - column:
-                  name: name
-                  value: MANAGE_ROLE
         - insert:
             tableName: rules
             columns:
@@ -50,4 +38,4 @@ databaseChangeLog:
             columns:
               - column:
                   name: name
-                  value: MANAGE_OFFER
+                  value: MANAGE_ALPHABET
