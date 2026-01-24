@@ -47,15 +47,11 @@ public class SecurityConfig {
     private static final Map<String, Rule.RULE> PATH_TO_RULE_MAP = new LinkedHashMap<>();
 
     static {
-        PATH_TO_RULE_MAP.put("/dictionary/wipe", Rule.RULE.WIPE_DICTIONARY);
         PATH_TO_RULE_MAP.put("/dictionary", Rule.RULE.MANAGE_DICTIONARY);
         PATH_TO_RULE_MAP.put("/rating", Rule.RULE.MANAGE_RATING);
         PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
-        PATH_TO_RULE_MAP.put("/auth/admin/admin", Rule.RULE.MANAGE_ROLE);
-        PATH_TO_RULE_MAP.put("/admins", Rule.RULE.MANAGE_ROLE);
         PATH_TO_RULE_MAP.put("/event", Rule.RULE.MANAGE_EVENT);
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
-        PATH_TO_RULE_MAP.put("/wordsOffer", Rule.RULE.MANAGE_OFFER);
     }
 
     @Bean

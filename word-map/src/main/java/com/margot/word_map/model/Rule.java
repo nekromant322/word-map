@@ -29,12 +29,10 @@ public class Rule implements GrantedAuthority {
 
     public enum RULE {
         MANAGE_DICTIONARY,
-        WIPE_DICTIONARY,
         MANAGE_RATING,
         MANAGE_WORLD,
-        MANAGE_ROLE,
         MANAGE_EVENT,
         MANAGE_SHOP,
-        MANAGE_OFFER
+        MANAGE_ALPHABET,
     }
 }
