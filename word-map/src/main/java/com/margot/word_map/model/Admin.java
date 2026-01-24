@@ -1,5 +1,6 @@
 package com.margot.word_map.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,7 +38,8 @@ public class Admin {
     private ROLE role;
 
     @Column(name = "access", nullable = false)
-    private boolean accessGranted;
+    @Builder.Default
+    private boolean accessGranted = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -53,7 +55,11 @@ public class Admin {
     private Set<AdminLanguage> languages = new HashSet<>();
 
     public enum ROLE {
+
+        @JsonProperty("admin")
         ADMIN,
+
+        @JsonProperty("moderator")
         MODERATOR
     }
 }

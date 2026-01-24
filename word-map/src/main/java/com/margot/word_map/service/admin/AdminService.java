@@ -11,6 +11,7 @@ import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
+import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.service.rule.RuleService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,10 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private final AdminRepository adminRepository;
-
     private final AdminMapper adminMapper;
-
     private final RuleService ruleService;
-
     private final SecurityAdminAccessor adminAccessor;
+    private final LanguageService languageService;
 
     public GetAdminsResponse getAdmins(Integer page, Integer size) {
         Long countAdmins = adminRepository.count();
@@ -122,6 +121,11 @@ public class AdminService {
         admin.setRules(getAdminRules(request.getNameRules(), request.getRole()));
 
         adminRepository.save(admin);
+    }
+
+    public void updateCurrentAdminLanguage(Long langId) {
+        Long adminId = adminAccessor.getCurrentAdminId();
+        languageService.updateAdminLanguage(adminId, langId);
     }
 
     private List<Rule> getAdminRules(List<String> needRules, String role) {

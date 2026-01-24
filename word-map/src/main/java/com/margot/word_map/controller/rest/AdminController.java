@@ -53,4 +53,9 @@ public class AdminController {
     public AdminInfoDto getCurrentAdminInfo() {
         return adminService.getCurrentAdminInfo();
     }
+
+    @PutMapping("/language/{id}")
+    public void setLanguage(@PathVariable Long id) {
+        adminService.updateCurrentAdminLanguage(id);
+    }
 }
