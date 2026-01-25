@@ -195,30 +195,6 @@ public class AdminAuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Обновление роли/прав админа/модератора",
-            description = "1. возможность изменения роли (админ -> модератор и наоборот), " +
-                    "для роли модератора указываются права," +
-                    "2. возможность указания новых прав для модератора ",
-            externalDocs = @ExternalDocumentation(
-                    description = "документация запроса в Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/PUT+auth+admin"
-            )
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "Данные обновлены успешно"),
-                    @ApiResponse(responseCode = "404", description = "Админ с таким id не найден"),
-                    @ApiResponse(responseCode = "400", description = "Невалидные данные"),
-                    @ApiResponse(responseCode = "401", description = "Ошибка авторизации"),
-                    @ApiResponse(responseCode = "403", description = "Нет доступа")
-            }
-    )
-    @PutMapping("/admin")
-    public void updateAdmin(@RequestBody @Validated UpdateAdminRequest request) {
-        adminService.updateAdmin(request);
-    }
-
     @SecurityRequirement(name = "JWT")
     @Operation(
             summary = "Изменение доступа админа/модератора",

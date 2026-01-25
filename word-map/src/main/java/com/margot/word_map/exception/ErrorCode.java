@@ -20,6 +20,7 @@ public enum ErrorCode {
     USER_NOT_PERMISSIONS(HttpStatus.FORBIDDEN, "error.user.not_permissions"),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "error.user.not_found"),
+    ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "error.admin.not_found"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "error.resource.not_found"),
     CONFIRM_NOT_FOUND(HttpStatus.NOT_FOUND, "error.confirm.not_found"),
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "error.language.not_found"),

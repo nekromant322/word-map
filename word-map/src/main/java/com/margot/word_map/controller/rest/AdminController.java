@@ -4,6 +4,7 @@ import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.request.CreateAdminRequest;
+import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.rule.RuleService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -79,6 +81,31 @@ public class AdminController {
     @GetMapping("/{id}")
     public AdminDto getAdmin(@PathVariable Long id) {
         return adminService.getAdminDetailedInfoById(id);
+    }
+
+    @Operation(
+            summary = "Метод редактирования пользователя административной панели",
+            description = "1. возможность изменения роли (админ -> модератор и наоборот), " +
+                    "для роли модератора указываются права," +
+                    "2. возможность указания новых прав для модератора ",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/PUT+admin+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные обновлены успешно"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "401", description = "Несуществующее правило"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+            }
+    )
+    @PutMapping("/{id}")
+    public void updateAdmin(@PathVariable Long id, @RequestBody @Valid UpdateAdminRequest request) {
+        adminService.updateAdmin(id, request);
     }
 
     @GetMapping("/info")

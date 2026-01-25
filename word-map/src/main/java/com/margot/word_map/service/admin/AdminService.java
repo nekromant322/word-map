@@ -6,10 +6,7 @@ import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.exception.AdminAlreadyExistsException;
-import com.margot.word_map.exception.InvalidRuleException;
-import com.margot.word_map.exception.UserNotAccessException;
-import com.margot.word_map.exception.UserNotFoundException;
+import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
@@ -27,8 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -70,17 +67,8 @@ public class AdminService {
 
     public Admin getAdminById(Long id) {
         return adminRepository.findById(id).orElseThrow(() ->
-            new UserNotFoundException("admin with id " + id + " not found")
+            new AdminNotFoundException("admin with id " + id + " not found")
         );
-    }
-
-    public Admin getActiveAdminById(Long id) {
-        Admin admin = getAdminById(id);
-        if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException("account is blocked: " + admin.getEmail());
-        }
-
-        return admin;
     }
 
     public AdminDto getAdminInfoByEmail(String email) {
@@ -107,37 +95,30 @@ public class AdminService {
                 .email(request.getEmail())
                 .createdAt(LocalDateTime.now())
                 .role(Admin.ROLE.MODERATOR)
-                .rules(getAdminRules(request.getRuleID(), Admin.ROLE.MODERATOR))
+                .rules(getAdminRules(request.getRuleID()))
                 .build();
 
         adminRepository.save(admin);
     }
 
+    // TODO audit
     @Transactional
-    public void updateAdmin(UpdateAdminRequest request) {
-        Admin admin = getAdminById(request.getId());
+    public void updateAdmin(Long id, UpdateAdminRequest request) {
+        Admin targetAdmin = getAdminById(id);
 
-        admin.setRole(request.getRole());
-        admin.setRules(getAdminRules(request.getRuleIds(), request.getRole()));
+        if (targetAdmin.getRole() == Admin.ROLE.ADMIN) {
+            throw new UserNotPermissionsException("can't set rules for admin role");
+        }
 
-        adminRepository.save(admin);
+        targetAdmin.getRules().clear();
+        targetAdmin.getRules().addAll(getAdminRules(request.getRuleId()));
+
+        adminRepository.save(targetAdmin);
     }
 
     public void updateCurrentAdminLanguage(Long langId) {
         Long adminId = adminAccessor.getCurrentAdminId();
         languageService.updateAdminLanguage(adminId, langId);
-    }
-
-    private List<Rule> getAdminRules(List<Long> ruleIds, Admin.ROLE role) {
-        if (role == Admin.ROLE.MODERATOR && ruleIds != null) {
-            List<Rule> rules = ruleService.getRulesByIds(ruleIds);
-            if (rules.size() != ruleIds.size()) {
-                throw new InvalidRuleException("wrong rule provided");
-            }
-
-            return rules;
-        }
-        return new ArrayList<>();
     }
 
     @Transactional
@@ -146,5 +127,15 @@ public class AdminService {
 
         admin.setAccessGranted(request.getAccess());
         adminRepository.save(admin);
+    }
+    
+    private Set<Rule> getAdminRules(List<Long> ruleIds) {
+        Set<Rule> rules = ruleService.getRulesByIds(ruleIds);
+
+        if (rules.size() != ruleIds.size()) {
+            throw new InvalidRuleException("wrong rule provided");
+        }
+
+        return rules;
     }
 }

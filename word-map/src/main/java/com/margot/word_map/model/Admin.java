@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -48,7 +47,8 @@ public class Admin {
             inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 
     )
-    private List<Rule> rules;
+    @Builder.Default
+    private Set<Rule> rules = new HashSet<>();
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
