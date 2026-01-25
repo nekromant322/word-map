@@ -121,12 +121,17 @@ public class AdminService {
         languageService.updateAdminLanguage(adminId, langId);
     }
 
+    // TODO audit
     @Transactional
-    public void changeAccess(ChangeAdminAccessRequest request) {
-        Admin admin = getAdminById(request.getId());
+    public void changeAccess(Long id, ChangeAdminAccessRequest request) {
+        Admin targetAdmin = getAdminById(id);
 
-        admin.setAccessGranted(request.getAccess());
-        adminRepository.save(admin);
+        if (targetAdmin.getRole() == Admin.ROLE.ADMIN) {
+            throw new UserNotPermissionsException("can't change access for user with admin role");
+        }
+
+        targetAdmin.setAccessGranted(request.getAccess());
+        adminRepository.save(targetAdmin);
     }
     
     private Set<Rule> getAdminRules(List<Long> ruleIds) {

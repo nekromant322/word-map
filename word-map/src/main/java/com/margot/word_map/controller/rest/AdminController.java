@@ -3,6 +3,7 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.RuleDto;
+import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
@@ -116,5 +117,28 @@ public class AdminController {
     @PutMapping("/language/{id}")
     public void setLanguage(@PathVariable Long id) {
         adminService.updateCurrentAdminLanguage(id);
+    }
+
+    @SecurityRequirement(name = "JWT")
+    @Operation(
+            summary = "Изменение доступа админа/модератора",
+            description = "Запрос позволяет поменять запретить или разрешить доступ админу/модератору",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204603402/POST+auth+admin+access"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Доступ успешно изменен"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+            }
+    )
+    @PutMapping("/access/{id}")
+    public void changeAdminAccess(@PathVariable Long id, @RequestBody @Valid ChangeAdminAccessRequest request) {
+        adminService.changeAccess(id, request);
     }
 }

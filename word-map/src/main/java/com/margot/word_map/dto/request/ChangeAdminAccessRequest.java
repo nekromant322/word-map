@@ -14,10 +14,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Запрос на изменение доступа админа")
 public class ChangeAdminAccessRequest {
 
-    @Schema(description = "id админа, доступ которого изменяется", example = "12")
-    @NotNull(message = "id не может быть null")
-    private Long id;
-
     @Schema(description = "доступ админа в систему", example = "true")
     @NotNull(message = "access не может быть null")
     private Boolean access;
