@@ -27,4 +27,8 @@ public class RuleService {
     public Optional<Rule> getRuleByRule(Rule.RULE rule) {
         return ruleRepository.findRuleByName(rule);
     }
+
+    public List<Rule> getRulesByIds(List<Long> ids) {
+        return ruleRepository.findAllById(ids);
+    }
 }

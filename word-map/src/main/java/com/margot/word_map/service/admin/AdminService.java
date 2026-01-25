@@ -6,7 +6,10 @@ import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
 import com.margot.word_map.dto.response.GetAdminsResponse;
-import com.margot.word_map.exception.*;
+import com.margot.word_map.exception.AdminAlreadyExistsException;
+import com.margot.word_map.exception.InvalidRuleException;
+import com.margot.word_map.exception.UserNotAccessException;
+import com.margot.word_map.exception.UserNotFoundException;
 import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
@@ -26,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -98,16 +100,14 @@ public class AdminService {
     @Transactional
     public void createAdmin(CreateAdminRequest request) {
         if (isAdminExistsByEmail(request.getEmail())) {
-            log.info("admin with email {} already exists", request.getEmail());
             throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
         }
 
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .createdAt(LocalDateTime.now())
-                .role(Admin.ROLE.valueOf(request.getRole()))
-                .rules(getAdminRules(request.getNameRules(), request.getRole()))
-                .accessGranted(request.getAccess())
+                .role(Admin.ROLE.MODERATOR)
+                .rules(getAdminRules(request.getRuleID(), Admin.ROLE.MODERATOR))
                 .build();
 
         adminRepository.save(admin);
@@ -117,8 +117,8 @@ public class AdminService {
     public void updateAdmin(UpdateAdminRequest request) {
         Admin admin = getAdminById(request.getId());
 
-        admin.setRole(Admin.ROLE.valueOf(request.getRole()));
-        admin.setRules(getAdminRules(request.getNameRules(), request.getRole()));
+        admin.setRole(request.getRole());
+        admin.setRules(getAdminRules(request.getRuleIds(), request.getRole()));
 
         adminRepository.save(admin);
     }
@@ -128,11 +128,14 @@ public class AdminService {
         languageService.updateAdminLanguage(adminId, langId);
     }
 
-    private List<Rule> getAdminRules(List<String> needRules, String role) {
-        if (role.equals(Admin.ROLE.MODERATOR.name()) && needRules != null) {
-            return ruleService.getRules().stream()
-                    .filter(rule -> needRules.contains(rule.getName().name()))
-                    .collect(Collectors.toList());
+    private List<Rule> getAdminRules(List<Long> ruleIds, Admin.ROLE role) {
+        if (role == Admin.ROLE.MODERATOR && ruleIds != null) {
+            List<Rule> rules = ruleService.getRulesByIds(ruleIds);
+            if (rules.size() != ruleIds.size()) {
+                throw new InvalidRuleException("wrong rule provided");
+            }
+
+            return rules;
         }
         return new ArrayList<>();
     }

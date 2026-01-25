@@ -10,13 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
@@ -68,6 +69,13 @@ public class GlobalExceptionHandler {
         log.warn(ex.getMessage(), ex);
 
         return buildResponse(ErrorCode.USER_NOT_PERMISSIONS, locale);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleJson(HttpMessageNotReadableException ex, Locale locale) {
+        log.warn(ex.getMessage(), ex);
+
+        return buildResponse(ErrorCode.FORMAT_ERROR, locale);
     }
 
     @ExceptionHandler(Exception.class)
