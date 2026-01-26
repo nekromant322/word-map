@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -60,6 +62,12 @@ public class Admin {
         ADMIN,
 
         @JsonProperty("moderator")
-        MODERATOR
+        MODERATOR;
+
+        public static Optional<ROLE> fromString(String value) {
+            return Arrays.stream(values())
+                    .filter(f -> f.name().equalsIgnoreCase(value))
+                    .findFirst();
+        }
     }
 }

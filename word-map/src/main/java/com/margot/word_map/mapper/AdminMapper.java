@@ -2,6 +2,7 @@ package com.margot.word_map.mapper;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
+import com.margot.word_map.dto.AdminListQueryDto;
 import com.margot.word_map.model.Admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,16 @@ public class AdminMapper {
                 .rules(admin.getRules().stream()
                         .map(r -> r.getName().name())
                         .toList())
+                .build();
+    }
+
+    public AdminListQueryDto toListQueryDto(Admin admin) {
+        return AdminListQueryDto.builder()
+                .id((admin.getId()))
+                .email(admin.getEmail())
+                .role(admin.getRole())
+                .access(admin.isAccessGranted())
+                .dateActive(admin.getDateActive())
                 .build();
     }
 }

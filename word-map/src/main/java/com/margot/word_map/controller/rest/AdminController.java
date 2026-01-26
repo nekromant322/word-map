@@ -2,11 +2,13 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
+import com.margot.word_map.dto.AdminListQueryDto;
 import com.margot.word_map.dto.RuleDto;
+import com.margot.word_map.dto.request.AdminSearchRequest;
 import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
-import com.margot.word_map.dto.response.GetAdminsResponse;
+import com.margot.word_map.dto.response.PagedResponseDto;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.rule.RuleService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -19,6 +21,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,10 +50,12 @@ public class AdminController {
         return ruleService.getRulesDto();
     }
 
-    @GetMapping()
-    public GetAdminsResponse getAdmins(@RequestParam(defaultValue = "0") @Min(0) Integer page,
-                                       @RequestParam(defaultValue = "20") @Min(1) @Max(100) Integer size) {
-        return adminService.getAdmins(page, size);
+    @PostMapping("/list")
+    public PagedResponseDto<AdminListQueryDto> getAdmins(
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+            @RequestBody @Valid AdminSearchRequest request) {
+        return adminService.getAdmins(PageRequest.of(page, size), request);
     }
 
     @Operation(

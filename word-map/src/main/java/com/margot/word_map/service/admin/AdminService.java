@@ -2,15 +2,18 @@ package com.margot.word_map.service.admin;
 
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
+import com.margot.word_map.dto.AdminListQueryDto;
+import com.margot.word_map.dto.request.AdminSearchRequest;
 import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
 import com.margot.word_map.dto.request.UpdateAdminRequest;
-import com.margot.word_map.dto.response.GetAdminsResponse;
+import com.margot.word_map.dto.response.PagedResponseDto;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.AdminRepository;
+import com.margot.word_map.repository.specification.AdminSpecification;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.service.rule.RuleService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
@@ -19,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,19 +40,27 @@ public class AdminService {
     private final RuleService ruleService;
     private final SecurityAdminAccessor adminAccessor;
     private final LanguageService languageService;
+    private final AdminSpecification adminSpecs;
 
-    public GetAdminsResponse getAdmins(Integer page, Integer size) {
-        Long countAdmins = adminRepository.count();
+    public PagedResponseDto<AdminListQueryDto> getAdmins(Pageable pageable, AdminSearchRequest request) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-        Page<AdminDto> admins = adminRepository.findAll(pageable).map(adminMapper::toDto);
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        return GetAdminsResponse.builder()
-                .count(countAdmins)
-                .page(page)
-                .itemsOnPage(size)
-                .admins(admins)
-                .build();
+        Specification<Admin> spec = Specification
+                .where(adminSpecs.hasName(request.getSearch()))
+                .and(adminSpecs.hasRole(request.getFilterRole()))
+                .and(adminSpecs.hasLanguage(request.getFilterLanguage()))
+                .and(adminSpecs.hasAccess(request.getFilterAccess()))
+                .and(adminSpecs.orderBy(request.getSortingType(), true));
+
+        Page<AdminListQueryDto> page = adminRepository.findAll(spec, pageRequest)
+                .map(adminMapper::toListQueryDto);
+
+        if (pageable.getPageNumber() >= page.getTotalPages() && page.getTotalElements() > 0) {
+            throw new PageOutOfRangeException("requested page is out of range, total pages " + page.getTotalPages());
+        }
+
+        return PagedResponseDto.fromPage(page);
     }
 
     @Transactional
