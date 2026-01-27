@@ -12,6 +12,7 @@ import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.AdminMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
+import com.margot.word_map.model.enums.Role;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.specification.AdminSpecification;
 import com.margot.word_map.service.language.LanguageService;
@@ -105,19 +106,18 @@ public class AdminService {
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .createdAt(LocalDateTime.now())
-                .role(Admin.ROLE.MODERATOR)
+                .role(Role.MODERATOR)
                 .rules(getAdminRules(request.getRuleID()))
                 .build();
 
         adminRepository.save(admin);
     }
 
-    // TODO audit
     @Transactional
     public void updateAdmin(Long id, UpdateAdminRequest request) {
         Admin targetAdmin = getAdminById(id);
 
-        if (targetAdmin.getRole() == Admin.ROLE.ADMIN) {
+        if (targetAdmin.getRole() == Role.ADMIN) {
             throw new UserNotPermissionsException("can't set rules for admin role");
         }
 
@@ -132,12 +132,11 @@ public class AdminService {
         languageService.updateAdminLanguage(adminId, langId);
     }
 
-    // TODO audit
     @Transactional
     public void changeAccess(Long id, ChangeAdminAccessRequest request) {
         Admin targetAdmin = getAdminById(id);
 
-        if (targetAdmin.getRole() == Admin.ROLE.ADMIN) {
+        if (targetAdmin.getRole() == Role.ADMIN) {
             throw new UserNotPermissionsException("can't change access for user with admin role");
         }
 

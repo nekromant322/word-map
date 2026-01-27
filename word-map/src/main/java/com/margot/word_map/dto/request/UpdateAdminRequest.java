@@ -16,8 +16,6 @@ import java.util.List;
 public class UpdateAdminRequest {
 
     @Schema(description = "массив идентификаторов прав, указываются для роли MODERATOR",
-            example = "MANAGE_DICTIONARY, " +
-                    "WIPE_DICTIONARY, MANAGE_RATING, MANAGE_WORLD," +
-                    " MANAGE_ROLE, MANAGE_EVENT, MANAGE_SHOP")
+            example = "1, 2, 3")
     private List<Long> ruleId;
 }

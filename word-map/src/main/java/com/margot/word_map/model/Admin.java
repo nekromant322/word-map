@@ -1,13 +1,11 @@
 package com.margot.word_map.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.margot.word_map.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -36,7 +34,7 @@ public class Admin {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private ROLE role;
+    private Role role;
 
     @Column(name = "access", nullable = false)
     @Builder.Default
@@ -55,19 +53,4 @@ public class Admin {
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<AdminLanguage> languages = new HashSet<>();
-
-    public enum ROLE {
-
-        @JsonProperty("admin")
-        ADMIN,
-
-        @JsonProperty("moderator")
-        MODERATOR;
-
-        public static Optional<ROLE> fromString(String value) {
-            return Arrays.stream(values())
-                    .filter(f -> f.name().equalsIgnoreCase(value))
-                    .findFirst();
-        }
-    }
 }
