@@ -1,7 +1,7 @@
 package com.margot.word_map.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class AdminListQueryDto {
 
     private String email;
 
-    private Admin.ROLE role;
+    private Role role;
 
     private Boolean access;
 

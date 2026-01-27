@@ -30,10 +30,7 @@ import java.util.List;
 
 @Tag(
         name = "AdminsController",
-        description = "Контроллер для получение прав и админов",
-        externalDocs = @ExternalDocumentation(
-                description = "Контроллер не прописан в доке, пока прост заглушечный по сути"
-        )
+        description = "Контроллер для получения/редактирования информации о пользователях админ панели"
 )
 @SecurityRequirement(name = "JWT")
 @RestController
@@ -50,6 +47,24 @@ public class AdminController {
         return ruleService.getRulesDto();
     }
 
+    @Operation(
+            summary = "Поиск админов/модераторов",
+            description = "Метод получения списка пользователей административной панели по фильтрам.",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/385515841/POST+admin+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные возвращены успешно"),
+                    @ApiResponse(responseCode = "400",
+                            description = "Запрошенная страница превышает доступный диапазон"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+            }
+    )
     @PostMapping("/list")
     public PagedResponseDto<AdminListQueryDto> getAdmins(
             @RequestParam(defaultValue = "0") @Min(0) int page,
@@ -60,7 +75,7 @@ public class AdminController {
 
     @Operation(
             summary = "Создание админа/модератора",
-            description = "запрос для создания админа/модератора",
+            description = "Запрос для создания админа/модератора",
             externalDocs = @ExternalDocumentation(
                     description = "документация запроса в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204800006/POST+admin"
@@ -84,20 +99,36 @@ public class AdminController {
         adminService.createAdmin(request);
     }
 
+    @Operation(
+            summary = "Детальная информация админа",
+            description = "Метод получения детальной информации о пользователе административной панели",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/385417383/GET+admin+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Пользователь найден"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Админ не найден"),
+            }
+    )
     @GetMapping("/{id}")
     public AdminDto getAdmin(@PathVariable Long id) {
         return adminService.getAdminDetailedInfoById(id);
     }
 
     @Operation(
-            summary = "Метод редактирования пользователя административной панели",
-            description = "1. возможность изменения роли (админ -> модератор и наоборот), " +
-                    "для роли модератора указываются права," +
-                    "2. возможность указания новых прав для модератора ",
+            summary = "Редактирование прав пользователя административной панели",
+            description = "Метод редактирования пользователя административной панели, требуется роль admin",
             externalDocs = @ExternalDocumentation(
                     description = "документация запроса в Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/190742573/PUT+admin+id"
-            )
+            ),
+            security = @SecurityRequirement(name = "JWT", scopes = {"ROLE_ADMIN"})
     )
     @ApiResponses(
             value = {
@@ -107,6 +138,7 @@ public class AdminController {
                     @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
                     @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
                     @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Админ не найден"),
             }
     )
     @PutMapping("/{id}")
@@ -114,23 +146,55 @@ public class AdminController {
         adminService.updateAdmin(id, request);
     }
 
+    @Operation(
+            summary = "Получение данных текущего пользователя",
+            description = "Метод получения сквозных данных о пользователе административной панели",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/300810245/GET+admin+info"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+            }
+    )
     @GetMapping("/info")
     public AdminInfoDto getCurrentAdminInfo() {
         return adminService.getCurrentAdminInfo();
     }
 
+    @Operation(
+            summary = "Метод изменения языка в хедере",
+            description = "Метод изменения языка пользователем административной панели",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/152272959/PUT+admin+language+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Язык недоступен"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+            }
+    )
     @PutMapping("/language/{id}")
     public void setLanguage(@PathVariable Long id) {
         adminService.updateCurrentAdminLanguage(id);
     }
 
-    @SecurityRequirement(name = "JWT")
+    @SecurityRequirement(name = "JWT", scopes = {"ROLE_ADMIN"})
     @Operation(
             summary = "Изменение доступа админа/модератора",
-            description = "Запрос позволяет поменять запретить или разрешить доступ админу/модератору",
+            description = "Запрос позволяет пользователям с ролью admin запретить или разрешить доступ " +
+                    "пользователям с ролью moderator",
             externalDocs = @ExternalDocumentation(
                     description = "документация запроса в Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204603402/POST+auth+admin+access"
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/204603402/PUT+admin+access+id"
             )
     )
     @ApiResponses(
@@ -140,6 +204,7 @@ public class AdminController {
                     @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
                     @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
                     @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Админ не найден"),
             }
     )
     @PutMapping("/access/{id}")

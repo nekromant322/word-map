@@ -1,6 +1,7 @@
 package com.margot.word_map.repository.specification;
 
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.enums.Role;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Order;
@@ -25,7 +26,7 @@ public class AdminSpecification {
 
     public Specification<Admin> hasRole(String roleValue) {
         return (root, query, cb) ->
-                Admin.ROLE.fromString(roleValue)
+                Role.fromString(roleValue)
                         .map(role -> cb.equal(root.get("role"), role))
                         .orElse(null);
     }
@@ -56,6 +57,7 @@ public class AdminSpecification {
                 String entityField = field.getEntityFieldName();
 
                 if (field == AdminSortField.DATE) {
+                    // TODO WM-232 после перехода на spring boot 4
                     Expression<LocalDateTime> farPast = cb.literal(
                             LocalDateTime.of(1900, 1, 1, 0, 0));
                     Expression<LocalDateTime> coalesce = cb.coalesce(root.get("dateActive"), farPast);

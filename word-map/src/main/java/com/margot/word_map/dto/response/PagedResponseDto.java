@@ -15,13 +15,13 @@ import java.util.List;
 @Builder
 public class PagedResponseDto<T> {
 
-    List<T> content;
+    private List<T> content;
 
-    PageableResponseDto pageable;
+    private PageableResponseDto pageable;
 
-    int totalPages;
+    private int totalPages;
 
-    long totalElements;
+    private long totalElements;
 
     public static <T> PagedResponseDto<T> fromPage(Page<T> page) {
         return PagedResponseDto.<T>builder()

@@ -22,8 +22,6 @@ public class CreateAdminRequest {
     @Schema(description = "Email пользователя", example = "example@mail.com")
     private String email;
 
-    @Schema(description = "Массив идентификаторов прав", example = "MANAGE_DICTIONARY, " +
-            "WIPE_DICTIONARY, MANAGE_RATING, MANAGE_WORLD," +
-            " MANAGE_ROLE, MANAGE_EVENT, MANAGE_SHOP")
+    @Schema(description = "Массив идентификаторов прав", example = "1, 2, 3")
     private List<Long> ruleID;
 }
