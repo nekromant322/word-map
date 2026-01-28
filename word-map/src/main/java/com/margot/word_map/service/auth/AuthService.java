@@ -1,5 +1,8 @@
 package com.margot.word_map.service.auth;
 
+import com.margot.word_map.service.audit.AuditContext;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.aop.annotation.Audited;
 import com.margot.word_map.dto.AdminJwtInfo;
 import com.margot.word_map.dto.ConfirmCodeDto;
 import com.margot.word_map.dto.request.ConfirmRequest;
@@ -64,6 +67,7 @@ public class AuthService {
         return generateTokens(admin, device);
     }
 
+    @Audited(action = AuditActionType.ADMIN_LOGGED_IN)
     @Transactional
     public TokenResponse verifyConfirmCodeAndGenerateTokens(ConfirmRequest request, String userAgent) {
         Confirm confirm = confirmCodeService.verifyConfirmCode(
@@ -73,7 +77,11 @@ public class AuthService {
         Admin admin = getActiveAdminById(confirm.getAdminId());
         admin.setDateActive(LocalDateTime.now());
 
-        return generateTokens(admin, userAgent);
+        TokenResponse tokenResponse = generateTokens(admin, userAgent);
+
+        AuditContext.add("adminId", confirm.getAdminId());
+
+        return tokenResponse;
     }
 
     public void logout(String refreshToken) {

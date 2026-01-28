@@ -1,5 +1,7 @@
 package com.margot.word_map.service.admin;
 
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.aop.annotation.Audited;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.AdminListQueryDto;
@@ -15,6 +17,7 @@ import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.enums.Role;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.specification.AdminSpecification;
+import com.margot.word_map.service.audit.AuditContext;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.service.rule.RuleService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
@@ -97,6 +100,7 @@ public class AdminService {
         return adminRepository.existsByEmail(email);
     }
 
+    @Audited(action = AuditActionType.ADMIN_CREATED)
     @Transactional
     public void createAdmin(CreateAdminRequest request) {
         if (isAdminExistsByEmail(request.getEmail())) {
@@ -111,8 +115,10 @@ public class AdminService {
                 .build();
 
         adminRepository.save(admin);
+        AuditContext.add("email", admin.getEmail());
     }
 
+    @Audited(action = AuditActionType.ADMIN_UPDATED)
     @Transactional
     public void updateAdmin(Long id, UpdateAdminRequest request) {
         Admin targetAdmin = getAdminById(id);
@@ -125,6 +131,7 @@ public class AdminService {
         targetAdmin.getRules().addAll(getAdminRules(request.getRuleId()));
 
         adminRepository.save(targetAdmin);
+        AuditContext.add("email", targetAdmin.getEmail());
     }
 
     public void updateCurrentAdminLanguage(Long langId) {
@@ -132,6 +139,7 @@ public class AdminService {
         languageService.updateAdminLanguage(adminId, langId);
     }
 
+    @Audited(action = AuditActionType.ADMIN_ACCESS_CHANGED)
     @Transactional
     public void changeAccess(Long id, ChangeAdminAccessRequest request) {
         Admin targetAdmin = getAdminById(id);
@@ -142,6 +150,8 @@ public class AdminService {
 
         targetAdmin.setAccessGranted(request.getAccess());
         adminRepository.save(targetAdmin);
+
+        AuditContext.add("email", targetAdmin.getEmail());
     }
     
     private Set<Rule> getAdminRules(List<Long> ruleIds) {
