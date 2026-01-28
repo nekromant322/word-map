@@ -1,9 +1,8 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.jwt.JwtFilter;
-import com.margot.word_map.dto.security.AdminDetails;
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
+import com.margot.word_map.model.enums.Role;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import jakarta.servlet.http.HttpServletRequest;
@@ -114,12 +113,7 @@ public class SecurityConfig {
     }
 
     private AuthorizationDecision checkAccessByUrl(Authentication auth, HttpServletRequest request) {
-        AdminDetails adminDetails = (AdminDetails) auth.getPrincipal();
-        if (!adminDetails.isAccountNonLocked()) {
-            return new AuthorizationDecision(false);
-        }
-
-        if (adminAccessor.hasRole(auth, Admin.ROLE.ADMIN)) {
+        if (adminAccessor.hasRole(auth, Role.ADMIN)) {
             return new AuthorizationDecision(true);
         }
 

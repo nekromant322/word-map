@@ -7,10 +7,11 @@ import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
 import com.margot.word_map.exception.RefreshTokenException;
 import com.margot.word_map.exception.UserNotAccessException;
+import com.margot.word_map.exception.UserNotFoundException;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Confirm;
 import com.margot.word_map.model.RefreshToken;
-import com.margot.word_map.service.admin.AdminService;
+import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token.RefreshTokenService;
@@ -24,14 +25,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final AdminService adminService;
+    private final AdminRepository adminRepository;
     private final ConfirmCodeService confirmCodeService;
     private final EmailService emailService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
     public ConfirmResponse login(String email) {
-        Admin admin = adminService.getAdminByEmail(email);
+        Admin admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("account not found with email: " + email));
+
         if (!admin.isAccessGranted()) {
             throw new UserNotAccessException("account is blocked: " + email);
         }
@@ -42,7 +45,7 @@ public class AuthService {
     public ConfirmResponse resendConfirm(Long confirmId) {
         Confirm confirm = confirmCodeService.verifyConfirmById(confirmId);
 
-        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
+        Admin admin = getActiveAdminById(confirm.getAdminId());
         return generateAndSendConfirm(admin.getId(), admin.getEmail());
     }
 
@@ -67,7 +70,7 @@ public class AuthService {
                 request.getConfirmID(),
                 request.getCodeInput());
 
-        Admin admin = adminService.getActiveAdminById(confirm.getAdminId());
+        Admin admin = getActiveAdminById(confirm.getAdminId());
         admin.setDateActive(LocalDateTime.now());
 
         return generateTokens(admin, userAgent);
@@ -91,6 +94,17 @@ public class AuthService {
         String refreshToken = refreshTokenService.generateAndSaveRefreshToken(admin, userAgent);
 
         return new TokenResponse(accessToken, refreshToken);
+    }
+
+    private Admin getActiveAdminById(Long id) {
+        Admin admin = adminRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("admin not found with id: " + id));
+
+        if (!admin.isAccessGranted()) {
+            throw new UserNotAccessException("account is blocked: " + admin.getEmail());
+        }
+
+        return admin;
     }
 }
 

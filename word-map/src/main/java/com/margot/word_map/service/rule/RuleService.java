@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +27,9 @@ public class RuleService {
 
     public Optional<Rule> getRuleByRule(Rule.RULE rule) {
         return ruleRepository.findRuleByName(rule);
+    }
+
+    public Set<Rule> getRulesByIds(List<Long> ids) {
+        return ruleRepository.findAllByIds(ids);
     }
 }
