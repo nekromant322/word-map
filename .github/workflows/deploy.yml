@@ -38,16 +38,6 @@ jobs:
         run: |
           docker push megokolos/word_map_game:001
 
-      - name: Сборка Docker-образа фронта
-        run: |
-          echo "Сборка Docker-образа фронта..."
-          docker build -t megokolos/word-map-adm-frontend:001 -f frontend/Dockerfile frontend
-          echo "Сборка завершена."
-
-      - name: Пуш Docker-образа фронта на Docker Hub
-        run: |
-          docker push megokolos/word-map-adm-frontend:001
-
       - name: Copy docker-compose and env file to server
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -69,6 +59,5 @@ jobs:
           script: |
             docker-compose -f /home/kolos/docker-compose.yaml down
             docker pull megokolos/word_map_game:001
-            docker pull megokolos/word-map-adm-frontend:001
             docker-compose -f /home/kolos/docker-compose.yaml up -d
             docker image prune -f
