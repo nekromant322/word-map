@@ -12,6 +12,8 @@ import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Confirm;
 import com.margot.word_map.model.RefreshToken;
 import com.margot.word_map.repository.AdminRepository;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token.RefreshTokenService;
@@ -30,6 +32,7 @@ public class AuthService {
     private final EmailService emailService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final AuditService auditService;
 
     public ConfirmResponse login(String email) {
         Admin admin = adminRepository.findByEmail(email)
@@ -73,7 +76,11 @@ public class AuthService {
         Admin admin = getActiveAdminById(confirm.getAdminId());
         admin.setDateActive(LocalDateTime.now());
 
-        return generateTokens(admin, userAgent);
+        TokenResponse tokenResponse = generateTokens(admin, userAgent);
+
+        auditService.log(admin.getId(), AuditActionType.ADMIN_LOGGED_IN);
+
+        return tokenResponse;
     }
 
     public void logout(String refreshToken) {

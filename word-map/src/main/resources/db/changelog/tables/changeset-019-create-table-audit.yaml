@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-audit
+      author: retrolad
+      changes:
+        - createTable:
+            tableName: audit
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_audit
+                    nullable: false
+              - column:
+                  name: admin_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: audit
+            baseColumnNames: admin_id
+            constraintName: fk_audit_admins
+            referencedTableName: admins
+            referencedColumnNames: id

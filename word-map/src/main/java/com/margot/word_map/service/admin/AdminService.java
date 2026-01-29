@@ -15,6 +15,7 @@ import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.enums.Role;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.specification.AdminSpecification;
+import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.service.rule.RuleService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
@@ -31,6 +32,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import static com.margot.word_map.service.audit.AuditActionType.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -42,6 +45,7 @@ public class AdminService {
     private final SecurityAdminAccessor adminAccessor;
     private final LanguageService languageService;
     private final AdminSpecification adminSpecs;
+    private final AuditService auditService;
 
     public PagedResponseDto<AdminListQueryDto> getAdmins(Pageable pageable, AdminSearchRequest request) {
 
@@ -111,6 +115,7 @@ public class AdminService {
                 .build();
 
         adminRepository.save(admin);
+        auditService.log(ADMIN_CREATED, admin.getEmail());
     }
 
     @Transactional
@@ -125,6 +130,7 @@ public class AdminService {
         targetAdmin.getRules().addAll(getAdminRules(request.getRuleId()));
 
         adminRepository.save(targetAdmin);
+        auditService.log(ADMIN_UPDATED, targetAdmin.getEmail());
     }
 
     public void updateCurrentAdminLanguage(Long langId) {
@@ -142,6 +148,8 @@ public class AdminService {
 
         targetAdmin.setAccessGranted(request.getAccess());
         adminRepository.save(targetAdmin);
+
+        auditService.log(ADMIN_ACCESS_CHANGED, targetAdmin.getEmail());
     }
     
     private Set<Rule> getAdminRules(List<Long> ruleIds) {
