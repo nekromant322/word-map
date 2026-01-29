@@ -1,11 +1,11 @@
 package com.margot.word_map.model;
 
+import com.margot.word_map.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -34,10 +34,11 @@ public class Admin {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private ROLE role;
+    private Role role;
 
     @Column(name = "access", nullable = false)
-    private boolean accessGranted;
+    @Builder.Default
+    private boolean accessGranted = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -46,14 +47,10 @@ public class Admin {
             inverseJoinColumns = @JoinColumn(name = "rule_id", referencedColumnName = "id" )
 
     )
-    private List<Rule> rules;
+    @Builder.Default
+    private Set<Rule> rules = new HashSet<>();
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<AdminLanguage> languages = new HashSet<>();
-
-    public enum ROLE {
-        ADMIN,
-        MODERATOR
-    }
 }

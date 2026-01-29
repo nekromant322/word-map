@@ -1,15 +1,14 @@
 package com.margot.word_map.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class LanguageNotFoundException extends BusinessException {
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class LanguageNotFoundException extends BaseException {
+    private static final ErrorCode CODE = ErrorCode.NO_LANGUAGE_PERMISSION;
 
     public LanguageNotFoundException() {
+        super(CODE);
     }
 
     public LanguageNotFoundException(String message) {
-        super(message);
+        super(message, CODE);
     }
 }

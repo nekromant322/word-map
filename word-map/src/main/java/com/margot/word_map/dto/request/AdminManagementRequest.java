@@ -1,8 +1,8 @@
 package com.margot.word_map.dto.request;
 
 
-import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
+import com.margot.word_map.model.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
@@ -42,7 +42,7 @@ public class AdminManagementRequest {
 
     @AssertTrue(message = "указана невалидная роль")
     private boolean isRoleValid() {
-        for (Admin.ROLE role : Admin.ROLE.values()) {
+        for (Role role : Role.values()) {
             if (role.name().equals(this.role)) {
                 return true;
             }

@@ -3,12 +3,18 @@ package com.margot.word_map.service.language;
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
+import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.AdminLanguage;
 import com.margot.word_map.model.Language;
+import com.margot.word_map.repository.AdminLanguageRepository;
+import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.LanguageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +24,8 @@ import java.util.Optional;
 public class LanguageService {
 
     private final LanguageRepository languageRepository;
+    private final AdminLanguageRepository adminLanguageRepository;
+    private final AdminRepository adminRepository;
 
     private final LanguageMapper languageMapper;
 
@@ -36,15 +44,33 @@ public class LanguageService {
         }));
     }
 
-    public LanguageDto getLanguageById(Long id) {
-        return languageMapper.toDto(languageRepository.findById(id).orElseThrow(() -> {
-            log.info("language with id {} not found", id);
-            return new LanguageNotFoundException("language with id " + id + " not found");
-        }));
+    public Language getLanguageById(Long id) {
+        return languageRepository.findById(id)
+                .orElseThrow(() -> new LanguageNotFoundException("language with id " + id + " not found"));
     }
 
     public Optional<Language> findById(Long id) {
         return languageRepository.findById(id);
+    }
+
+    @Transactional
+    public void updateAdminLanguage(Long adminId, Long langId) {
+        Language language = getLanguageById(langId);
+
+        AdminLanguage adminLanguage = adminLanguageRepository.findByAdminIdAndLanguageId(adminId, langId)
+                .orElseGet(() -> createAdminLanguage(adminId, language));
+
+        adminLanguage.setLastUsedAt(LocalDateTime.now());
+        adminLanguageRepository.save(adminLanguage);
+    }
+
+    private AdminLanguage createAdminLanguage(Long adminId, Language language) {
+        Admin adminRef = adminRepository.getReferenceById(adminId);
+
+        return AdminLanguage.builder()
+                .admin(adminRef)
+                .language(language)
+                .build();
     }
 
     public void createLanguage() {
@@ -52,7 +78,7 @@ public class LanguageService {
     }
 
     public void updateLanguage() {
-        
+
     }
 
     public void deleteLanguage() {

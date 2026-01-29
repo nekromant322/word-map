@@ -1,6 +1,7 @@
 package com.margot.word_map.config.jwt;
 
 import com.margot.word_map.exception.InvalidTokenException;
+import com.margot.word_map.exception.UserNotAccessException;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import com.margot.word_map.service.jwt.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -62,6 +63,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 UserDetails details = adminDetailsService.loadUserByUsername(username);
 
+                if (!details.isAccountNonLocked()) {
+                    throw new UserNotAccessException("account is blocked: " + details.getUsername());
+                }
+
                 if (jwtService.validateToken(token, details)) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
@@ -76,6 +81,8 @@ public class JwtFilter extends OncePerRequestFilter {
             resolver.resolveException(request, response, null, new InvalidTokenException("Expired JWT token"));
         } catch (JwtException e) {
             resolver.resolveException(request, response, null, new InvalidTokenException());
+        } catch (Exception e) {
+            resolver.resolveException(request, response, null, e);
         }
     }
 }
