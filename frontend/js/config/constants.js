@@ -1,1 +1,0 @@
-export const adminsOnPage = 20;

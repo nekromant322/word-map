@@ -34,14 +34,5 @@ services:
       - "2507:8080"
     mem_limit: 400m
 
-  nginx:
-    image: megokolos/word-map-adm-frontend:001
-    build:
-      context: frontend
-    container_name: nginx-frontend
-    ports:
-      - "80:80"
-    mem_limit: 120m
-
 volumes:
   pg_data:
