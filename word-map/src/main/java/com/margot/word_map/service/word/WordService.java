@@ -17,11 +17,11 @@ import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.language.LanguageService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -40,6 +40,7 @@ public class WordService {
     private final LanguageService languageService;
     private final WordRepository wordRepository;
     private final WordMapper wordMapper;
+    private final SecurityAdminAccessor adminAccessor;
 
     public DictionaryWordResponse getWordInfo(String word) {
         return wordMapper.toDictionaryWordResponse(wordRepository.findWordByWord(word).orElseThrow(() -> {
@@ -48,8 +49,8 @@ public class WordService {
         }));
     }
 
-    public void createNewWord(UserDetails userDetails, CreateWordRequest request) {
-        Admin admin = (Admin) userDetails;
+    public void createNewWord(CreateWordRequest request) {
+        Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
 
@@ -76,8 +77,8 @@ public class WordService {
     }
 
     @Transactional
-    public void updateWordInfo(UserDetails userDetails, UpdateWordRequest request) {
-        Admin admin = (Admin) userDetails;
+    public void updateWordInfo(UpdateWordRequest request) {
+        Admin admin = adminAccessor.getCurrentAdmin();
 
         Optional<Word> wordByNameOp = wordRepository.findWordByWord(request.getWord());
         if (wordByNameOp.isPresent() && !wordByNameOp.get().getId().equals(request.getId())) {
@@ -102,14 +103,14 @@ public class WordService {
     }
 
     @Transactional
-    public void deleteWord(UserDetails userDetails, Long id) {
-        Admin admin = (Admin) userDetails;
+    public void deleteWord(Long id) {
+        Long adminId = adminAccessor.getCurrentAdminId();
 
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new WordNotFoundException("Word with id " + id + " not found"));
 
         wordRepository.delete(word);
-        log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
+        log.info("DELETE WORD Пользователь {} удалил слово {}.", adminId, word.getWord());
     }
 
     @Transactional(readOnly = true)

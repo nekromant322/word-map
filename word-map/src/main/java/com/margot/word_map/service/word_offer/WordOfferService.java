@@ -7,12 +7,12 @@ import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordOfferMapper;
 import com.margot.word_map.model.Admin;
-import com.margot.word_map.model.User;
 import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.model.WordOfferStatus;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.word.WordService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,11 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -37,6 +35,7 @@ public class WordOfferService {
     private final WordService wordService;
     private final WordRepository wordRepository;
     private final WordOfferMapper wordOfferMapper;
+    private final SecurityAdminAccessor adminAccessor;
 
     @Transactional
     public void save(WordOffer wordOffer) {
@@ -50,20 +49,10 @@ public class WordOfferService {
         }
     }
 
+    // TODO будет реализован после добавления игроков в рамках WM-173
     @Transactional
-    public void processWordOffer(CreateWordRequest request, UserDetails userDetails) {
-        User user = (User) userDetails;
-        isAlreadyExist(request);
+    public void processWordOffer(CreateWordRequest request) {
 
-        WordOffer wordOffer = WordOffer.builder()
-                .word(request.getWord())
-                .userId(user.getId())
-                .createdAt(LocalDateTime.now())
-                .status(WordOfferStatus.CHECK)
-                .languageId(request.getLanguageId())
-                .build();
-
-        wordOfferRepository.save(wordOffer);
     }
 
     public boolean findByWordInTableWords(String word) {
@@ -97,8 +86,8 @@ public class WordOfferService {
 
     //Todo Потом добавим еще и юзера, чтобы считать сколько слов добавил и рейтинг
     @Transactional
-    public void approve(UserDetails userDetails, Long id, String description) {
-        Admin admin = (Admin) userDetails;
+    public void approve(Long id, String description) {
+        Admin admin = adminAccessor.getCurrentAdmin();
 
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
@@ -106,7 +95,7 @@ public class WordOfferService {
         }
         WordOffer wordOffer = wordOfferOptional.get();
 
-        wordService.createNewWord(userDetails, new CreateWordRequest(
+        wordService.createNewWord(new CreateWordRequest(
                 wordOffer.getWord(), description, wordOffer.getLanguageId()));
 
         wordOffer.setStatus(WordOfferStatus.APPROVED);
@@ -124,8 +113,8 @@ public class WordOfferService {
     }
 
     @Transactional
-    public void reject(UserDetails userDetails, Long id) {
-        Admin admin = (Admin) userDetails;
+    public void reject(Long id) {
+        Admin admin = adminAccessor.getCurrentAdmin();
 
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {

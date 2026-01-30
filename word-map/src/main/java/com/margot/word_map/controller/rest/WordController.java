@@ -18,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -103,9 +101,8 @@ public class WordController {
             }
     )
     @PostMapping("/word")
-    public void createNewWord(@AuthenticationPrincipal UserDetails userDetails,
-                              @RequestBody @Validated CreateWordRequest request) {
-        wordService.createNewWord(userDetails, request);
+    public void createNewWord(@RequestBody @Validated CreateWordRequest request) {
+        wordService.createNewWord(request);
     }
 
     @Operation(
@@ -126,9 +123,8 @@ public class WordController {
             }
     )
     @PutMapping("/word")
-    public void updateWord(@AuthenticationPrincipal UserDetails userDetails,
-                           @RequestBody @Validated UpdateWordRequest request) {
-        wordService.updateWordInfo(userDetails, request);
+    public void updateWord(@RequestBody @Validated UpdateWordRequest request) {
+        wordService.updateWordInfo(request);
     }
 
     @Operation(
@@ -148,10 +144,9 @@ public class WordController {
             }
     )
     @DeleteMapping("/word/{id}")
-    public void deleteWord(@AuthenticationPrincipal UserDetails userDetails,
-                           @Parameter(description = "id слова", example = "12")
+    public void deleteWord(@Parameter(description = "id слова", example = "12")
                            @PathVariable Long id) {
-        wordService.deleteWord(userDetails, id);
+        wordService.deleteWord(id);
     }
 
     @Operation(
