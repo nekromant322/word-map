@@ -1,5 +1,6 @@
 package com.margot.word_map.service.rule;
 
+import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.mapper.RuleMapper;
 import com.margot.word_map.model.Rule;
@@ -31,5 +32,9 @@ public class RuleService {
 
     public Set<Rule> getRulesByIds(List<Long> ids) {
         return ruleRepository.findAllByIds(ids);
+    }
+
+    public List<OptionDto> getRuleOptions() {
+        return ruleRepository.findAll().stream().map(ruleMapper::toOptionDto).toList();
     }
 }

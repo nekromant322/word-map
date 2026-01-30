@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename-field-expiration-date-to-expiry-at
+      author: retrolad
+      changes:
+        - renameColumn:
+            tableName: refresh_tokens
+            oldColumnName: expiration_time
+            newColumnName: expiry_at
+            columnDataType: timestamp

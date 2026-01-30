@@ -41,7 +41,7 @@ public class RefreshTokenService {
         refreshToken.setAdmin(admin);
         refreshToken.setTokenHash(token);
         refreshToken.setDevice(device);
-        refreshToken.setExpirationTime(LocalDateTime.now().plus(refreshTokenExpiration));
+        refreshToken.setExpiryAt(LocalDateTime.now().plus(refreshTokenExpiration));
         refreshTokenRepository.save(refreshToken);
     }
 

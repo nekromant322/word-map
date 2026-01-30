@@ -3,7 +3,6 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.AdminDto;
 import com.margot.word_map.dto.AdminInfoDto;
 import com.margot.word_map.dto.AdminListQueryDto;
-import com.margot.word_map.dto.RuleDto;
 import com.margot.word_map.dto.request.AdminSearchRequest;
 import com.margot.word_map.dto.request.ChangeAdminAccessRequest;
 import com.margot.word_map.dto.request.CreateAdminRequest;
@@ -26,8 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Tag(
         name = "AdminsController",
         description = "Контроллер для получения/редактирования информации о пользователях админ панели"
@@ -41,11 +38,6 @@ public class AdminController {
     private final RuleService ruleService;
 
     private final AdminService adminService;
-
-    @GetMapping("/rules")
-    public List<RuleDto> getRules() {
-        return ruleService.getRulesDto();
-    }
 
     @Operation(
             summary = "Поиск админов/модераторов",

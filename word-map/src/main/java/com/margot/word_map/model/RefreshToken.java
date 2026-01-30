@@ -28,6 +28,6 @@ public class RefreshToken {
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
 
-    @Column(name = "expiration_time", nullable = false)
-    private LocalDateTime expirationTime;
+    @Column(name = "expiry_at", nullable = false)
+    private LocalDateTime expiryAt;
 }

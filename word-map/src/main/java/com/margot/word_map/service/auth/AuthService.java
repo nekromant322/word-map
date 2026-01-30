@@ -56,7 +56,7 @@ public class AuthService {
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
                 .orElseThrow(RefreshTokenException::new);
 
-        if (storedToken.getExpirationTime().isBefore(LocalDateTime.now())) {
+        if (storedToken.getExpiryAt().isBefore(LocalDateTime.now())) {
             refreshTokenService.deleteRefreshToken(storedToken);
             throw new RefreshTokenException("Refresh token expired");
         }

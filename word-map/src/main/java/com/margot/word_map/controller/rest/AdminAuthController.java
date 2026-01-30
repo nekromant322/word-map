@@ -6,7 +6,6 @@ import com.margot.word_map.dto.request.ConfirmResendRequest;
 import com.margot.word_map.dto.request.RefreshTokenRequest;
 import com.margot.word_map.dto.response.ConfirmResponse;
 import com.margot.word_map.dto.response.TokenResponse;
-import com.margot.word_map.exception.RefreshTokenException;
 import com.margot.word_map.service.admin.AdminService;
 import com.margot.word_map.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -19,12 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Duration;
 
 @Tag(
         name = "AdminAuthController",
@@ -121,12 +116,7 @@ public class AdminAuthController {
             @RequestHeader("User-Agent") String userAgent,
             HttpServletResponse response
     ) {
-        TokenResponse tokenResponse = authService.verifyConfirmCodeAndGenerateTokens(confirmRequest, userAgent);
-
-        ResponseCookie cookie = createTokenCookie(tokenResponse.getRefreshToken());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return tokenResponse;
+        return authService.verifyConfirmCodeAndGenerateTokens(confirmRequest, userAgent);
     }
 
     @Operation(
@@ -146,19 +136,11 @@ public class AdminAuthController {
     )
     @PostMapping("/refresh")
     public TokenResponse refreshAccessToken(
-            @Valid @RequestBody(required = false) RefreshTokenRequest bodyToken,
+            @Valid @RequestBody(required = false) RefreshTokenRequest request,
             @RequestHeader(value = "User-Agent", defaultValue = "Unknown", required = false) String userAgent,
-            @CookieValue(value = "refresh_token", required = false) String cookieToken,
             HttpServletResponse response
     ) {
-        String oldToken = getTokenOrThrow(bodyToken, cookieToken);
-
-        TokenResponse tokenResponse = authService.refreshTokens(oldToken, userAgent);
-
-        ResponseCookie cookie = createTokenCookie(tokenResponse.getRefreshToken());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return tokenResponse;
+        return authService.refreshTokens(request.refreshToken(), userAgent);
     }
 
     @SecurityRequirement(name = "JWT")
@@ -178,43 +160,9 @@ public class AdminAuthController {
     )
     @PostMapping("/logout")
     public ResponseEntity<Void> logoutAdmin(
-            @Valid @RequestBody(required = false) RefreshTokenRequest bodyToken,
-            @CookieValue(value = "refresh_token", required = false) String cookieToken,
-            HttpServletResponse response) {
-        String token = getTokenOrThrow(bodyToken, cookieToken);
-
-        authService.logout(token);
-
-        ResponseCookie deleteCookie = ResponseCookie.from("refresh_token")
-                .httpOnly(true)
-                .secure(false)
-                .path("/auth/admin")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            @Valid @RequestBody(required = false) RefreshTokenRequest request) {
+        authService.logout(request.refreshToken());
 
         return ResponseEntity.noContent().build();
-    }
-
-    private String getTokenOrThrow(RefreshTokenRequest bodyToken, String cookieToken) {
-        String token = (cookieToken != null) ? cookieToken :
-                (bodyToken != null) ? bodyToken.refreshToken() : null;
-
-        if (token == null) {
-            throw new RefreshTokenException("refresh token not set");
-        }
-
-        return token;
-    }
-
-    private ResponseCookie createTokenCookie(String token) {
-        return ResponseCookie.from("refresh_token", token)
-                .httpOnly(true)
-                .secure(false)
-                .path("/auth/admin")
-                .maxAge(Duration.ofDays(14))
-                .sameSite("Lax")
-                .build();
     }
 }
