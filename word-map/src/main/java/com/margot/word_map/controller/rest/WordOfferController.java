@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
@@ -49,8 +51,9 @@ public class WordOfferController {
             }
     )
     @PostMapping("/offer")
-    public void offerWord(@RequestBody CreateWordRequest word) {
-        wordOfferService.processWordOffer(word);
+    public void offerWord(@RequestBody CreateWordRequest word,
+                          @AuthenticationPrincipal UserDetails userDetails) {
+        wordOfferService.processWordOffer(word, userDetails);
     }
 
     @Operation(
@@ -103,9 +106,10 @@ public class WordOfferController {
             }
     )
     @PostMapping("/admin/reject/{id}")
-    public void rejectWord(@Parameter(description = "id предложения", example = "12")
+    public void rejectWord(@AuthenticationPrincipal UserDetails userDetails,
+                           @Parameter(description = "id предложения", example = "12")
                            @PathVariable Long id) {
-        wordOfferService.reject(id);
+        wordOfferService.reject(userDetails, id);
     }
 
     @Operation(
@@ -125,10 +129,11 @@ public class WordOfferController {
             }
     )
     @PostMapping("/admin/approve/{id}")
-    public void approveWord(@Parameter(description = "id предложения", example = "12")
+    public void approveWord(@AuthenticationPrincipal UserDetails userDetails,
+                            @Parameter(description = "id предложения", example = "12")
                             @PathVariable Long id,
                             @Parameter(description = "Описание слова", example = "Инструмент для ковки")
                             @RequestParam String description) {
-        wordOfferService.approve(id, description);
+        wordOfferService.approve(userDetails, id, description);
     }
 }
