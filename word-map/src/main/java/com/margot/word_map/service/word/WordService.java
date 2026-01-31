@@ -6,6 +6,7 @@ import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.SymbolPosition;
 import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.exception.LanguageNotFoundException;
@@ -42,11 +43,13 @@ public class WordService {
     private final WordMapper wordMapper;
     private final SecurityAdminAccessor adminAccessor;
 
-    public DictionaryWordResponse getWordInfo(String word) {
-        return wordMapper.toDictionaryWordResponse(wordRepository.findWordByWord(word).orElseThrow(() -> {
-            log.info("word not found {}", word);
-            return new WordNotFoundException("word " + word + " not found");
-        }));
+    @Transactional(readOnly = true)
+    public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
+        return wordMapper.toDictionaryDetailedWordResponse(wordRepository.findWordByWordAndLanguageId(word, languageId)
+                .orElseThrow(() -> {
+                    log.info("word with language id {} not found {}", languageId, word);
+                    return new WordNotFoundException("word " + word + " with id " + languageId + " not found");
+                }));
     }
 
     public void createNewWord(CreateWordRequest request) {
