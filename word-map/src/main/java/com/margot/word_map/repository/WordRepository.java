@@ -12,8 +12,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     Optional<Word> findWordByWord(String word);
 
-    Optional<Word> findWordByWordAndLanguageId(String word, Long languageId);
-
     @SuppressWarnings("checkstyle:Indentation")
     @Query(value = """
         SELECT w.word FROM words w 
