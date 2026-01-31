@@ -5,7 +5,6 @@ import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
-import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
