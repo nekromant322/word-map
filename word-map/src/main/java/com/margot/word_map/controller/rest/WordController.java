@@ -3,6 +3,7 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.service.word.WordService;
@@ -59,29 +60,6 @@ public class WordController {
     @PostMapping("/list")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
         return wordService.getWordsByFilters(request);
-    }
-
-    @Operation(
-            summary = "Метод поиска слова по точному совпадению в словаре.",
-            externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
-                            "180781076/GET+dictionary+word+word"
-            )
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
-            }
-    )
-    @GetMapping("/word/{word}")
-    public DictionaryWordResponse getWordInfo(
-            @Parameter(description = "искомое слово", example = "word")
-            @PathVariable String word) {
-        return wordService.getWordInfo(word);
     }
 
     @Operation(
@@ -171,5 +149,31 @@ public class WordController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
                 .body(wordService.getAllWords());
+    }
+
+    @Operation(
+            summary = "Метод поиска слова по точному совпадению в словаре.",
+            externalDocs = @ExternalDocumentation(
+                    description = "Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
+                            "180781076/GET+dictionary+language+languageId+word+word"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+            }
+    )
+
+    @GetMapping("/language/{languageId}/word/{word}")
+    public DictionaryDetailedWordResponse getDetailedInfo(
+            @Parameter(description = "искомое слово", example = "word")
+            @PathVariable String word,
+            @Parameter(description = "id языка", example = "2")
+            @PathVariable Long languageId) {
+        return wordService.getWordByLanguageId(languageId, word);
     }
 }
