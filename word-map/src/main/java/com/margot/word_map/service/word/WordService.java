@@ -16,6 +16,8 @@ import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
+import com.margot.word_map.model.audit.Audit;
+import com.margot.word_map.repository.AuditRepository;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
@@ -30,8 +32,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,6 +42,7 @@ public class WordService {
     private final WordRepository wordRepository;
     private final WordMapper wordMapper;
     private final SecurityAdminAccessor adminAccessor;
+    private final AuditRepository auditRepository;
 
     public void createNewWord(CreateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
@@ -98,13 +99,14 @@ public class WordService {
 
     @Transactional
     public void deleteWord(Long id) {
-        Long adminId = adminAccessor.getCurrentAdminId();
+        Admin admin = adminAccessor.getCurrentAdmin();
 
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new WordNotFoundException("Word with id " + id + " not found"));
 
         wordRepository.delete(word);
-        log.info("DELETE WORD Пользователь {} удалил слово {}.", adminId, word.getWord());
+        log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
+        recordAudit(admin, "Удалено слово \"" + word.getWord() + "\"");
     }
 
     @Transactional(readOnly = true)
@@ -214,5 +216,16 @@ public class WordService {
             }
         }
         return words;
+    }
+
+    private void recordAudit(Admin admin, String action) {
+        Audit audit = Audit.builder()
+                .admin(admin)
+                .email(admin.getEmail())
+                .role(admin.getRole())
+                .actionType(action)
+                .createdAt(LocalDateTime.now())
+                .build();
+        auditRepository.save(audit);
     }
 }
