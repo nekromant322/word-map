@@ -1,5 +1,6 @@
 package com.margot.word_map.config;
 
+import com.margot.word_map.config.filter.AdminCacheCleanupFilter;
 import com.margot.word_map.config.jwt.JwtFilter;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.enums.Role;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 import java.security.SecureRandom;
 import java.util.LinkedHashMap;
@@ -37,6 +39,7 @@ import java.util.Optional;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final AdminCacheCleanupFilter adminCacheCleanupFilter;
     private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomAuthenticationEntryPoint customEntryPoint;
@@ -80,7 +83,8 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(adminCacheCleanupFilter, SecurityContextHolderFilter.class);
 
         return http.build();
     }

@@ -2,18 +2,26 @@ package com.margot.word_map.utils.security;
 
 import com.margot.word_map.dto.security.AdminDetails;
 import com.margot.word_map.exception.UserNotFoundException;
+import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.enums.Role;
+import com.margot.word_map.repository.AdminRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class SecurityAdminAccessor {
+
+    private final AdminRepository adminRepository;
+    private final ThreadLocalAdminCache adminCache;
 
     public Role getRole(Authentication auth) {
         return auth.getAuthorities().stream()
@@ -49,5 +57,23 @@ public class SecurityAdminAccessor {
         }
 
         throw new UserNotFoundException();
+    }
+
+    @Transactional(readOnly = true)
+    public Admin getCurrentAdminReference() {
+        return adminRepository.getReferenceById(getCurrentAdminId());
+    }
+
+    @Transactional(readOnly = true)
+    public Admin getCurrentAdmin() {
+        if (!adminCache.isEmpty()) {
+            return adminCache.getAdmin();
+        }
+
+        Admin admin = adminRepository.findById(getCurrentAdminId())
+                .orElseThrow(UserNotFoundException::new);
+        adminCache.setAdmin(admin);
+
+        return admin;
     }
 }
