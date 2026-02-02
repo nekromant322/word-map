@@ -16,9 +16,9 @@ import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
-import com.margot.word_map.model.audit.Audit;
-import com.margot.word_map.repository.AuditRepository;
 import com.margot.word_map.repository.WordRepository;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class WordService {
     private final WordRepository wordRepository;
     private final WordMapper wordMapper;
     private final SecurityAdminAccessor adminAccessor;
-    private final AuditRepository auditRepository;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -115,7 +115,7 @@ public class WordService {
 
         wordRepository.delete(word);
         log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
-        recordAudit(admin, "Удалено слово \"" + word.getWord() + "\"");
+        auditService.log(AuditActionType.DICTIONARY_WORD_DELETED, word.getWord());
     }
 
     @Transactional(readOnly = true)
@@ -216,16 +216,5 @@ public class WordService {
             }
         }
         return words;
-    }
-
-    private void recordAudit(Admin admin, String action) {
-        Audit audit = Audit.builder()
-                .admin(admin)
-                .email(admin.getEmail())
-                .role(admin.getRole())
-                .actionType(action)
-                .createdAt(LocalDateTime.now())
-                .build();
-        auditRepository.save(audit);
     }
 }
