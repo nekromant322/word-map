@@ -3,8 +3,8 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
-import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +66,7 @@ public class WordController {
             externalDocs = @ExternalDocumentation(
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
-                            "180781076/GET+dictionary+word+word"
+                            "180781076/GET+dictionary+language+languageId+word+word"
             )
     )
     @ApiResponses(
@@ -77,11 +77,14 @@ public class WordController {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    @GetMapping("/word/{word}")
-    public DictionaryWordResponse getWordInfo(
+
+    @GetMapping("/language/{languageId}/word/{word}")
+    public DictionaryDetailedWordResponse getDetailedInfo(
             @Parameter(description = "искомое слово", example = "word")
-            @PathVariable String word) {
-        return wordService.getWordInfo(word);
+            @PathVariable String word,
+            @Parameter(description = "id языка", example = "2")
+            @PathVariable Long languageId) {
+        return wordService.getWordByLanguageId(languageId, word);
     }
 
     @Operation(
