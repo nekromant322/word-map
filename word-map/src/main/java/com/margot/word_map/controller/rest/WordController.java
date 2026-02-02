@@ -62,6 +62,32 @@ public class WordController {
     }
 
     @Operation(
+            summary = "Метод поиска слова по точному совпадению в словаре.",
+            externalDocs = @ExternalDocumentation(
+                    description = "Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
+                            "180781076/GET+dictionary+language+languageId+word+word"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
+                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
+            }
+    )
+
+    @GetMapping("/language/{languageId}/word/{word}")
+    public DictionaryDetailedWordResponse getDetailedInfo(
+            @Parameter(description = "искомое слово", example = "word")
+            @PathVariable String word,
+            @Parameter(description = "id языка", example = "2")
+            @PathVariable Long languageId) {
+        return wordService.getWordByLanguageId(languageId, word);
+    }
+
+    @Operation(
             summary = "Метод добавления нового слова",
             externalDocs = @ExternalDocumentation(
                     description = "Confluence",
@@ -148,31 +174,5 @@ public class WordController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
                 .body(wordService.getAllWords());
-    }
-
-    @Operation(
-            summary = "Метод поиска слова по точному совпадению в словаре.",
-            externalDocs = @ExternalDocumentation(
-                    description = "Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
-                            "180781076/GET+dictionary+language+languageId+word+word"
-            )
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(responseCode = "200", description = "Слово найдено успешно"),
-                    @ApiResponse(responseCode = "404", description = "Слово не найдено", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Устаревший токен", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
-            }
-    )
-
-    @GetMapping("/language/{languageId}/word/{word}")
-    public DictionaryDetailedWordResponse getDetailedInfo(
-            @Parameter(description = "искомое слово", example = "word")
-            @PathVariable String word,
-            @Parameter(description = "id языка", example = "2")
-            @PathVariable Long languageId) {
-        return wordService.getWordByLanguageId(languageId, word);
     }
 }

@@ -44,6 +44,15 @@ public class WordService {
     private final SecurityAdminAccessor adminAccessor;
     private final AuditRepository auditRepository;
 
+    @Transactional(readOnly = true)
+    public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
+        return wordMapper.toDictionaryDetailedWordResponse(wordRepository.findWordByWordAndLanguageId(word, languageId)
+                .orElseThrow(() -> {
+                    log.info("word with language id {} not found {}", languageId, word);
+                    return new WordNotFoundException("word " + word + " with id " + languageId + " not found");
+                }));
+    }
+
     public void createNewWord(CreateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
@@ -134,15 +143,6 @@ public class WordService {
                 generator.writeEndArray();
             }
         };
-    }
-
-    @Transactional(readOnly = true)
-    public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
-        return wordMapper.toDictionaryDetailedWordResponse(wordRepository.findWordByWordAndLanguageId(word, languageId)
-                .orElseThrow(() -> {
-                    log.info("word with language id {} not found {}", languageId, word);
-                    return new WordNotFoundException("word " + word + " with id " + languageId + " not found");
-                }));
     }
 
     @Transactional(readOnly = true)
