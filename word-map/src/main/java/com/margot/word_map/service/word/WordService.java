@@ -17,6 +17,8 @@ import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
 import com.margot.word_map.repository.WordRepository;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -42,6 +43,7 @@ public class WordService {
     private final WordRepository wordRepository;
     private final WordMapper wordMapper;
     private final SecurityAdminAccessor adminAccessor;
+    private final AuditService auditService;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -83,26 +85,16 @@ public class WordService {
     public void updateWordInfo(UpdateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
 
-        Optional<Word> wordByNameOp = wordRepository.findWordByWord(request.getWord());
-        if (wordByNameOp.isPresent() && !wordByNameOp.get().getId().equals(request.getId())) {
-            log.info("word {} already exists", request.getWord());
-            throw new WordAlreadyExists("word " + request.getWord() + " already exists with another id");
+        Word wordToUpdate = wordRepository.findWordById(request.getId()).orElseThrow(() ->
+                new WordNotFoundException("word with id " + request.getId() + " not found"));
+        
+        if (request.getDescription() != null) {
+            wordToUpdate.setDescription(request.getDescription());
         }
-
-        Word wordToUpdate = wordByNameOp.orElseGet(() -> {
-            Optional<Word> wordById = wordRepository.findById(request.getId());
-            return wordById.orElseThrow(() -> {
-                log.info("word with id {} not found", request.getId());
-                return new WordNotFoundException("word with id " + request.getId() + " not found");
-            });
-        });
-
-        wordToUpdate.setWord(request.getWord());
-        wordToUpdate.setDescription(request.getDescription());
-        wordToUpdate.setWordLength(request.getWord().length());
         wordToUpdate.setEditedAt(LocalDateTime.now());
         wordToUpdate.setEditedBy(admin);
         wordRepository.save(wordToUpdate);
+        auditService.log(AuditActionType.DICTIONARY_WORD_UPDATED, wordToUpdate.getWord());
     }
 
     @Transactional
@@ -117,7 +109,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public StreamingResponseBody getAllWords() {
+    public StreamingResponseBody getAllWordsByLanguageId(Long languageId) {
         return outputStream -> {
             try (JsonGenerator generator = new ObjectMapper().getFactory().createGenerator(outputStream)) {
                 generator.writeStartArray();
@@ -127,7 +119,7 @@ public class WordService {
 
                 Page<Word> wordPage;
                 do {
-                    wordPage = wordRepository.findAll(PageRequest.of(page, pageSize));
+                    wordPage = wordRepository.findAllByLanguageId(languageId, PageRequest.of(page, pageSize));
 
                     for (Word word : wordPage) {
                         generator.writeObject(new DictionaryWordResponse(
