@@ -117,7 +117,7 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public StreamingResponseBody getAllWords() {
+    public StreamingResponseBody getAllWordsByLanguageId(Long languageId) {
         return outputStream -> {
             try (JsonGenerator generator = new ObjectMapper().getFactory().createGenerator(outputStream)) {
                 generator.writeStartArray();
@@ -127,7 +127,7 @@ public class WordService {
 
                 Page<Word> wordPage;
                 do {
-                    wordPage = wordRepository.findAll(PageRequest.of(page, pageSize));
+                    wordPage = wordRepository.findAllByLanguageId(languageId, PageRequest.of(page, pageSize));
 
                     for (Word word : wordPage) {
                         generator.writeObject(new DictionaryWordResponse(
