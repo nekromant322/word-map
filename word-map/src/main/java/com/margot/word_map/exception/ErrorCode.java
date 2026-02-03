@@ -26,6 +26,7 @@ public enum ErrorCode {
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "error.language.not_found"),
     PLATFORM_NOT_FOUND(HttpStatus.NOT_FOUND, "error.platform.not_found"),
     LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "error.letter.not_found"),
+    WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "error.word.not_found"),
     INVALID_RULE(HttpStatus.NOT_FOUND, "error.rule.invalid"),
 
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "error.duplicate.email"),
