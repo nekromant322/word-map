@@ -154,7 +154,7 @@ public class WordController {
 
     @Operation(
             summary = "Получение словаря в формате JSON",
-            description = "Метод позволяет выкачать весь словарь в JSON файл",
+            description = "Метод позволяет выкачать весь словарь по id языка в JSON файл",
             externalDocs = @ExternalDocumentation(
                     description = "Confluence",
                     url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/" +
@@ -168,11 +168,13 @@ public class WordController {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    @GetMapping("/word/list")
-    public ResponseEntity<StreamingResponseBody> getAllWords() throws IOException {
+    @GetMapping("/download/{languageId}")
+    public ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
+                                                             @PathVariable Long languageId
+    ) throws IOException {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
-                .body(wordService.getAllWords());
+                .body(wordService.getAllWordsByLanguageId(languageId));
     }
 }
