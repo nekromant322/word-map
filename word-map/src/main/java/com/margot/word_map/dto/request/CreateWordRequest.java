@@ -3,6 +3,7 @@ package com.margot.word_map.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class CreateWordRequest {
 
     @NotBlank(message = "Слово не может быть пустым")
     @Schema(description = "Слово, добавляемое в словарь", example = "лопата")
+    @Size(max = 50, message = "Слово слишком длинное")
     private String word;
 
     @Schema(description = "Описание слова", example = "Инструмент для копания земли")

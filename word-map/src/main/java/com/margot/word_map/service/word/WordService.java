@@ -9,6 +9,7 @@ import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.exception.FormatErrorException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
@@ -16,10 +17,12 @@ import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Word;
+import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
+import com.margot.word_map.service.map.LetterService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,8 @@ public class WordService {
     private final WordMapper wordMapper;
     private final SecurityAdminAccessor adminAccessor;
     private final AuditService auditService;
+    private final LetterService letterService;
+    private final WordOfferRepository offerRepository;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -50,15 +55,17 @@ public class WordService {
                 .orElseThrow(() -> new WordNotFoundException("Слово не найдено")));
     }
 
+    @Transactional
     public void createNewWord(CreateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
-
+        if (!letterService.validateAlphabet(request)) {
+            throw new FormatErrorException();
+        }
         wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
-                    log.info("word {} already exists", request.getWord());
-                    throw new WordAlreadyExists("word " + request.getWord() + " already exists");
+                    throw new WordAlreadyExists("Слово " + request.getWord() + " уже существует");
                 },
                 () -> {
                     Word word = Word.builder()
@@ -73,6 +80,8 @@ public class WordService {
 
                     wordRepository.save(word);
                     log.info("CREATE WORD Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
+                    offerRepository.updateStatus(request.getWord(), request.getLanguageId());
+                    auditService.log(AuditActionType.DICTIONARY_WORD_ADDED, request.getWord());
                 }
         );
     }
