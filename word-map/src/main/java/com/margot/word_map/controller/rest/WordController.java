@@ -125,9 +125,11 @@ public class WordController {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
-    @PutMapping("/word")
-    public void updateWord(@RequestBody @Validated UpdateWordRequest request) {
-        wordService.updateWordInfo(request);
+    @PutMapping("/word/{id}")
+    public void updateWord(@RequestBody @Validated UpdateWordRequest request,
+                           @Parameter(description = "id слова", example = "10")
+                           @PathVariable Long id) {
+        wordService.updateWordInfo(request, id);
     }
 
     @Operation(

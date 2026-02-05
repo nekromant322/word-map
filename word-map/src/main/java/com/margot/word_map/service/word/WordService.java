@@ -78,29 +78,17 @@ public class WordService {
     }
 
     @Transactional
-    public void updateWordInfo(UpdateWordRequest request) {
+    public void updateWordInfo(UpdateWordRequest request, Long wordId) {
         Admin admin = adminAccessor.getCurrentAdmin();
 
-        Optional<Word> wordByNameOp = wordRepository.findWordByWord(request.getWord());
-        if (wordByNameOp.isPresent() && !wordByNameOp.get().getId().equals(request.getId())) {
-            log.info("word {} already exists", request.getWord());
-            throw new WordAlreadyExists("word " + request.getWord() + " already exists with another id");
-        }
+        Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
+                new WordNotFoundException("word with id " + wordId + " not found"));
 
-        Word wordToUpdate = wordByNameOp.orElseGet(() -> {
-            Optional<Word> wordById = wordRepository.findById(request.getId());
-            return wordById.orElseThrow(() -> {
-                log.info("word with id {} not found", request.getId());
-                return new WordNotFoundException("word with id " + request.getId() + " not found");
-            });
-        });
-
-        wordToUpdate.setWord(request.getWord());
         wordToUpdate.setDescription(request.getDescription());
-        wordToUpdate.setWordLength(request.getWord().length());
         wordToUpdate.setEditedAt(LocalDateTime.now());
         wordToUpdate.setEditedBy(admin);
         wordRepository.save(wordToUpdate);
+        auditService.log(AuditActionType.DICTIONARY_WORD_UPDATED, wordToUpdate.getWord());
     }
 
     @Transactional
