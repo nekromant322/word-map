@@ -1,7 +1,6 @@
 package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.exception.FormatErrorException;
 import com.margot.word_map.model.map.Letter;
 import com.margot.word_map.repository.map.LetterRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,7 @@ public class LetterService {
 
     private final LetterRepository letterRepository;
 
-    public void validateAlphabet(CreateWordRequest request) {
+    public boolean validateAlphabet(CreateWordRequest request) {
         Set<Character> allowedLetters = letterRepository.findAllByLanguageId(request.getLanguageId())
                 .stream()
                 .map(Letter::getLetter)
@@ -27,8 +26,9 @@ public class LetterService {
 
         for (char c : word.toCharArray()) {
             if (!allowedLetters.contains(c)) {
-                throw new FormatErrorException();
+                return false;
             }
         }
+        return true;
     }
 }

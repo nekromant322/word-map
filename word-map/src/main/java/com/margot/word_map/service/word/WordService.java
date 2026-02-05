@@ -9,6 +9,7 @@ import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.exception.FormatErrorException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
@@ -59,7 +60,9 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
-        letterService.validateAlphabet(request);
+        if (!letterService.validateAlphabet(request)) {
+            throw new FormatErrorException();
+        }
         wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
                     throw new WordAlreadyExists("Слово " + request.getWord() + " уже существует");
