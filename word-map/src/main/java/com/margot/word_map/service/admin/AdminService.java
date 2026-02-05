@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 import static com.margot.word_map.service.audit.AuditActionType.*;
@@ -51,12 +50,7 @@ public class AdminService {
 
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-        Specification<Admin> spec = Specification
-                .where(adminSpecs.hasName(request.getSearch()))
-                .and(adminSpecs.hasRole(request.getFilterRole()))
-                .and(adminSpecs.hasLanguage(request.getFilterLanguage()))
-                .and(adminSpecs.hasAccess(request.getFilterAccess()))
-                .and(adminSpecs.orderBy(request.getSortingType(), true));
+        Specification<Admin> spec = adminSpecs.fromRequest(request);
 
         Page<AdminListQueryDto> page = adminRepository.findAll(spec, pageRequest)
                 .map(adminMapper::toListQueryDto);
@@ -70,30 +64,21 @@ public class AdminService {
 
     @Transactional
     public AdminInfoDto getCurrentAdminInfo() {
-        Long id = adminAccessor.getCurrentAdminId();
-        Admin admin = getAdminById(id);
+        Admin admin = adminAccessor.getCurrentAdmin();
         admin.setDateActive(LocalDateTime.now());
 
         return adminMapper.toInfoDto(admin);
     }
 
+    @Transactional(readOnly = true)
     public AdminDto getAdminDetailedInfoById(Long id) {
         return adminMapper.toDto(getAdminById(id));
     }
 
+    @Transactional(readOnly = true)
     public Admin getAdminById(Long id) {
         return adminRepository.findById(id).orElseThrow(() ->
             new AdminNotFoundException("admin with id " + id + " not found")
-        );
-    }
-
-    public AdminDto getAdminInfoByEmail(String email) {
-        return adminMapper.toDto(getAdminByEmail(email));
-    }
-
-    public Admin getAdminByEmail(String email) {
-        return adminRepository.findByEmail(email).orElseThrow(() ->
-            new UserNotFoundException("admin with email " + email + " not found")
         );
     }
 
@@ -107,11 +92,12 @@ public class AdminService {
             throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
         }
 
+        Set<Rule> rules = ruleService.getRulesByIds(request.getRuleID());
         Admin admin = Admin.builder()
                 .email(request.getEmail())
                 .createdAt(LocalDateTime.now())
                 .role(Role.MODERATOR)
-                .rules(getAdminRules(request.getRuleID()))
+                .rules(rules)
                 .build();
 
         adminRepository.save(admin);
@@ -126,13 +112,15 @@ public class AdminService {
             throw new UserNotPermissionsException("can't set rules for admin role");
         }
 
+        Set<Rule> rules = ruleService.getRulesByIds(request.getRuleId());
         targetAdmin.getRules().clear();
-        targetAdmin.getRules().addAll(getAdminRules(request.getRuleId()));
+        targetAdmin.getRules().addAll(rules);
 
         adminRepository.save(targetAdmin);
         auditService.log(ADMIN_UPDATED, targetAdmin.getEmail());
     }
 
+    @Transactional
     public void updateCurrentAdminLanguage(Long langId) {
         Long adminId = adminAccessor.getCurrentAdminId();
         languageService.updateAdminLanguage(adminId, langId);
@@ -150,15 +138,5 @@ public class AdminService {
         adminRepository.save(targetAdmin);
 
         auditService.log(ADMIN_ACCESS_CHANGED, targetAdmin.getEmail());
-    }
-    
-    private Set<Rule> getAdminRules(List<Long> ruleIds) {
-        Set<Rule> rules = ruleService.getRulesByIds(ruleIds);
-
-        if (rules.size() != ruleIds.size()) {
-            throw new InvalidRuleException("wrong rule provided");
-        }
-
-        return rules;
     }
 }

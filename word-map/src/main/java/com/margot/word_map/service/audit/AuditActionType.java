@@ -40,14 +40,14 @@ public enum AuditActionType {
         this.requiredKeys = List.of(keys);
     }
 
-    public String render(String... args) {
+    public String render(Object... args) {
         if (args.length != requiredKeys.size()) {
             throw new IllegalArgumentException("this audit action requires " + requiredKeys.size() + " entries");
         }
 
         String template = value;
         for (int i = 0; i < requiredKeys.size(); i++) {
-            template = template.replace("{" + requiredKeys.get(i) + "}", args[i]);
+            template = template.replace("{" + requiredKeys.get(i) + "}", String.valueOf(args[i]));
         }
 
         return template;

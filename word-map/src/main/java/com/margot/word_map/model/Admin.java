@@ -11,7 +11,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"rules", "languages"})
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

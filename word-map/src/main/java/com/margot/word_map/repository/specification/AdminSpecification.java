@@ -1,5 +1,6 @@
 package com.margot.word_map.repository.specification;
 
+import com.margot.word_map.dto.request.AdminSearchRequest;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.enums.Role;
 import jakarta.persistence.criteria.Expression;
@@ -73,5 +74,14 @@ public class AdminSpecification {
 
             return null;
         };
+    }
+
+    public Specification<Admin> fromRequest(AdminSearchRequest request) {
+        return Specification
+                .where(hasName(request.getSearch()))
+                .and(hasRole(request.getFilterRole()))
+                .and(hasLanguage(request.getFilterLanguage()))
+                .and(hasAccess(request.getFilterAccess()))
+                .and(orderBy(request.getSortingType(), true));
     }
 }

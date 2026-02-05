@@ -2,6 +2,7 @@ package com.margot.word_map.service.rule;
 
 import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.RuleDto;
+import com.margot.word_map.exception.InvalidRuleException;
 import com.margot.word_map.mapper.RuleMapper;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.repository.RuleRepository;
@@ -31,7 +32,12 @@ public class RuleService {
     }
 
     public Set<Rule> getRulesByIds(List<Long> ids) {
-        return ruleRepository.findAllByIds(ids);
+        Set<Rule> rules = ruleRepository.findAllByIds(ids);
+
+        if (rules.size() != ids.size()) {
+            throw new InvalidRuleException("wrong rule provided");
+        }
+        return rules;
     }
 
     public List<OptionDto> getRuleOptions() {
