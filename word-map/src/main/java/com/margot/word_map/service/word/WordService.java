@@ -78,15 +78,13 @@ public class WordService {
     }
 
     @Transactional
-    public void updateWordInfo(UpdateWordRequest request) {
+    public void updateWordInfo(UpdateWordRequest request, Long wordId) {
         Admin admin = adminAccessor.getCurrentAdmin();
 
-        Word wordToUpdate = wordRepository.findWordById(request.getId()).orElseThrow(() ->
-                new WordNotFoundException("word with id " + request.getId() + " not found"));
+        Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
+                new WordNotFoundException("word with id " + wordId + " not found"));
 
-        if (request.getDescription() != null) {
-            wordToUpdate.setDescription(request.getDescription());
-        }
+        wordToUpdate.setDescription(request.getDescription());
         wordToUpdate.setEditedAt(LocalDateTime.now());
         wordToUpdate.setEditedBy(admin);
         wordRepository.save(wordToUpdate);

@@ -129,8 +129,7 @@ public class WordController {
     public void updateWord(@RequestBody @Validated UpdateWordRequest request,
                            @Parameter(description = "id слова", example = "10")
                            @PathVariable Long id) {
-        request.setId(id);
-        wordService.updateWordInfo(request);
+        wordService.updateWordInfo(request, id);
     }
 
     @Operation(

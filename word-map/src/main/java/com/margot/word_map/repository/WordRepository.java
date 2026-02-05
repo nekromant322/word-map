@@ -14,8 +14,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     Optional<Word> findWordByWord(String word);
 
-    Optional<Word> findWordById(Long wordId);
-
     Page<Word> findAllByLanguageId(Long languageId, PageRequest pageRequest);
 
     Optional<Word> findWordByWordAndLanguageId(String word, Long languageId);
