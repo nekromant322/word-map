@@ -1,6 +1,7 @@
 package com.margot.word_map.service.language;
 
 import com.margot.word_map.dto.LanguageDto;
+import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
 import com.margot.word_map.exception.DuplicateNameException;
 import com.margot.word_map.exception.DuplicatePrefixException;
@@ -39,6 +40,13 @@ public class LanguageService {
     public List<LanguageDto> getLanguages() {
         return languageRepository.findAll().stream()
                 .map(languageMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OptionDto> getLanguageOptions() {
+        return languageRepository.findAll().stream()
+                .map(languageMapper::toOptionDto)
                 .toList();
     }
 

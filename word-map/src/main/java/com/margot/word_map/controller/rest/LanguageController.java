@@ -104,4 +104,25 @@ public class LanguageController {
     public List<LanguageDto> getLanguages() {
         return languageService.getLanguages();
     }
+
+    @Operation(
+            summary = "Список языков",
+            description = "Метод получения списка доступных языков",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/385417392/GET+language+option"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные успешно получены"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    @GetMapping("/option")
+    public List<OptionDto> getLanguageOptions() {
+        return languageService.getLanguageOptions();
+    }
 }
