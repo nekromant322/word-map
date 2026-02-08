@@ -1,6 +1,9 @@
 package com.margot.word_map.service.language;
 
 import com.margot.word_map.dto.LanguageDto;
+import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
+import com.margot.word_map.exception.DuplicateNameException;
+import com.margot.word_map.exception.DuplicatePrefixException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
 import com.margot.word_map.model.Admin;
@@ -9,6 +12,8 @@ import com.margot.word_map.model.Language;
 import com.margot.word_map.repository.AdminLanguageRepository;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.LanguageRepository;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.service.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +31,7 @@ public class LanguageService {
     private final LanguageRepository languageRepository;
     private final AdminLanguageRepository adminLanguageRepository;
     private final AdminRepository adminRepository;
+    private final AuditService auditService;
 
     private final LanguageMapper languageMapper;
 
@@ -73,8 +79,19 @@ public class LanguageService {
                 .build();
     }
 
-    public void createLanguage() {
+    @Transactional
+    public LanguageDto createLanguage(CreateUpdateLanguageRequest request) {
+        validateByFields(request);
 
+        Language language = Language.builder()
+                .name(request.getName())
+                .prefix(request.getPrefix())
+                .build();
+
+        languageRepository.save(language);
+        auditService.log(AuditActionType.LANGUAGE_CREATED, request.getName());
+
+        return languageMapper.toDto(language);
     }
 
     public void updateLanguage() {
@@ -83,5 +100,15 @@ public class LanguageService {
 
     public void deleteLanguage() {
 
+    }
+
+    public void validateByFields(CreateUpdateLanguageRequest request) {
+        if (languageRepository.existsByPrefix(request.getPrefix())) {
+            throw new DuplicatePrefixException("Язык с данным префиксом уже существует: " + request.getPrefix());
+        }
+
+        if (languageRepository.existsByName(request.getName())) {
+            throw new DuplicateNameException("Язык с данным именем уже существует: " + request.getName());
+        }
     }
 }
