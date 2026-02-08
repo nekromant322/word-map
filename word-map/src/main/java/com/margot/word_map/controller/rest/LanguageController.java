@@ -1,6 +1,7 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.dto.LanguageDto;
+import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
 import com.margot.word_map.service.language.LanguageService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(
         name = "LanguageController",
@@ -79,5 +82,26 @@ public class LanguageController {
             @RequestBody @Valid CreateUpdateLanguageRequest request) {
 
         return languageService.updateLanguage(id, request);
+    }
+
+    @Operation(
+            summary = "Список языков",
+            description = "Метод получения списка доступных языков",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/404226049/GET+language+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные успешно получены"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    @GetMapping("/list")
+    public List<LanguageDto> getLanguages() {
+        return languageService.getLanguages();
     }
 }

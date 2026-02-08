@@ -35,8 +35,11 @@ public class LanguageService {
 
     private final LanguageMapper languageMapper;
 
+    @Transactional(readOnly = true)
     public List<LanguageDto> getLanguages() {
-        return languageRepository.findAll().stream().map(languageMapper::toDto).toList();
+        return languageRepository.findAll().stream()
+                .map(languageMapper::toDto)
+                .toList();
     }
 
     public Optional<Language> findByName(String name) {
