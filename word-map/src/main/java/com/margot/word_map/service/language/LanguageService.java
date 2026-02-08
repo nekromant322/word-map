@@ -81,7 +81,7 @@ public class LanguageService {
 
     @Transactional
     public LanguageDto createLanguage(CreateUpdateLanguageRequest request) {
-        validateByFields(request);
+        validateByFields(request, null);
 
         Language language = Language.builder()
                 .name(request.getName())
@@ -94,20 +94,32 @@ public class LanguageService {
         return languageMapper.toDto(language);
     }
 
-    public void updateLanguage() {
+    @Transactional
+    public LanguageDto updateLanguage(Long langId, CreateUpdateLanguageRequest request) {
+        validateByFields(request, langId);
 
+        Language language = languageRepository.findById(langId)
+                .orElseThrow(LanguageNotFoundException::new);
+
+        language.setPrefix(request.getPrefix());
+        language.setName(request.getName());
+
+        languageRepository.save(language);
+        auditService.log(AuditActionType.LANGUAGE_UPDATED, request.getName());
+
+        return languageMapper.toDto(language);
     }
 
     public void deleteLanguage() {
 
     }
 
-    public void validateByFields(CreateUpdateLanguageRequest request) {
-        if (languageRepository.existsByPrefix(request.getPrefix())) {
+    public void validateByFields(CreateUpdateLanguageRequest request, Long excludeId) {
+        if (languageRepository.existsByPrefixExcludeId(request.getPrefix(), excludeId)) {
             throw new DuplicatePrefixException("Язык с данным префиксом уже существует: " + request.getPrefix());
         }
 
-        if (languageRepository.existsByName(request.getName())) {
+        if (languageRepository.existsByNameExcludeId(request.getName(), excludeId)) {
             throw new DuplicateNameException("Язык с данным именем уже существует: " + request.getName());
         }
     }

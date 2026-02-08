@@ -51,4 +51,33 @@ public class LanguageController {
     public LanguageDto createLanguage(@RequestBody @Valid CreateUpdateLanguageRequest request) {
         return languageService.createLanguage(request);
     }
+
+    @Operation(
+            summary = "Редактирование языка",
+            description = "Запрос для обновления языка",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/395640841/PUT+language+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Язык обновлен"),
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат ввода"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Язык не найден"),
+                    @ApiResponse(responseCode = "409", description = "Префикс уже существует"),
+                    @ApiResponse(responseCode = "409", description = "Название уже существует")
+            }
+    )
+    @PutMapping("/{id}")
+    public LanguageDto updateLanguage(
+            @PathVariable Long id,
+            @RequestBody @Valid CreateUpdateLanguageRequest request) {
+
+        return languageService.updateLanguage(id, request);
+    }
 }
