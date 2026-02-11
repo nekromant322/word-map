@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 public record ConfirmResendRequest(
 
         @Schema(description = "Идентификатор кода подтверждения", example = "12")
-        @NotNull(message = "CONFIRM_NOT_FOUND")
+        @NotNull(message = "Идентификатор кода подтверждения обязателен")
         Long confirmID
 ) {
 }

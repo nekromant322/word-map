@@ -1,8 +1,7 @@
 package com.margot.word_map.dto.request;
 
+import com.margot.word_map.validation.annotation.ValidEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,8 +16,7 @@ import java.util.List;
 @Schema(description = "Запрос создания администратора")
 public class CreateAdminRequest {
 
-    @Email(message = "EMAIL_FORMAT_ERROR", regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-    @NotBlank(message = "EMAIL_FORMAT_ERROR")
+    @ValidEmail
     @Schema(description = "Email пользователя", example = "example@mail.com")
     private String email;
 
