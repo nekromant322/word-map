@@ -38,4 +38,11 @@ public class Letter {
 
     @OneToMany(mappedBy = "letterObj")
     private List<Grid> grids;
+
+    @PrePersist
+    public void normalizeLetter() {
+        if (this.letter != null) {
+            this.letter = Character.toUpperCase(this.letter);
+        }
+    }
 }

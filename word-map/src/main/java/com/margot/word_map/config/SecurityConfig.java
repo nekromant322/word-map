@@ -54,6 +54,7 @@ public class SecurityConfig {
         PATH_TO_RULE_MAP.put("/world", Rule.RULE.MANAGE_WORLD);
         PATH_TO_RULE_MAP.put("/event", Rule.RULE.MANAGE_EVENT);
         PATH_TO_RULE_MAP.put("/shop", Rule.RULE.MANAGE_SHOP);
+        PATH_TO_RULE_MAP.put("/letter", Rule.RULE.MANAGE_ALPHABET);
     }
 
     @Bean
