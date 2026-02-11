@@ -26,12 +26,4 @@ public class CreateUpdateLanguageRequest {
     @Pattern(regexp = "^[a-zA-Z]+$", message = "FORMAT_ERROR")
     @Schema(description = "Название языка", example = "russian")
     private String name;
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix.toLowerCase();
-    }
-
-    public void setName(String name) {
-        this.name = name.toLowerCase();
-    }
 }

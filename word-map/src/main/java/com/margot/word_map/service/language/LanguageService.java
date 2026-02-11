@@ -95,8 +95,8 @@ public class LanguageService {
         validateByFields(request, null);
 
         Language language = Language.builder()
-                .name(request.getName())
-                .prefix(request.getPrefix())
+                .name(request.getName().toLowerCase())
+                .prefix(request.getPrefix().toLowerCase())
                 .build();
 
         languageRepository.save(language);
@@ -112,8 +112,8 @@ public class LanguageService {
         Language language = languageRepository.findById(langId)
                 .orElseThrow(LanguageNotFoundException::new);
 
-        language.setPrefix(request.getPrefix());
-        language.setName(request.getName());
+        language.setPrefix(request.getPrefix().toLowerCase());
+        language.setName(request.getName().toLowerCase());
 
         languageRepository.save(language);
         auditService.log(AuditActionType.LANGUAGE_UPDATED, request.getName());
@@ -126,12 +126,17 @@ public class LanguageService {
     }
 
     public void validateByFields(CreateUpdateLanguageRequest request, Long excludeId) {
-        if (languageRepository.existsByPrefixExcludeId(request.getPrefix(), excludeId)) {
-            throw new DuplicatePrefixException("Язык с данным префиксом уже существует: " + request.getPrefix());
+        String name = request.getName().toLowerCase();
+        String prefix = request.getPrefix().toLowerCase();
+
+        if (languageRepository.existsByPrefixExcludeId(prefix, excludeId)) {
+            throw new DuplicatePrefixException(
+                    "Язык с данным префиксом уже существует: " + prefix);
         }
 
-        if (languageRepository.existsByNameExcludeId(request.getName(), excludeId)) {
-            throw new DuplicateNameException("Язык с данным именем уже существует: " + request.getName());
+        if (languageRepository.existsByNameExcludeId(name, excludeId)) {
+            throw new DuplicateNameException(
+                    "Язык с данным именем уже существует: " + name);
         }
     }
 }
