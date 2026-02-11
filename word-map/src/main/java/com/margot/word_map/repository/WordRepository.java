@@ -6,11 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface WordRepository extends JpaRepository<Word, Long> {
+@Repository
+public interface WordRepository extends JpaRepository<Word, Long>, WordRepositoryCustom {
 
     Optional<Word> findWordByWord(String word);
 
@@ -20,7 +22,16 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @SuppressWarnings("checkstyle:Indentation")
     @Query(value = """
-        SELECT w.word FROM words w 
-        WHERE w.id_language = :langId AND w.word !~ :regex  """, nativeQuery = true)
-    List<String> findWordsByLanguageNotMatchingRegex(@Param("langId") Long langId, @Param("regex") String regex);
+    SELECT word
+    FROM words
+    WHERE language_id = :languageId
+      AND word_length >= LENGTH(:lettersUsed)
+      AND word ~ :regex
+            """, nativeQuery = true)
+    List<String> findWordsByLetters(
+            @Param("languageId") Long languageId,
+            @Param("regex") String regex,
+            @Param("lettersUsed") String lettersUsed);
+
+    List<String> findWordsByLanguageId(Long languageId);
 }

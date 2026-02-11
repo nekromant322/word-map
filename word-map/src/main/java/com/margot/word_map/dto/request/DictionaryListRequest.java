@@ -1,6 +1,7 @@
 package com.margot.word_map.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +16,12 @@ import java.util.List;
 @Schema(description = "Параметры фильтрации языков в словаре")
 public class DictionaryListRequest {
 
-    @Schema(description = "Язык выбранный пользователем в личном кабинете", example = "ru")
-    private String language;
+    @Schema(description = "Язык выбранный пользователем в личном кабинете", example = "1")
+    @NotNull
+    private Long languageId;
 
     @Schema(description = "Допускается ли повторение введенных в lettersUsed букв в одном слове", example = "true")
+    @NotNull
     private Boolean reuse;
 
     @Schema(description = "Буквы, которые должны присутствовать в словах", example = "апродушт")

@@ -56,7 +56,7 @@ public class WordController {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    @PostMapping("/list")
+    @PostMapping("/search")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
         return wordService.getWordsByFilters(request);
     }
