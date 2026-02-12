@@ -1,6 +1,10 @@
 package com.margot.word_map.service.language;
 
 import com.margot.word_map.dto.LanguageDto;
+import com.margot.word_map.dto.OptionDto;
+import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
+import com.margot.word_map.exception.DuplicateNameException;
+import com.margot.word_map.exception.DuplicatePrefixException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
 import com.margot.word_map.model.Admin;
@@ -9,6 +13,8 @@ import com.margot.word_map.model.Language;
 import com.margot.word_map.repository.AdminLanguageRepository;
 import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.LanguageRepository;
+import com.margot.word_map.service.audit.AuditActionType;
+import com.margot.word_map.service.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,11 +32,22 @@ public class LanguageService {
     private final LanguageRepository languageRepository;
     private final AdminLanguageRepository adminLanguageRepository;
     private final AdminRepository adminRepository;
+    private final AuditService auditService;
 
     private final LanguageMapper languageMapper;
 
+    @Transactional(readOnly = true)
     public List<LanguageDto> getLanguages() {
-        return languageRepository.findAll().stream().map(languageMapper::toDto).toList();
+        return languageRepository.findAll().stream()
+                .map(languageMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OptionDto> getLanguageOptions() {
+        return languageRepository.findAll().stream()
+                .map(languageMapper::toOptionDto)
+                .toList();
     }
 
     public Optional<Language> findByName(String name) {
@@ -73,15 +90,53 @@ public class LanguageService {
                 .build();
     }
 
-    public void createLanguage() {
+    @Transactional
+    public LanguageDto createLanguage(CreateUpdateLanguageRequest request) {
+        validateByFields(request, null);
 
+        Language language = Language.builder()
+                .name(request.getName().toLowerCase())
+                .prefix(request.getPrefix().toLowerCase())
+                .build();
+
+        languageRepository.save(language);
+        auditService.log(AuditActionType.LANGUAGE_CREATED, request.getName());
+
+        return languageMapper.toDto(language);
     }
 
-    public void updateLanguage() {
+    @Transactional
+    public LanguageDto updateLanguage(Long langId, CreateUpdateLanguageRequest request) {
+        validateByFields(request, langId);
 
+        Language language = languageRepository.findById(langId)
+                .orElseThrow(LanguageNotFoundException::new);
+
+        language.setPrefix(request.getPrefix().toLowerCase());
+        language.setName(request.getName().toLowerCase());
+
+        languageRepository.save(language);
+        auditService.log(AuditActionType.LANGUAGE_UPDATED, request.getName());
+
+        return languageMapper.toDto(language);
     }
 
     public void deleteLanguage() {
 
+    }
+
+    public void validateByFields(CreateUpdateLanguageRequest request, Long excludeId) {
+        String name = request.getName().toLowerCase();
+        String prefix = request.getPrefix().toLowerCase();
+
+        if (languageRepository.existsByPrefixExcludeId(prefix, excludeId)) {
+            throw new DuplicatePrefixException(
+                    "Язык с данным префиксом уже существует: " + prefix);
+        }
+
+        if (languageRepository.existsByNameExcludeId(name, excludeId)) {
+            throw new DuplicateNameException(
+                    "Язык с данным именем уже существует: " + name);
+        }
     }
 }
