@@ -2,7 +2,9 @@ package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.LetterDto;
 import com.margot.word_map.dto.request.CreateLetterRequest;
+import com.margot.word_map.dto.request.UpdateLetterRequest;
 import com.margot.word_map.exception.DuplicateLetterException;
+import com.margot.word_map.exception.LetterNotFoundException;
 import com.margot.word_map.mapper.LetterMapper;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.map.Letter;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,6 +55,21 @@ public class LetterService {
         return letterMapper.toDto(letter);
     }
 
+    @Transactional
+    public LetterDto updateLetter(Long letterId, UpdateLetterRequest request) {
+        Letter letter = letterRepository.findByIdWithLanguage(letterId)
+                .orElseThrow(() -> new LetterNotFoundException("Буква не найдена по идентификатору: " + letterId));
+
+        Optional.ofNullable(request.getType()).ifPresent(letter::setType);
+        Optional.ofNullable(request.getMultiplier()).ifPresent(letter::setMultiplier);
+        Optional.ofNullable(request.getWeight()).ifPresent(letter::setWeight);
+
+        letterRepository.save(letter);
+        auditService.log(AuditActionType.LANGUAGE_LETTER_UPDATED, letter.getLetter(), letter.getLanguage().getId());
+
+        return letterMapper.toDto(letter);
+    }
+
     public boolean validateAlphabet(String word, Set<Character> allowedLetters) {
         String lowerCaseWord = word.toLowerCase();
 
@@ -71,4 +89,3 @@ public class LetterService {
                 .collect(Collectors.toSet());
     }
 }
-
