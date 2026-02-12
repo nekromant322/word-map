@@ -13,6 +13,13 @@ public interface LanguageRepository extends JpaRepository<Language, Long> {
     Optional<Language> findByName(String name);
 
     @Query("""
+            SELECT l FROM Language l
+            JOIN FETCH l.letters
+            WHERE l.id = :id
+            """)
+    Optional<Language> findByIdWithLetters(Long id);
+
+    @Query("""
             SELECT COUNT(l) > 0 FROM Language l
             WHERE l.prefix = :prefix
             AND (:excludeId IS NULL OR l.id != :excludeId)
