@@ -27,4 +27,9 @@ public class LetterController implements LetterApi {
             @RequestBody @Valid UpdateLetterRequest request) {
         return letterService.updateLetter(id, request);
     }
+
+    @DeleteMapping("/{id}")
+    public LetterDto deleteLetter(@PathVariable("id") Long id) {
+        return letterService.deleteLetter(id);
+    }
 }

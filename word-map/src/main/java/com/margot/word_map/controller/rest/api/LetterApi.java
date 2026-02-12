@@ -65,4 +65,26 @@ public interface LetterApi {
     LetterDto updateLetter(
             @PathVariable("id") Long id,
             @RequestBody @Valid UpdateLetterRequest request);
+
+    @Operation(
+            summary = "Удаление буквы",
+            description = "Метод удаления буквы алфавита",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/404717570/DELETE+letter+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "201", description = "Буква удалена"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Язык не найден"),
+                    @ApiResponse(responseCode = "409", description = "Буква не найдена")
+            }
+    )
+    @DeleteMapping("/{id}")
+    LetterDto deleteLetter(@PathVariable("id") Long id);
 }
