@@ -2,10 +2,13 @@ package com.margot.word_map.service.language;
 
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
+import com.margot.word_map.dto.response.LetterResponse;
 import com.margot.word_map.exception.DuplicateNameException;
 import com.margot.word_map.exception.DuplicatePrefixException;
 import com.margot.word_map.mapper.LanguageMapper;
+import com.margot.word_map.mapper.LetterMapper;
 import com.margot.word_map.model.Language;
+import com.margot.word_map.model.map.Letter;
 import com.margot.word_map.repository.LanguageRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
@@ -16,14 +19,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LanguageTest {
@@ -36,6 +39,9 @@ public class LanguageTest {
 
     @Mock
     private LanguageMapper languageMapper;
+
+    @Mock
+    private LetterMapper letterMapper;
 
     @InjectMocks
     private LanguageService languageService;
@@ -158,5 +164,54 @@ public class LanguageTest {
         assertThatThrownBy(() -> languageService.updateLanguage(id, request))
                 .isInstanceOf(DuplicateNameException.class)
                 .hasMessageContaining("Язык с данным именем уже существует: " + request.getName());
+    }
+
+    @Test
+    void testGetAlphabet() {
+        Long langId = 1L;
+        Letter letter1 = Letter.builder()
+                .id(1L)
+                .letter('A')
+                .build();
+        Letter letter2 = Letter.builder()
+                .id(2L)
+                .letter('N')
+                .build();
+        Language lang = Language.builder()
+                .id(langId)
+                .letters(List.of(letter1, letter2))
+                .build();
+
+        LetterResponse resp1 = LetterResponse.builder()
+                .id(1L)
+                .letter('A')
+                .build();
+        LetterResponse resp2 = LetterResponse.builder()
+                .id(2L)
+                .letter('B')
+                .build();
+
+        when(languageRepository.findByIdWithLetters(langId)).thenReturn(Optional.of(lang));
+        when(letterMapper.toResponseDto(letter1)).thenReturn(resp1);
+        when(letterMapper.toResponseDto(letter2)).thenReturn(resp2);
+
+        List<LetterResponse> result = languageService.getAlphabet(langId);
+
+        assertThat(result).hasSize(2);
+        assertThat(result.getFirst().getLetter()).isEqualTo('A');
+        verify(languageRepository).findByIdWithLetters(langId);
+        verify(letterMapper, times(2)).toResponseDto(any(Letter.class));
+    }
+
+    @Test
+    void testGetAlphabetEmptyWhenLanguageNotFound() {
+        Long langId = 99L;
+        when(languageRepository.findByIdWithLetters(langId)).thenReturn(Optional.empty());
+
+        List<LetterResponse> result = languageService.getAlphabet(langId);
+
+        assertThat(result).isEmpty();
+        verifyNoInteractions(letterMapper);
+
     }
 }
