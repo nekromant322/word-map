@@ -5,6 +5,7 @@ import com.margot.word_map.dto.request.CreateLetterRequest;
 import com.margot.word_map.dto.request.CreateWordRequest;
 import com.margot.word_map.dto.request.UpdateLetterRequest;
 import com.margot.word_map.exception.DuplicateLetterException;
+import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.LetterNotFoundException;
 import com.margot.word_map.mapper.LetterMapper;
 import com.margot.word_map.model.Language;
@@ -69,6 +70,23 @@ public class LetterService {
         auditService.log(AuditActionType.LANGUAGE_LETTER_UPDATED, letter.getLetter(), letter.getLanguage().getId());
 
         return letterMapper.toDto(letter);
+    }
+
+    @Transactional
+    public LetterDto deleteLetter(Long letterId) {
+        Letter letter = letterRepository.findByIdWithLanguage(letterId)
+                .orElseThrow(() -> new LetterNotFoundException("Буква не найдена по идентификатору: " + letterId));
+
+        if (letter.getLanguage() == null) {
+            throw new LanguageNotFoundException("Невозможно удалить специальный символ: " + letterId);
+        }
+
+        LetterDto result = letterMapper.toDto(letter);
+
+        letterRepository.delete(letter);
+        auditService.log(AuditActionType.LANGUAGE_LETTER_DELETED, letter.getLetter(), letter.getLanguage().getName());
+
+        return result;
     }
 
     public boolean validateAlphabet(CreateWordRequest request) {
