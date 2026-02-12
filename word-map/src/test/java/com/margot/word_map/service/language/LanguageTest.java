@@ -119,7 +119,11 @@ public class LanguageTest {
                 .prefix(prefix)
                 .build();
 
-        Language language = new Language(langId, "te", "test");
+        Language language = Language.builder()
+                .id(langId)
+                .prefix("te")
+                .name("test")
+                .build();
 
         when(languageRepository.findById(1L)).thenReturn(Optional.of(language));
         when(languageRepository.existsByPrefixExcludeId(request.getPrefix(), langId)).thenReturn(false);
