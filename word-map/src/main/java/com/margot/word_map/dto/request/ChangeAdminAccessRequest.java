@@ -15,6 +15,6 @@ import lombok.NoArgsConstructor;
 public class ChangeAdminAccessRequest {
 
     @Schema(description = "доступ админа в систему", example = "true")
-    @NotNull(message = "access не может быть null")
+    @NotNull(message = "access не может быть пустым")
     private Boolean access;
 }

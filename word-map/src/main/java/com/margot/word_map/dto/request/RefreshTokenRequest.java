@@ -7,6 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 public record RefreshTokenRequest(
 
         @Schema(description = "refresh token клиента")
-        @NotBlank(message = "INVALID_REFRESH_TOKEN")
+        @NotBlank(message = "Токен не может быть пустым")
         String refreshToken) {
 }
