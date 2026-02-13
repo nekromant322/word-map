@@ -3,6 +3,7 @@ package com.margot.word_map.controller.rest;
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
+import com.margot.word_map.dto.response.LetterResponse;
 import com.margot.word_map.service.language.LanguageService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -124,5 +125,27 @@ public class LanguageController {
     @GetMapping("/option")
     public List<OptionDto> getLanguageOptions() {
         return languageService.getLanguageOptions();
+    }
+
+    @Operation(
+            summary = "Алфавит языка",
+            description = "Метод получения алфавита языка",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/404979713/" +
+                            "GET+language+id+alphabet"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "201", description = "Успех"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+            }
+    )
+    @GetMapping("/{id}/alphabet")
+    public List<LetterResponse> getAlphabet(@PathVariable("id") Long id) {
+        return languageService.getAlphabet(id);
     }
 }

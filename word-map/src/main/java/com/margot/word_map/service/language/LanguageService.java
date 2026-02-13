@@ -3,10 +3,12 @@ package com.margot.word_map.service.language;
 import com.margot.word_map.dto.LanguageDto;
 import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
+import com.margot.word_map.dto.response.LetterResponse;
 import com.margot.word_map.exception.DuplicateNameException;
 import com.margot.word_map.exception.DuplicatePrefixException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
+import com.margot.word_map.mapper.LetterMapper;
 import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.AdminLanguage;
 import com.margot.word_map.model.Language;
@@ -35,6 +37,7 @@ public class LanguageService {
     private final AuditService auditService;
 
     private final LanguageMapper languageMapper;
+    private final LetterMapper letterMapper;
 
     @Transactional(readOnly = true)
     public List<LanguageDto> getLanguages() {
@@ -123,6 +126,14 @@ public class LanguageService {
 
     public void deleteLanguage() {
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<LetterResponse> getAlphabet(Long langId) {
+        return languageRepository.findByIdWithLetters(langId).stream()
+                .flatMap(language -> language.getLetters().stream())
+                .map(letterMapper::toResponseDto)
+                .toList();
     }
 
     public void validateByFields(CreateUpdateLanguageRequest request, Long excludeId) {
