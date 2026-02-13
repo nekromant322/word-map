@@ -2,13 +2,10 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.PlatformApi;
 import com.margot.word_map.dto.PlatformDto;
-import com.margot.word_map.dto.request.CreatePlatformRequest;
+import com.margot.word_map.dto.request.CreateUpdatePlatformRequest;
 import com.margot.word_map.service.platform.PlatformService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/platform")
@@ -22,7 +19,12 @@ public class PlatformController implements PlatformApi {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public PlatformDto createPlatform(CreatePlatformRequest request) {
+    public PlatformDto createPlatform(CreateUpdatePlatformRequest request) {
         return platformService.createPlatform(request);
+    }
+
+    @PutMapping("/{id}")
+    public PlatformDto updatePlatform(@PathVariable("id") Long id, CreateUpdatePlatformRequest request) {
+        return platformService.updatePlatform(id, request);
     }
 }

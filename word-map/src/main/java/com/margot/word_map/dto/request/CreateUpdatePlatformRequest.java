@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Запрос на создание новой платформы")
-public class CreatePlatformRequest {
+public class CreateUpdatePlatformRequest {
 
     @NotNull
     @Size(max = 50)
