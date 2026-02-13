@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -159,7 +160,17 @@ public class WordService {
 
     private List<String> filterByLetters(DictionaryListRequest request) {
         validateRequest(request);
-        return wordRepository.findAllByFilter(request);
+        Specification<Word> specification = Specification
+                .where(WordSpecs.hasLanguageId(request))
+                .and(WordSpecs.hasWordLength(request))
+                .and(WordSpecs.matchingLettersUsed(request))
+                .and(WordSpecs.lettersExcluded(request))
+                .and(WordSpecs.hasPositions(request));
+        return wordRepository
+                .findAll(specification)
+                .stream()
+                .map(Word::getWord)
+                .collect(Collectors.toList());
     }
 
     private List<String> filterByUniqueLetters(String lettersUsed, Long languageId) {
@@ -191,12 +202,6 @@ public class WordService {
 
     private void validateRequest(DictionaryListRequest request) {
         Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
-        if (request.getWordLength() != null) {
-            if (request.getWordLength() < 1 || request.getWordLength() > 100) {
-                throw new FormatErrorException("Неправильная длина слова");
-            }
-        }
-
         if (request.getLettersUsed() != null) {
             if (!letterService.validateAlphabet(request.getLettersUsed(), alphabet)) {
                 throw new FormatErrorException("'lettersUsed' содержит некорректные символы");
@@ -210,13 +215,8 @@ public class WordService {
         }
         if (request.getPositions() != null) {
             for (SymbolPosition pos : request.getPositions()) {
-                if (pos.getNumber() < 0 || pos.getNumber() > 99) {
-                    throw new FormatErrorException("Номер позиции должен быть от 0 до 99");
-                }
-                String letter = pos.getLetter().toString();
-                if (!letterService.validateAlphabet(letter, alphabet)) {
-                    throw new FormatErrorException("Буква '" + pos.getLetter()
-                            + "' в позиции " + pos.getNumber() + " не входит в алфавит выбранного языка");
+                if (!letterService.validateAlphabet(pos.getLetter().toString(), alphabet)) {
+                    throw new FormatErrorException("'letter' содержит некорректные символы");
                 }
             }
         }

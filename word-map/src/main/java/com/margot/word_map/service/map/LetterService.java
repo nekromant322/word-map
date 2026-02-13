@@ -15,9 +15,9 @@ public class LetterService {
     private final LetterRepository letterRepository;
 
     public boolean validateAlphabet(String word, Set<Character> allowedLetters) {
-        String upperCaseWord = word.toLowerCase();
+        String lowerCaseWord = word.toLowerCase();
 
-        for (char c : upperCaseWord.toCharArray()) {
+        for (char c : lowerCaseWord.toCharArray()) {
             if (!allowedLetters.contains(c)) {
                 return false;
             }
