@@ -48,6 +48,7 @@ public class WordService {
     private final AuditService auditService;
     private final LetterService letterService;
     private final WordOfferRepository offerRepository;
+    private final WordSpecs wordSpecs;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -161,11 +162,11 @@ public class WordService {
     private List<String> filterByLetters(DictionaryListRequest request) {
         validateRequest(request);
         Specification<Word> specification = Specification
-                .where(WordSpecs.hasLanguageId(request))
-                .and(WordSpecs.hasWordLength(request))
-                .and(WordSpecs.matchingLettersUsed(request))
-                .and(WordSpecs.lettersExcluded(request))
-                .and(WordSpecs.hasPositions(request));
+                .where(wordSpecs.hasLanguageId(request))
+                .and(wordSpecs.hasWordLength(request))
+                .and(wordSpecs.matchingLettersUsed(request))
+                .and(wordSpecs.lettersExcluded(request))
+                .and(wordSpecs.hasPositions(request));
         return wordRepository
                 .findAll(specification)
                 .stream()

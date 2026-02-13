@@ -4,20 +4,22 @@ import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.model.Word;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WordSpecs {
 
-    public static Specification<Word> hasLanguageId(DictionaryListRequest request) {
+    public Specification<Word> hasLanguageId(DictionaryListRequest request) {
         return (root, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.equal(root.get("language").get("id"), request.getLanguageId());
     }
 
-    public static Specification<Word> hasWordLength(DictionaryListRequest request) {
+    public Specification<Word> hasWordLength(DictionaryListRequest request) {
         return (root, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.equal(root.get("wordLength"), request.getWordLength());
     }
 
-    public static Specification<Word> matchingLettersUsed(DictionaryListRequest request) {
+    public Specification<Word> matchingLettersUsed(DictionaryListRequest request) {
         return (root, cq, cb)
                 -> {
             String regex = "[" + request.getLettersUsed() + "]";
@@ -31,7 +33,7 @@ public class WordSpecs {
         };
     }
 
-    public static Specification<Word> lettersExcluded(DictionaryListRequest request) {
+    public Specification<Word> lettersExcluded(DictionaryListRequest request) {
         return (root, cq, cb)
                 -> {
             String regex = "[" + request.getLettersExclude() + "]";
@@ -45,7 +47,7 @@ public class WordSpecs {
         };
     }
 
-    public static Specification<Word> hasPositions(DictionaryListRequest request) {
+    public Specification<Word> hasPositions(DictionaryListRequest request) {
         return (root, cq, cb)
                 -> {
             Predicate[] predicates = request.getPositions().stream()

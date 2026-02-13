@@ -37,11 +37,14 @@ class WordServiceTest {
     @Mock
     private LanguageService languageService;
 
+    @Mock
+    private WordSpecs wordSpecs;
+
     @InjectMocks
     private WordService wordService;
 
     @Test
-    void testThrowExceptionWhenLanguageIdNotFound() {
+    public void testThrowExceptionWhenLanguageIdNotFound() {
         DictionaryListRequest request = getDictionaryListRequestNonUniqueLetters();
         when(languageService.findById(1L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> wordService
@@ -51,7 +54,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testFilterByLettersWhenReuseTrue() {
+    public void testFilterByLettersWhenReuseTrue() {
         DictionaryListRequest request = getDictionaryListRequestNonUniqueLetters();
         Set<Character> alphabet = Set.of('а', 'п', 'р', 'о', 'д', 'у', 'ш', 'т');
         Word word = Word.builder()
@@ -69,7 +72,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testFilterByLettersWhenReuseFalse() {
+    public void testFilterByLettersWhenReuseFalse() {
         DictionaryListRequest request = getDictionaryListRequestUniqueLetters();
         Set<Character> alphabet = Set.of('а', 'п', 'р', 'о', 'д', 'у', 'ш', 'т');
         String expectedRegex = "[апр]";
@@ -86,7 +89,7 @@ class WordServiceTest {
     }
 
     @Test
-    void TestThrowExceptionWhenLettersUsedContainsInvalidCharacter() {
+    public void TestThrowExceptionWhenLettersUsedContainsInvalidCharacter() {
         DictionaryListRequest request = DictionaryListRequest.builder()
                 .languageId(1L)
                 .lettersUsed("test")
@@ -104,7 +107,7 @@ class WordServiceTest {
     }
 
     @Test
-    void TestThrowExceptionWhenLettersExcludeContainsInvalidCharacter() {
+    public void TestThrowExceptionWhenLettersExcludeContainsInvalidCharacter() {
         DictionaryListRequest request = DictionaryListRequest.builder()
                 .languageId(1L)
                 .lettersExclude("test")
@@ -122,7 +125,7 @@ class WordServiceTest {
     }
 
     @Test
-    void TestThrowExceptionWhenLettersContainsInvalidCharacter() {
+    public void TestThrowExceptionWhenLettersContainsInvalidCharacter() {
         DictionaryListRequest request = DictionaryListRequest.builder()
                 .languageId(1L)
                 .positions(List.of(new SymbolPosition(5, 't')))
@@ -140,7 +143,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testEmptyResponse() {
+    public void testEmptyResponse() {
         DictionaryListRequest request = getDictionaryListRequestNonUniqueLetters();
         when(languageService.findById(1L)).thenReturn(Optional.of(new Language()));
         when(letterService.getAllowedLetters(1L)).thenReturn(Set.of('а', 'п', 'р', 'о', 'д', 'у', 'ш', 'т'));
@@ -152,7 +155,7 @@ class WordServiceTest {
     }
 
     @Test
-    void testResponseMappingMultipleWords() {
+    public void testResponseMappingMultipleWords() {
         DictionaryListRequest request = getDictionaryListRequestNonUniqueLetters();
         when(languageService.findById(1L)).thenReturn(Optional.of(new Language()));
         when(letterService.getAllowedLetters(anyLong())).thenReturn(Set.of('а', 'п', 'р', 'о', 'д', 'у', 'ш', 'т'));
