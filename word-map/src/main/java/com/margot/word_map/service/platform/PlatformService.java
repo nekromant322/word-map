@@ -1,5 +1,6 @@
 package com.margot.word_map.service.platform;
 
+import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.PlatformDto;
 import com.margot.word_map.dto.request.CreateUpdatePlatformRequest;
 import com.margot.word_map.exception.DuplicateNameException;
@@ -12,6 +13,8 @@ import com.margot.word_map.service.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +55,12 @@ public class PlatformService {
         auditService.log(AuditActionType.PLATFORM_UPDATED, request.getName());
 
         return platformMapper.toDto(platform);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OptionDto> getPlatformOptions() {
+        return platformRepository.findAll().stream()
+                .map(platformMapper::toOptionDto)
+                .toList();
     }
 }

@@ -1,5 +1,6 @@
 package com.margot.word_map.controller.rest.api;
 
+import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.PlatformDto;
 import com.margot.word_map.dto.request.CreateUpdatePlatformRequest;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(
         name = "PlatformController",
@@ -65,4 +68,23 @@ public interface PlatformApi {
     )
     @PutMapping("/{id}")
     PlatformDto updatePlatform(@PathVariable("id") Long id, @Valid @RequestBody CreateUpdatePlatformRequest request);
+
+    @Operation(
+            summary = "Список платформ",
+            description = "Метод получения списка платформ с игровыми мирами",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/412057602/GET+platform+option"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Данные успешно получены"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    @GetMapping("/option")
+    List<OptionDto> getPlatformOptions();
 }
