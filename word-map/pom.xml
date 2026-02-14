@@ -152,6 +152,11 @@
 			<artifactId>hibernate-spatial</artifactId>
 			<version>6.6.11.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>io.hypersistence</groupId>
+			<artifactId>hypersistence-utils-hibernate-63</artifactId>
+			<version>3.15.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
