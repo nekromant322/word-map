@@ -2,13 +2,16 @@ package com.margot.word_map.controller.rest.api;
 
 import com.margot.word_map.dto.PatternDto;
 import com.margot.word_map.dto.request.CreateUpdatePatternRequest;
+import com.margot.word_map.dto.request.PatternSearchRequest;
 import com.margot.word_map.dto.response.IdResponse;
+import com.margot.word_map.dto.response.PagedResponseDto;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
 
 @Tag(
         name = "PatternController",
@@ -99,4 +102,26 @@ public interface PatternApi {
             }
     )
     IdResponse<Long> deletePattern(Long id);
+
+    @Operation(
+            summary = "Поиск с учетом фильтров",
+            description = "Метод получения списка паттернов с учетом фильтров, сортировки и пагинации",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/378798081/POST+pattern+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Успех"),
+                    @ApiResponse(responseCode = "400",
+                            description = "Запрошенная страница превышает доступный диапазон"),
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат ввода"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    PagedResponseDto<PatternDto> getPatternsByFilter(Pageable pageable, PatternSearchRequest request);
 }
