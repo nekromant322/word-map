@@ -9,9 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,7 +17,6 @@ import java.util.List;
         description = "Контроллер для работы с платформами"
 )
 @SecurityRequirement(name = "JWT")
-@RequestMapping("/platform")
 public interface PlatformApi {
 
     @Operation(
@@ -42,9 +38,7 @@ public interface PlatformApi {
                     @ApiResponse(responseCode = "409", description = "Название уже существует")
             }
     )
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
-    PlatformDto createPlatform(@Valid @RequestBody CreateUpdatePlatformRequest request);
+    PlatformDto createPlatform(CreateUpdatePlatformRequest request);
 
     @Operation(
             summary = "Редактирование платформы",
@@ -66,8 +60,7 @@ public interface PlatformApi {
                     @ApiResponse(responseCode = "409", description = "Название уже существует")
             }
     )
-    @PutMapping("/{id}")
-    PlatformDto updatePlatform(@PathVariable("id") Long id, @Valid @RequestBody CreateUpdatePlatformRequest request);
+    PlatformDto updatePlatform(Long id, CreateUpdatePlatformRequest request);
 
     @Operation(
             summary = "Список платформ",
@@ -85,6 +78,5 @@ public interface PlatformApi {
                     @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
             }
     )
-    @GetMapping("/option")
     List<OptionDto> getPlatformOptions();
 }
