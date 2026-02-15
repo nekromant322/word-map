@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = { "grids", "language" })
 @Builder
 @Table(name = "letters")
 public class Letter {
@@ -20,7 +21,7 @@ public class Letter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "language_id")
     private Language language;
 
@@ -38,4 +39,11 @@ public class Letter {
 
     @OneToMany(mappedBy = "letterObj")
     private List<Grid> grids;
+
+    @PrePersist
+    public void normalizeLetter() {
+        if (this.letter != null) {
+            this.letter = Character.toUpperCase(this.letter);
+        }
+    }
 }
