@@ -9,15 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
 
 @Tag(
         name = "LetterController",
         description = "Контроллер для работы с алфавитом"
 )
 @SecurityRequirement(name = "JWT")
-@RequestMapping("")
 public interface LetterApi {
 
     @Operation(
@@ -39,8 +36,7 @@ public interface LetterApi {
                     @ApiResponse(responseCode = "409", description = "Буква уже существует")
             }
     )
-    @PostMapping
-    LetterDto createLetter(@RequestBody @Valid CreateLetterRequest request);
+    LetterDto createLetter(CreateLetterRequest request);
 
     @Operation(
             summary = "Редактирование буквы",
@@ -61,10 +57,7 @@ public interface LetterApi {
                     @ApiResponse(responseCode = "409", description = "Буква не найдена")
             }
     )
-    @PutMapping("/{id}")
-    LetterDto updateLetter(
-            @PathVariable("id") Long id,
-            @RequestBody @Valid UpdateLetterRequest request);
+    LetterDto updateLetter(Long id, UpdateLetterRequest request);
 
     @Operation(
             summary = "Удаление буквы",
@@ -85,6 +78,5 @@ public interface LetterApi {
                     @ApiResponse(responseCode = "409", description = "Буква не найдена")
             }
     )
-    @DeleteMapping("/{id}")
-    LetterDto deleteLetter(@PathVariable("id") Long id);
+    LetterDto deleteLetter(Long id);
 }

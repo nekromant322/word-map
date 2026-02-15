@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class UpdateLetterRequest {
 
     @EnumSubset(anyOf = { "Vowel", "Consonant" })
-    @Schema(description = "Тип буквы", example = "а")
+    @Schema(description = "Тип буквы", example = "Vowel")
     private LetterType type;
 
     @Min(1) @Max(10)
