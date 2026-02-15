@@ -10,7 +10,6 @@ import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
 import com.margot.word_map.exception.FormatErrorException;
-import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
 import com.margot.word_map.exception.WordNotFoundException;
 import com.margot.word_map.mapper.WordMapper;
@@ -28,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -48,6 +48,7 @@ public class WordService {
     private final AuditService auditService;
     private final LetterService letterService;
     private final WordOfferRepository offerRepository;
+    private final WordSpecs wordSpecs;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -60,9 +61,12 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
-        if (!letterService.validateAlphabet(request)) {
+
+        Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
+        if (!letterService.validateAlphabet(request.getWord(), alphabet)) {
             throw new FormatErrorException();
         }
+
         wordRepository.findWordByWord(request.getWord()).ifPresentOrElse(
                 (word) -> {
                     throw new WordAlreadyExists("Слово " + request.getWord() + " уже существует");
@@ -141,74 +145,81 @@ public class WordService {
 
     @Transactional(readOnly = true)
     public DictionaryListResponse getWordsByFilters(DictionaryListRequest request) {
-        Language language = languageService.findByName(request.getLanguage())
-                .orElseThrow(() -> new LanguageNotFoundException("Нет такого языка"));
-        int wordLength = request.getWordLength();
+        languageService.findById(request.getLanguageId())
+                .orElseThrow(() -> new FormatErrorException("Нет такого языка"));
         boolean reuse = request.getReuse();
-        String lettersUsed = request.getLettersUsed();
-        String lettersExclude = request.getLettersExclude();
-        List<SymbolPosition> positions = request.getPositions();
-
-        String regex = ".*[" + lettersExclude + "].*";
-        List<String> words = wordRepository.findWordsByLanguageNotMatchingRegex(language.getId(), regex);
-
-        if (wordLength != 0) {
-            words = words.stream().filter(w -> w.length() == wordLength).collect(Collectors.toList());
-        }
-
-        words = filterByLettersOnPositions(positions, words);
-
-        if (lettersUsed != null && !lettersUsed.isEmpty()) {
-            words = filterByLetters(lettersUsed, words);
-            if (!reuse) {
-                words = filterByUniqueLetters(lettersUsed, words);
-            }
+        List<String> words;
+        if (!reuse) {
+            words = filterByUniqueLetters(request.getLettersUsed(), request.getLanguageId());
+        } else {
+            words = filterByLetters(request);
         }
         return DictionaryListResponse.builder()
                 .word(words)
                 .build();
     }
 
-    private static List<String> filterByLetters(String lettersUsed, List<String> words) {
-        Set<Character> requiredLetters = lettersUsed.chars()
-                .mapToObj(c -> (char) c)
-                .collect(Collectors.toSet());
-
-        words = words.stream()
-                .filter(word -> word.chars()
-                        .mapToObj(c -> (char) c)
-                        .allMatch(requiredLetters::contains))
+    private List<String> filterByLetters(DictionaryListRequest request) {
+        validateRequest(request);
+        Specification<Word> specification = Specification
+                .where(wordSpecs.hasLanguageId(request))
+                .and(wordSpecs.hasWordLength(request))
+                .and(wordSpecs.matchingLettersUsed(request))
+                .and(wordSpecs.lettersExcluded(request))
+                .and(wordSpecs.hasPositions(request));
+        return wordRepository
+                .findAll(specification)
+                .stream()
+                .map(Word::getWord)
                 .collect(Collectors.toList());
-        return words;
     }
 
-    private static List<String> filterByUniqueLetters(String lettersUsed, List<String> words) {
-        Map<Character, Long> usedLetterCount = lettersUsed.chars()
+    private List<String> filterByUniqueLetters(String lettersUsed, Long languageId) {
+        String lowerCaseLetter = lettersUsed.toLowerCase();
+
+        Set<Character> alphabet = letterService.getAllowedLetters(languageId);
+        if (!letterService.validateAlphabet(lettersUsed, alphabet)) {
+            throw new FormatErrorException();
+        }
+
+        Map<Character, Long> usedLetterCount = lowerCaseLetter.chars()
                 .mapToObj(c -> (char) c)
                 .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
+        String regex = "[" + lowerCaseLetter + "]";
+        List<String> words = wordRepository.findWordsByLetters(languageId, regex, lowerCaseLetter);
 
         words = words.stream()
                 .filter(word -> {
-                    Map<Character, Long> wordCount = word.chars()
+                    Map<Character, Long> wordCount = word.toLowerCase().chars()
                             .mapToObj(c -> (char) c)
                             .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
                     return usedLetterCount.entrySet().stream()
-                            .allMatch(e -> wordCount.getOrDefault(e.getKey(), 0L) <= e.getValue());
+                            .allMatch(e -> Objects
+                                    .equals(wordCount.getOrDefault(e.getKey(), 0L), e.getValue()));
                 })
                 .collect(Collectors.toList());
         return words;
     }
 
-    private List<String> filterByLettersOnPositions(List<SymbolPosition> positions, List<String> words) {
-        if (positions != null && !positions.isEmpty()) {
-            for (SymbolPosition pos : positions) {
-                int index = pos.getNumber();
-                char expectedChar = pos.getLetter();
-                words = words.stream()
-                        .filter(word -> word.length() > index && word.charAt(index) == expectedChar)
-                        .collect(Collectors.toList());
+    private void validateRequest(DictionaryListRequest request) {
+        Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
+        if (request.getLettersUsed() != null) {
+            if (!letterService.validateAlphabet(request.getLettersUsed(), alphabet)) {
+                throw new FormatErrorException("'lettersUsed' содержит некорректные символы");
             }
         }
-        return words;
+
+        if (request.getLettersExclude() != null) {
+            if (!letterService.validateAlphabet(request.getLettersExclude(), alphabet)) {
+                throw new FormatErrorException("'lettersExclude' содержит некорректные символы");
+            }
+        }
+        if (request.getPositions() != null) {
+            for (SymbolPosition pos : request.getPositions()) {
+                if (!letterService.validateAlphabet(pos.getLetter().toString(), alphabet)) {
+                    throw new FormatErrorException("'letter' содержит некорректные символы");
+                }
+            }
+        }
     }
 }
