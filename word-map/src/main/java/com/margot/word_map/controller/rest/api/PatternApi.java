@@ -79,4 +79,24 @@ public interface PatternApi {
             }
     )
     IdResponse<Long> updatePattern(Long id, CreateUpdatePatternRequest request);
+
+    @Operation(
+            summary = "Удаление паттерна",
+            description = "Метод для удаления паттерне",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/381255681/DELETE+pattern+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Паттерн удален"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Паттерн не найден")
+            }
+    )
+    IdResponse<Long> deletePattern(Long id);
 }

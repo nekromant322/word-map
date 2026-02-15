@@ -23,9 +23,7 @@ public class PatternService {
 
     @Transactional(readOnly = true)
     public PatternDto getPatternById(Long id) {
-        return patternRepository.findById(id)
-                .map(patternMapper::toDto)
-                .orElseThrow(() -> new PatternNotFoundException("Паттерн не найден по идентификатору: " + id));
+        return patternMapper.toDto(getByIdOrThrow(id));
     }
 
     @Transactional
@@ -40,8 +38,7 @@ public class PatternService {
 
     @Transactional
     public IdResponse<Long> updatePattern(Long id, CreateUpdatePatternRequest request) {
-        Pattern pattern = patternRepository.findById(id)
-                .orElseThrow(() -> new PatternNotFoundException("Паттерн не найден по идентификатору: " + id));
+        Pattern pattern = getByIdOrThrow(id);
 
         patternMapper.updateEntity(pattern, request);
 
@@ -49,5 +46,22 @@ public class PatternService {
         auditService.log(AuditActionType.PATTERN_UPDATED, saved.getId());
 
         return new IdResponse<>(saved.getId());
+    }
+
+    @Transactional
+    public IdResponse<Long> deletePattern(Long id) {
+        Pattern pattern = getByIdOrThrow(id);
+
+        IdResponse<Long> result = new IdResponse<>(pattern.getId());
+
+        patternRepository.delete(pattern);
+        auditService.log(AuditActionType.PATTERN_DELETED, result.getId());
+
+        return result;
+    }
+
+    public Pattern getByIdOrThrow(Long id) {
+        return patternRepository.findById(id)
+                .orElseThrow(() -> new PatternNotFoundException("Паттерн не найден по идентификатору: " + id));
     }
 }

@@ -28,10 +28,15 @@ public class PatternController implements PatternApi {
         return patternService.createPattern(request);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public IdResponse<Long> updatePattern(
             @PathVariable("id") Long id,
             @Valid @RequestBody CreateUpdatePatternRequest request) {
         return patternService.updatePattern(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public IdResponse<Long> deletePattern(@PathVariable("id") Long id) {
+        return patternService.deletePattern(id);
     }
 }
