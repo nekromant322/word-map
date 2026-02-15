@@ -27,4 +27,11 @@ public class PatternController implements PatternApi {
     public IdResponse<Long> createPattern(@Valid @RequestBody CreateUpdatePatternRequest request) {
         return patternService.createPattern(request);
     }
+
+    @PutMapping("{id}")
+    public IdResponse<Long> updatePattern(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CreateUpdatePatternRequest request) {
+        return patternService.updatePattern(id, request);
+    }
 }

@@ -30,4 +30,11 @@ public class PatternMapper {
                 .createdAt(LocalDateTime.now())
                 .build();
     }
+
+    public void updateEntity(Pattern pattern, CreateUpdatePatternRequest request) {
+        pattern.setCells(request.getCells());
+        pattern.setIsDraft(request.getIsDraft());
+        pattern.setPatternType(request.getPatternType());
+        pattern.setWeight(request.getWeight());
+    }
 }

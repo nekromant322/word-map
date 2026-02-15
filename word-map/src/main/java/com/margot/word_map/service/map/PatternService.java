@@ -37,4 +37,17 @@ public class PatternService {
 
         return new IdResponse<>(saved.getId());
     }
+
+    @Transactional
+    public IdResponse<Long> updatePattern(Long id, CreateUpdatePatternRequest request) {
+        Pattern pattern = patternRepository.findById(id)
+                .orElseThrow(() -> new PatternNotFoundException("Паттерн не найден по идентификатору: " + id));
+
+        patternMapper.updateEntity(pattern, request);
+
+        Pattern saved = patternRepository.save(pattern);
+        auditService.log(AuditActionType.PATTERN_UPDATED, saved.getId());
+
+        return new IdResponse<>(saved.getId());
+    }
 }
