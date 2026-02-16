@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-patterns
+      author: retrolad
+      changes:
+        - createTable:
+            tableName: patterns
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_patterns
+                    nullable: false
+              - column:
+                  name: cells
+                  type: jsonb
+                  constraints:
+                    nullable: false
+                    checkConstraint: "jsonb_typeof(cells) = 'array' AND json_array_length(cells) > 0"
+              - column:
+                  name: is_draft
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: pattern_type
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: weight
+                  type: smallint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: | 
+              ALTER TABLE patterns 
+              ADD CONSTRAINT chk_pattern_type 
+              CHECK (pattern_type IN ('start', 'regular', 'angular'))
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE patterns
+              ADD CONSTRAINT chk_cells
+              CHECK (jsonb_typeof(cells) = 'array' AND jsonb_array_length(cells) > 0)
