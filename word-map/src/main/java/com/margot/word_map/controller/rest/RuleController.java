@@ -1,16 +1,8 @@
 package com.margot.word_map.controller.rest;
 
+import com.margot.word_map.controller.rest.api.RuleApi;
 import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.service.rule.RuleService;
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,42 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(
-        name = "RuleController",
-        description = "Контроллер для получения информации о правах пользователей админ панели"
-)
-@SecurityRequirement(name = "JWT")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/rule")
-public class RuleController {
+public class RuleController implements RuleApi {
 
     private final RuleService ruleService;
 
-    @Operation(
-            summary = "Список прав",
-            description = "Метод получения списка доступов/правил пользователей административной панели",
-            externalDocs = @ExternalDocumentation(
-                    description = "документация запроса в Confluence",
-                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/385515833/GET+rule+option"
-            )
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Список успешно получен",
-                            content = @Content(
-                                    array = @ArraySchema(schema = @Schema(implementation = OptionDto.class))
-                            )
-                    ),
-                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен",
-                            content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден", content = @Content),
-            }
-    )
     @GetMapping("/option")
+    @Override
     public List<OptionDto> getRules() {
         return ruleService.getRuleOptions();
     }
