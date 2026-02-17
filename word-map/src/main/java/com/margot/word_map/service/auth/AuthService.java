@@ -18,6 +18,7 @@ import com.margot.word_map.service.email.EmailService;
 import com.margot.word_map.service.jwt.JwtService;
 import com.margot.word_map.service.refresh_token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +84,8 @@ public class AuthService {
         return tokenResponse;
     }
 
+    @PreAuthorize("hasRole('MODERATOR')")
+    @Transactional
     public void logout(String refreshToken) {
         RefreshToken storedToken = refreshTokenService.findByToken(refreshToken)
                 .orElseThrow(RefreshTokenException::new);

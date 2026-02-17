@@ -19,6 +19,7 @@ import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,6 +94,7 @@ public class LanguageService {
                 .build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public LanguageDto createLanguage(CreateUpdateLanguageRequest request) {
         validateByFields(request, null);
@@ -108,6 +110,7 @@ public class LanguageService {
         return languageMapper.toDto(language);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public LanguageDto updateLanguage(Long langId, CreateUpdateLanguageRequest request) {
         validateByFields(request, langId);
@@ -124,6 +127,7 @@ public class LanguageService {
         return languageMapper.toDto(language);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteLanguage() {
 
     }

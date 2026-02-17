@@ -14,6 +14,7 @@ import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class LetterService {
     private final LetterMapper letterMapper;
     private final AuditService auditService;
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_ALPHABET')")
     @Transactional
     public LetterDto createLetter(CreateLetterRequest request) {
         Language language = languageService.getLanguageById(request.getLanguageId());
@@ -56,6 +58,7 @@ public class LetterService {
         return letterMapper.toDto(letter);
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_ALPHABET')")
     @Transactional
     public LetterDto updateLetter(Long letterId, UpdateLetterRequest request) {
         Letter letter = letterRepository.findByIdWithLanguage(letterId)
@@ -71,6 +74,7 @@ public class LetterService {
         return letterMapper.toDto(letter);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public LetterDto deleteLetter(Long letterId) {
         Letter letter = letterRepository.findByIdWithLanguage(letterId)

@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -56,6 +57,7 @@ public class WordService {
                 .orElseThrow(() -> new WordNotFoundException("Слово не найдено")));
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void createNewWord(CreateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
@@ -90,6 +92,7 @@ public class WordService {
         );
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void updateWordInfo(UpdateWordRequest request, Long wordId) {
         Admin admin = adminAccessor.getCurrentAdmin();
@@ -104,6 +107,7 @@ public class WordService {
         auditService.log(AuditActionType.DICTIONARY_WORD_UPDATED, wordToUpdate.getWord());
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void deleteWord(Long id) {
         Admin admin = adminAccessor.getCurrentAdmin();
