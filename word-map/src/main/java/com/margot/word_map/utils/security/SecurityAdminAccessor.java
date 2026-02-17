@@ -2,7 +2,9 @@ package com.margot.word_map.utils.security;
 
 import com.margot.word_map.dto.security.AdminDetails;
 import com.margot.word_map.exception.UserNotFoundException;
+import com.margot.word_map.exception.UserNotPermissionsException;
 import com.margot.word_map.model.Admin;
+import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Rule;
 import com.margot.word_map.model.enums.Role;
 import com.margot.word_map.repository.AdminRepository;
@@ -70,10 +72,23 @@ public class SecurityAdminAccessor {
             return adminCache.getAdmin();
         }
 
-        Admin admin = adminRepository.findById(getCurrentAdminId())
+        Admin admin = adminRepository.findWithLangById(getCurrentAdminId())
                 .orElseThrow(UserNotFoundException::new);
         adminCache.setAdmin(admin);
 
         return admin;
+    }
+
+    @Transactional(readOnly = true)
+    public void checkLanguageAccess(Language language) {
+        Admin admin = getCurrentAdmin();
+
+        boolean hasAccess = admin.getLanguages().stream()
+                .anyMatch(adminLang -> adminLang.getLanguage().equals(language));
+
+        if (!hasAccess) {
+            throw new UserNotPermissionsException(
+                    "Недостаточно прав для доступа к ресурсу с языком: " + language.getName());
+        }
     }
 }

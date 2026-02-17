@@ -63,6 +63,7 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
+        adminAccessor.checkLanguageAccess(language);
 
         Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
         if (!letterService.validateAlphabet(request.getWord(), alphabet)) {
@@ -100,6 +101,8 @@ public class WordService {
         Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
                 new WordNotFoundException("word with id " + wordId + " not found"));
 
+        adminAccessor.checkLanguageAccess(wordToUpdate.getLanguage());
+
         wordToUpdate.setDescription(request.getDescription());
         wordToUpdate.setEditedAt(LocalDateTime.now());
         wordToUpdate.setEditedBy(admin);
@@ -114,6 +117,8 @@ public class WordService {
 
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new WordNotFoundException("Слово не найдено"));
+
+        adminAccessor.checkLanguageAccess(word.getLanguage());
 
         wordRepository.delete(word);
         log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
