@@ -14,6 +14,7 @@ import com.margot.word_map.repository.map.LetterRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,6 +45,9 @@ public class LetterServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    private SecurityAdminAccessor adminAccessor;
 
     @InjectMocks
     private LetterService letterService;

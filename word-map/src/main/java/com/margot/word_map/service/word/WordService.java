@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -56,11 +57,13 @@ public class WordService {
                 .orElseThrow(() -> new WordNotFoundException("Слово не найдено")));
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void createNewWord(CreateWordRequest request) {
         Admin admin = adminAccessor.getCurrentAdmin();
         Language language = languageService.findById(request.getLanguageId())
                 .orElseThrow(() -> new NoSuchElementException("Нет языка с таким id"));
+        adminAccessor.checkLanguageAccess(language);
 
         Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
         if (!letterService.validateAlphabet(request.getWord(), alphabet)) {
@@ -90,12 +93,15 @@ public class WordService {
         );
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void updateWordInfo(UpdateWordRequest request, Long wordId) {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
                 new WordNotFoundException("word with id " + wordId + " not found"));
+
+        adminAccessor.checkLanguageAccess(wordToUpdate.getLanguage());
 
         wordToUpdate.setDescription(request.getDescription());
         wordToUpdate.setEditedAt(LocalDateTime.now());
@@ -104,12 +110,15 @@ public class WordService {
         auditService.log(AuditActionType.DICTIONARY_WORD_UPDATED, wordToUpdate.getWord());
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
     @Transactional
     public void deleteWord(Long id) {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new WordNotFoundException("Слово не найдено"));
+
+        adminAccessor.checkLanguageAccess(word.getLanguage());
 
         wordRepository.delete(word);
         log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());

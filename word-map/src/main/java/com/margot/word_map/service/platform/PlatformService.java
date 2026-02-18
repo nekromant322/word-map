@@ -11,6 +11,7 @@ import com.margot.word_map.repository.PlatformRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class PlatformService {
     private final AuditService auditService;
     private final PlatformMapper platformMapper;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public PlatformDto createPlatform(CreateUpdatePlatformRequest request) {
         if (platformRepository.existsByName(request.getName())) {
@@ -39,6 +41,7 @@ public class PlatformService {
         return platformMapper.toDto(platform);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public PlatformDto updatePlatform(Long platformId, CreateUpdatePlatformRequest request) {
         if (platformRepository.existsByNameExcludeId(request.getName(), platformId)) {

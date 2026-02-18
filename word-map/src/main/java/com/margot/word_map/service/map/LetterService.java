@@ -13,7 +13,9 @@ import com.margot.word_map.repository.map.LetterRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
+import com.margot.word_map.utils.security.SecurityAdminAccessor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +31,13 @@ public class LetterService {
     private final LanguageService languageService;
     private final LetterMapper letterMapper;
     private final AuditService auditService;
+    private final SecurityAdminAccessor adminAccessor;
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_ALPHABET')")
     @Transactional
     public LetterDto createLetter(CreateLetterRequest request) {
         Language language = languageService.getLanguageById(request.getLanguageId());
+        adminAccessor.checkLanguageAccess(language);
 
         if (letterRepository.existsByLetterAndLanguage(request.getLetter(), language)) {
             throw new DuplicateLetterException(
@@ -56,10 +61,12 @@ public class LetterService {
         return letterMapper.toDto(letter);
     }
 
+    @PreAuthorize("hasPermission(null, 'MANAGE_ALPHABET')")
     @Transactional
     public LetterDto updateLetter(Long letterId, UpdateLetterRequest request) {
         Letter letter = letterRepository.findByIdWithLanguage(letterId)
                 .orElseThrow(() -> new LetterNotFoundException("Буква не найдена по идентификатору: " + letterId));
+        adminAccessor.checkLanguageAccess(letter.getLanguage());
 
         Optional.ofNullable(request.getType()).ifPresent(letter::setType);
         Optional.ofNullable(request.getMultiplier()).ifPresent(letter::setMultiplier);
@@ -71,6 +78,7 @@ public class LetterService {
         return letterMapper.toDto(letter);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public LetterDto deleteLetter(Long letterId) {
         Letter letter = letterRepository.findByIdWithLanguage(letterId)

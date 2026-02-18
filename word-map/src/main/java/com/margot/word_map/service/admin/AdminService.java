@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class AdminService {
     private final AdminSpecification adminSpecs;
     private final AuditService auditService;
 
+    @Transactional(readOnly = true)
     public PagedResponseDto<AdminListQueryDto> getAdmins(Pageable pageable, AdminSearchRequest request) {
 
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
@@ -86,6 +88,7 @@ public class AdminService {
         return adminRepository.existsByEmail(email);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void createAdmin(CreateAdminRequest request) {
         if (isAdminExistsByEmail(request.getEmail())) {
@@ -104,6 +107,7 @@ public class AdminService {
         auditService.log(ADMIN_CREATED, admin.getEmail());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void updateAdmin(Long id, UpdateAdminRequest request) {
         Admin targetAdmin = getAdminById(id);
@@ -126,6 +130,7 @@ public class AdminService {
         languageService.updateAdminLanguage(adminId, langId);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void changeAccess(Long id, ChangeAdminAccessRequest request) {
         Admin targetAdmin = getAdminById(id);
