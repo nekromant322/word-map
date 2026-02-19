@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: word-map-db
+    restart: always
+    environment:
+      POSTGRES_DB: word-map
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_dev_data:/var/lib/postgresql/data
+    mem_limit: 200m
+volumes:
+  pg_dev_data:
