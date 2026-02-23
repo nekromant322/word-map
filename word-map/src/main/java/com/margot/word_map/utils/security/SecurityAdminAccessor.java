@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,10 @@ public class SecurityAdminAccessor {
     }
 
     public boolean hasRole(Authentication auth, Role role) {
-        return auth.getAuthorities().stream()
+        return Optional.ofNullable(auth)
+                .map(Authentication::getAuthorities)
+                .stream()
+                .flatMap(Collection::stream)
                 .anyMatch(a -> a.getAuthority().equals("ROLE_" + role.name()));
     }
 

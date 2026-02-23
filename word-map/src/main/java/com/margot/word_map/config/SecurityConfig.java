@@ -1,6 +1,7 @@
 package com.margot.word_map.config;
 
 import com.margot.word_map.config.filter.AdminCacheCleanupFilter;
+import com.margot.word_map.config.hmac.HmacValidationFilter;
 import com.margot.word_map.config.jwt.JwtFilter;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ import java.security.SecureRandom;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final HmacValidationFilter hmacFilter;
     private final AdminCacheCleanupFilter adminCacheCleanupFilter;
     private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
@@ -47,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/admin/logout").hasRole("MODERATOR")
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/pattern/**").hasRole("ADMIN")
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
@@ -67,6 +70,7 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(hmacFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(adminCacheCleanupFilter, SecurityContextHolderFilter.class);
 
         return http.build();
