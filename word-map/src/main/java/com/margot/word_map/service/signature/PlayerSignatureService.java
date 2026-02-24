@@ -1,4 +1,4 @@
-package com.margot.word_map.service.hmac;
+package com.margot.word_map.service.signature;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Service
-public class HmacService {
+public class PlayerSignatureService {
     private String hmacSecret;
 
     public String extractEmail(String json) throws JsonProcessingException {

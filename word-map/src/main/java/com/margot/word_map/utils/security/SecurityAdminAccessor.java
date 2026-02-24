@@ -87,7 +87,7 @@ public class SecurityAdminAccessor {
     @Transactional(readOnly = true)
     public void checkLanguageAccess(Language language) {
         Admin admin = getCurrentAdmin();
-
+        if (admin.getRole() == Role.ADMIN) return;
         boolean hasAccess = admin.getLanguages().stream()
                 .anyMatch(adminLang -> adminLang.getLanguage().equals(language));
 

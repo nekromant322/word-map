@@ -1,4 +1,4 @@
-package com.margot.word_map.config.hmac;
+package com.margot.word_map.config.authentication;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
@@ -7,11 +7,11 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import java.io.*;
 
-public class CachedBodyServletInputStream extends HttpServletRequestWrapper {
+public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
 
     private byte[] cachedBody;
 
-    public CachedBodyServletInputStream(HttpServletRequest request, byte[] cachedBody) {
+    public CachedBodyHttpServletRequest(HttpServletRequest request, byte[] cachedBody) {
         super(request);
         this.cachedBody = cachedBody;
     }
