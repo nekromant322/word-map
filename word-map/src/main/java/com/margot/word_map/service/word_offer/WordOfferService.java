@@ -100,7 +100,7 @@ public class WordOfferService {
 
         wordOffer.setStatus(WordOfferStatus.APPROVED);
         wordOfferRepository.save(wordOffer);
-        log.info("APPROVE WORD админ {} добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+        log.info("Администратор{} одобрил предложение слова {}", admin.getEmail(), wordOffer.getWord());
     }
 
     @Transactional
@@ -123,6 +123,6 @@ public class WordOfferService {
         WordOffer wordOffer = wordOfferOptional.get();
         wordOffer.setStatus(WordOfferStatus.REJECTED);
         wordOfferRepository.save(wordOffer);
-        log.info("REJECT WORD админ {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+        log.info("Администратор {} отклонил предложение слова {}", admin.getEmail(), wordOffer.getWord());
     }
 }

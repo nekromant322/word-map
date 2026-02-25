@@ -13,6 +13,6 @@ public class LoggingEmailService implements EmailService {
 
     @Override
     public void sendConfirmEmail(String code, String email) {
-        log.info("FAKE CONFIRMATION CODE [{}] sent to: {}", code, email);
+        log.info("Тестовый код подтверждения [{}] отправлен на адрес: {}", code, email);
     }
 }
