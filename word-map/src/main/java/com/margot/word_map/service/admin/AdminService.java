@@ -58,7 +58,8 @@ public class AdminService {
                 .map(adminMapper::toListQueryDto);
 
         if (pageable.getPageNumber() >= page.getTotalPages() && page.getTotalElements() > 0) {
-            throw new PageOutOfRangeException("requested page is out of range, total pages " + page.getTotalPages());
+            throw new PageOutOfRangeException(
+                    "Запрошенная страница выходит за пределы диапазона. Всего страниц: " + page.getTotalPages());
         }
 
         return PagedResponseDto.fromPage(page);
@@ -92,7 +93,8 @@ public class AdminService {
     @Transactional
     public void createAdmin(CreateAdminRequest request) {
         if (isAdminExistsByEmail(request.getEmail())) {
-            throw new AdminAlreadyExistsException("admin with email " + request.getEmail() + " already exists");
+            throw new AdminAlreadyExistsException(
+                    "Администратор с электронной почтой " + request.getEmail() + " уже существует");
         }
 
         Set<Rule> rules = ruleService.getRulesByIds(request.getRuleID());
@@ -113,7 +115,7 @@ public class AdminService {
         Admin targetAdmin = getAdminById(id);
 
         if (targetAdmin.getRole() == Role.ADMIN) {
-            throw new UserNotPermissionsException("can't set rules for admin role");
+            throw new UserNotPermissionsException("Нельзя изменять права для роли администратора");
         }
 
         Set<Rule> rules = ruleService.getRulesByIds(request.getRuleId());
@@ -136,7 +138,8 @@ public class AdminService {
         Admin targetAdmin = getAdminById(id);
 
         if (targetAdmin.getRole() == Role.ADMIN) {
-            throw new UserNotPermissionsException("can't change access for user with admin role");
+            throw new UserNotPermissionsException(
+                    "Нельзя изменять доступ для пользователя с ролью администратора");
         }
 
         targetAdmin.setAccessGranted(request.getAccess());

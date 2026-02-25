@@ -64,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 UserDetails details = adminDetailsService.loadUserByUsername(username);
 
                 if (!details.isAccountNonLocked()) {
-                    throw new UserNotAccessException("account is blocked: " + details.getUsername());
+                    throw new UserNotAccessException("Аккаунт заблокирован: " + details.getUsername());
                 }
 
                 if (jwtService.validateToken(token, details)) {

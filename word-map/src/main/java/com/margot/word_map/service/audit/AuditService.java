@@ -51,7 +51,7 @@ public class AuditService {
         try {
             auditRepository.save(audit);
         } catch (Exception e) {
-            throw new AuditSaveException("failed to save audit with action: " + type, e);
+            throw new AuditSaveException("Не удалось сохранить запись аудита для действия: " + type, e);
         }
     }
 
@@ -60,7 +60,7 @@ public class AuditService {
         Objects.requireNonNull(type, "audit type cannot be null");
 
         if (admin.getEmail() == null || admin.getRole() == null) {
-            throw new IllegalStateException("admin must have email and role");
+            throw new IllegalStateException("У администратора должны быть указаны email и роль");
         }
     }
 }

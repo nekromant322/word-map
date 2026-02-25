@@ -40,7 +40,7 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("account not found with email: " + email));
 
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException("account is blocked: " + email);
+            throw new UserNotAccessException("Аккаунт заблокирован: " + email);
         }
 
         return generateAndSendConfirm(admin.getId(), email);
@@ -59,7 +59,7 @@ public class AuthService {
 
         if (storedToken.getExpiryAt().isBefore(LocalDateTime.now())) {
             refreshTokenService.deleteRefreshToken(storedToken);
-            throw new RefreshTokenException("Refresh token expired");
+            throw new RefreshTokenException("Срок действия токена обновления истёк");
         }
 
         Admin admin = storedToken.getAdmin();
@@ -111,7 +111,7 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("admin not found with id: " + id));
 
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException("account is blocked: " + admin.getEmail());
+            throw new UserNotAccessException("Аккаунт заблокирован: " + admin.getEmail());
         }
 
         return admin;
