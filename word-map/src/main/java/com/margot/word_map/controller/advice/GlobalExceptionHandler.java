@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUncaught(Exception ex, Locale locale) {
-        log.error("Unhandled exception occurred: ", ex);
+        log.error("Непроверяемое исключение: ", ex);
 
         return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR, locale);
     }
