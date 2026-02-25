@@ -30,9 +30,9 @@ public class SmtpEmailService implements EmailService {
 
         try {
             javaMailSender.send(message);
-            log.info("Отправить подтверждение по электронной почте {}", email);
+            log.info("Письмо с кодом подтверждения отправлено на адрес {}", email);
         } catch (MailException e) {
-            log.warn("send message to email {} error", email, e);
+            log.warn("Ошибка при отправке письма подтверждения на адрес {} error", email, e);
         }
     }
 }

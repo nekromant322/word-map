@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
             ConstraintViolationException ex,
             HandlerMethod handlerMethod,
             Locale locale) {
-        log.warn("Fields validation error: ", ex);
+        log.warn("Ошибка валидации полей: ", ex);
 
         if (isControllerValidation(handlerMethod)) {
             return buildResponse(ErrorCode.FORMAT_ERROR, locale);
