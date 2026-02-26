@@ -3,7 +3,7 @@ package com.margot.word_map.exception;
 public class InvalidTokenException extends BusinessException {
 
     public InvalidTokenException() {
-        this("Invalid access token");
+        this("Токен доступа недействителен");
     }
 
     public InvalidTokenException(String message) {
