@@ -157,7 +157,7 @@ public class AdminServiceTest {
 
         assertThatThrownBy(() -> adminService.getAdminById(id))
                 .isInstanceOf(AdminNotFoundException.class)
-                .hasMessageContaining("admin with id ");
+                .hasMessageContaining("Администратор с id ");
 
         verify(adminRepository).findById(id);
     }
