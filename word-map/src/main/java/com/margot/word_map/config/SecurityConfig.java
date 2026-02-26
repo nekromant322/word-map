@@ -1,7 +1,7 @@
 package com.margot.word_map.config;
 
+import com.margot.word_map.config.authentication.AuthenticationFilter;
 import com.margot.word_map.config.filter.AdminCacheCleanupFilter;
-import com.margot.word_map.config.jwt.JwtFilter;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +32,7 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final AuthenticationFilter authenticationFilter;
     private final AdminCacheCleanupFilter adminCacheCleanupFilter;
     private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/admin/logout").hasRole("MODERATOR")
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/pattern/**").hasRole("ADMIN")
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
@@ -66,7 +67,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(adminCacheCleanupFilter, SecurityContextHolderFilter.class);
 
         return http.build();
