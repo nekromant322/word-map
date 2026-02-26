@@ -81,7 +81,7 @@ public class AdminService {
     @Transactional(readOnly = true)
     public Admin getAdminById(Long id) {
         return adminRepository.findById(id).orElseThrow(() ->
-            new AdminNotFoundException("admin with id " + id + " not found")
+            new AdminNotFoundException("Администратор с id " + id + " не найден")
         );
     }
 

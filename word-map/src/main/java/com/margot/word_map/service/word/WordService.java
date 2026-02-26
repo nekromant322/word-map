@@ -99,7 +99,7 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
-                new WordNotFoundException("word with id " + wordId + " not found"));
+                new WordNotFoundException("Слово с id " + wordId + " не найдено"));
 
         adminAccessor.checkLanguageAccess(wordToUpdate.getLanguage());
 
