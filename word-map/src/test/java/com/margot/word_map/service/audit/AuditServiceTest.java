@@ -83,7 +83,7 @@ public class AuditServiceTest {
     public void testLogThrowsWhenAdminIsNull() {
         assertThatThrownBy(() -> auditService.log((Admin) null, AuditActionType.ADMIN_LOGGED_IN))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("admin cannot be null");
+                .hasMessageContaining("Администратор не может быть null");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class AuditServiceTest {
 
         assertThatThrownBy(() -> auditService.log(admin, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("audit type cannot be null");
+                .hasMessageContaining("Тип аудита не может быть null");
     }
 
     @Test
