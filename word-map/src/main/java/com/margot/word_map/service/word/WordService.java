@@ -86,7 +86,7 @@ public class WordService {
                             .build();
 
                     wordRepository.save(word);
-                    log.info("CREATE WORD Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
+                    log.info("Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
                     offerRepository.updateStatus(request.getWord(), request.getLanguageId());
                     auditService.log(AuditActionType.DICTIONARY_WORD_ADDED, request.getWord());
                 }
@@ -99,7 +99,7 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
-                new WordNotFoundException("word with id " + wordId + " not found"));
+                new WordNotFoundException("Слово с id " + wordId + " не найдено"));
 
         adminAccessor.checkLanguageAccess(wordToUpdate.getLanguage());
 
@@ -121,7 +121,7 @@ public class WordService {
         adminAccessor.checkLanguageAccess(word.getLanguage());
 
         wordRepository.delete(word);
-        log.info("DELETE WORD Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
+        log.info("Пользователь {} удалил слово {}.", admin.getId(), word.getWord());
         auditService.log(AuditActionType.DICTIONARY_WORD_DELETED, word.getWord());
     }
 

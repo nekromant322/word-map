@@ -105,7 +105,7 @@ public class AdminServiceTest {
         assertThatThrownBy(() -> adminService.getAdmins(pageable, request))
                 .isInstanceOf(PageOutOfRangeException.class)
                 .hasMessageContaining(
-                        "requested page is out of range, total pages " + adminPage.getTotalPages());
+                        "Запрошенная страница выходит за пределы диапазона. Всего страниц: " + adminPage.getTotalPages());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class AdminServiceTest {
 
         assertThatThrownBy(() -> adminService.getAdminById(id))
                 .isInstanceOf(AdminNotFoundException.class)
-                .hasMessageContaining("admin with id ");
+                .hasMessageContaining("Администратор с id ");
 
         verify(adminRepository).findById(id);
     }
@@ -197,7 +197,8 @@ public class AdminServiceTest {
 
         assertThatThrownBy(() -> adminService.createAdmin(request))
                 .isInstanceOf(AdminAlreadyExistsException.class)
-                .hasMessageContaining(String.format("admin with email %s already exists", request.getEmail()));
+
+                .hasMessageContaining(String.format("Администратор с электронной почтой %s уже существует", request.getEmail()));
 
         verify(adminRepository, times(0)).save(any());
     }
@@ -240,7 +241,7 @@ public class AdminServiceTest {
 
         assertThatThrownBy(() -> adminService.updateAdmin(adminId, new UpdateAdminRequest()))
                 .isInstanceOf(UserNotPermissionsException.class)
-                .hasMessageContaining("can't set rules for admin role");
+                .hasMessageContaining("Нельзя изменять права для роли администратора");
     }
 
     @Test
@@ -272,7 +273,7 @@ public class AdminServiceTest {
 
         assertThatThrownBy(() -> adminService.changeAccess(adminId, new ChangeAdminAccessRequest(false)))
                 .isInstanceOf(UserNotPermissionsException.class)
-                .hasMessageContaining("can't change access for user with admin role");
+                .hasMessageContaining("Нельзя изменять доступ для пользователя с ролью администратора");
     }
 
     private Admin getTestAdmin() {

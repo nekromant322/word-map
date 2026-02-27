@@ -37,10 +37,10 @@ public class AuthService {
 
     public ConfirmResponse login(String email) {
         Admin admin = adminRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("account not found with email: " + email));
+                .orElseThrow(() -> new UserNotFoundException("Аккаунт с электронной почтой  " + email + " не найден"));
 
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException("account is blocked: " + email);
+            throw new UserNotAccessException("Аккаунт заблокирован: " + email);
         }
 
         return generateAndSendConfirm(admin.getId(), email);
@@ -59,7 +59,7 @@ public class AuthService {
 
         if (storedToken.getExpiryAt().isBefore(LocalDateTime.now())) {
             refreshTokenService.deleteRefreshToken(storedToken);
-            throw new RefreshTokenException("Refresh token expired");
+            throw new RefreshTokenException("Срок действия токена обновления истёк");
         }
 
         Admin admin = storedToken.getAdmin();
@@ -108,10 +108,10 @@ public class AuthService {
 
     private Admin getActiveAdminById(Long id) {
         Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("admin not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Администратор с id: " + id + " не найден"));
 
         if (!admin.isAccessGranted()) {
-            throw new UserNotAccessException("account is blocked: " + admin.getEmail());
+            throw new UserNotAccessException("Аккаунт заблокирован: " + admin.getEmail());
         }
 
         return admin;

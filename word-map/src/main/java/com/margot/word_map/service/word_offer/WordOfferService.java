@@ -45,7 +45,7 @@ public class WordOfferService {
     public void isAlreadyExist(CreateWordRequest wordRequest) {
         if (findByWordInTableWords(wordRequest.getWord()) ||
                 findByWordInTableWordsOffer(wordRequest.getWord())) {
-            throw new WordAlreadyExists("word " + wordRequest.getWord() + " already exists");
+            throw new WordAlreadyExists("Слово " + wordRequest.getWord() + " уже существует");
         }
     }
 
@@ -91,7 +91,7 @@ public class WordOfferService {
 
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
-            throw new WordNotFoundException("word offer with " + id + " not found");
+            throw new WordNotFoundException("Предложение слова с id " + id + " не найдено");
         }
         WordOffer wordOffer = wordOfferOptional.get();
 
@@ -100,13 +100,13 @@ public class WordOfferService {
 
         wordOffer.setStatus(WordOfferStatus.APPROVED);
         wordOfferRepository.save(wordOffer);
-        log.info("APPROVE WORD админ {} добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+        log.info("Администратор{} одобрил предложение слова {}", admin.getEmail(), wordOffer.getWord());
     }
 
     @Transactional
     public void changeStatus(WordOfferChangeStatus status) {
         WordOffer wordOffer = wordOfferRepository.findById(status.getId()).orElseThrow(() ->
-                new  WordNotFoundException("Нет слова с таким id в предложке"));
+                new WordNotFoundException("Нет слова с таким id в предложке"));
         wordOffer.setStatus(WordOfferStatus.valueOf(status.getStatus()));
         wordOfferRepository.save(wordOffer);
         log.info("Статус слова с id {} изменен на {}", status.getId(), status.getStatus());
@@ -118,11 +118,11 @@ public class WordOfferService {
 
         Optional<WordOffer> wordOfferOptional = wordOfferRepository.findById(id);
         if (wordOfferOptional.isEmpty()) {
-            throw new WordNotFoundException("word offer with " + id + " not found");
+            throw new WordNotFoundException("Предложение слова с id " + id + " не найдено");
         }
         WordOffer wordOffer = wordOfferOptional.get();
         wordOffer.setStatus(WordOfferStatus.REJECTED);
         wordOfferRepository.save(wordOffer);
-        log.info("REJECT WORD админ {} не добавил новое слово {}", admin.getEmail(), wordOffer.getWord());
+        log.info("Администратор {} отклонил предложение слова {}", admin.getEmail(), wordOffer.getWord());
     }
 }

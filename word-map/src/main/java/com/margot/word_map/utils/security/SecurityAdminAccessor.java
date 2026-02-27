@@ -33,7 +33,7 @@ public class SecurityAdminAccessor {
                 .filter(a -> a.startsWith("ROLE_"))
                 .map(a -> Role.valueOf(a.substring(5)))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("role is not set for security user"));
+                .orElseThrow(() -> new RuntimeException("Роль не задана для пользователя системы безопасности"));
     }
 
     public Set<Rule.RULE> getRules(Authentication auth) {
