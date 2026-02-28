@@ -13,11 +13,11 @@ import java.util.List;
 public class StrategyManager {
     private final List<AuthenticationStrategy> strategies;
 
-    public void authenticate(HttpServletRequest request, String json) throws Exception {
+    public void authenticate(HttpServletRequest request) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         for (AuthenticationStrategy strategy : strategies) {
             if (strategy.supports(request, auth)) {
-                strategy.authenticate(request, json);
+                strategy.authenticate(request);
                 break;
             }
         }

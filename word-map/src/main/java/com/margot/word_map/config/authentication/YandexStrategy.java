@@ -24,27 +24,32 @@ public class YandexStrategy implements AuthenticationStrategy {
 
     @Override
     public boolean supports(HttpServletRequest request, Authentication auth) {
-        return request.getServletPath().startsWith("/user");
+        return request.getHeader("player_signature") != null;
     }
 
     @Override
-    public void authenticate(HttpServletRequest request, String json)
+    public void authenticate(HttpServletRequest request)
             throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
-        String username = playerSignatureService.extractEmail(json);
-        String signature = request.getHeader("player_signature");
-        validatePlayerSignature(signature, json);
+        String header = request.getHeader("player_signature");
+        validatePlayerSignature(header);
+        String username = playerSignatureService.extractEmail(header);
         UserDetails details = playerService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken authToken
                 = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 
-    private void validatePlayerSignature(String signature, String json)
+    private void validatePlayerSignature(String header)
             throws NoSuchAlgorithmException, InvalidKeyException {
+        String[] parts = header.split("\\.");
+        if (parts.length != 2) {
+            throw new BadCredentialsException("Неверный формат заголовка");
+        }
+        String signature = parts[0];
         if (signature == null) {
             throw new BadCredentialsException("Отсутствует подпись или jwt токен");
         }
-        if (!playerSignatureService.isValid(signature, json)) {
+        if (!playerSignatureService.isValid(signature)) {
             throw new BadCredentialsException("Неверная подпись игрока");
         }
     }

@@ -6,5 +6,5 @@ import org.springframework.security.core.Authentication;
 public interface AuthenticationStrategy {
     boolean supports(HttpServletRequest request, Authentication authentication);
 
-    void authenticate(HttpServletRequest request, String json) throws Exception;
+    void authenticate(HttpServletRequest request) throws Exception;
 }
