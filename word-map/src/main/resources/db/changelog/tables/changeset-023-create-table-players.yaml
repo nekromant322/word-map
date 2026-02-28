@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-players
+      author: Inger2
+      changes:
+        - createTable:
+            tableName: players
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_players
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: platform_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_players_platform
+                    references: platforms(id)
+              - column:
+                  name: language_id
+                  type: bigint
+                  constraints:
+                      nullable: false
+                      foreignKeyName: fk_players_language
+                      references: languages(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active_at
+                  type: timestamp
+                  defaultValueComputed: current_timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: grid_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_players_grid
+                    references: grid(id)
+              - column:
+                  name: score
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: access
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: 'true'

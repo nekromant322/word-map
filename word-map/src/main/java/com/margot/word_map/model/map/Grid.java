@@ -1,6 +1,6 @@
 package com.margot.word_map.model.map;
 
-import com.margot.word_map.model.User;
+import com.margot.word_map.model.Player;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
@@ -23,8 +23,8 @@ public class Grid {
     private Character letter;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "player_id", referencedColumnName = "id")
+    private Player player;
 
     @ManyToOne
     @JoinColumn(name = "tile_id", referencedColumnName = "id", nullable = false)
