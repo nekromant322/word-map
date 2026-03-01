@@ -4,6 +4,7 @@ import com.margot.word_map.controller.rest.api.WordApi;
 import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.response.OfferListResponse;
 import com.margot.word_map.dto.response.OfferResponse;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,5 +75,10 @@ public class WordController implements WordApi {
     @PutMapping("offer/status")
     public void changeStatus(@RequestBody @Valid WordOfferChangeStatus status) {
         wordService.changeStatus(status);
+    }
+
+    @GetMapping("/offer/list")
+    public List<OfferListResponse> getAllPlayerOffers() {
+        return wordService.getAllPlayerOffers();
     }
 }

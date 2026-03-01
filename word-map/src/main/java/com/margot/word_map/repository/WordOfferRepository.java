@@ -34,4 +34,10 @@ public interface WordOfferRepository extends JpaRepository<WordOffer, Long>, Jpa
     void updateStatus(@Param("word") String word,
                       @Param("languageId") Long languageId,
                       @Param("status") WordOfferStatus status);
+
+    @Query("SELECT wo FROM WordOffer wo " +
+            "WHERE wo.playerId = :playerId " +
+            "AND wo.languageId = :languageId " +
+            "ORDER BY wo.createdAt DESC")
+    List<WordOffer> findOfferedWordByPlayer(@Param("playerId") Long playerId, @Param("languageId") Long languageId);
 }

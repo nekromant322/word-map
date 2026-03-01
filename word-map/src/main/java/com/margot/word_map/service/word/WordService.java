@@ -2,18 +2,9 @@ package com.margot.word_map.service.word;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.SymbolPosition;
-import com.margot.word_map.dto.request.UpdateWordRequest;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
-import com.margot.word_map.dto.response.DictionaryWordResponse;
-import com.margot.word_map.dto.response.OfferResponse;
-import com.margot.word_map.exception.FormatErrorException;
-import com.margot.word_map.exception.UserNotFoundException;
-import com.margot.word_map.exception.WordAlreadyExists;
-import com.margot.word_map.exception.WordOfferAlreadyExistsException;
+import com.margot.word_map.dto.request.*;
+import com.margot.word_map.dto.response.*;
+import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.*;
 import com.margot.word_map.repository.PlayerRepository;
@@ -237,15 +228,14 @@ public class WordService {
     }
 
     @Transactional
-    public OfferResponse processWordOffer(CreateWordRequest request) {
+    public OfferResponse processWordOffer(CreateWordOfferRequest request) {
         isAlreadyExist(request);
 
         List<WordOfferStatus> statuses = wordOfferRepository.
                 findDistinctStatusByWordAndLanguageId(request.getWord(), request.getLanguageId());
         WordOfferStatus status = getWordOfferStatus(statuses);
         wordOfferRepository.updateStatus(request.getWord(), request.getLanguageId(), status);
-        Player player = playerRepository.findById(playerAccessor.getCurrentPlayerId())
-                .orElseThrow(() -> new UserNotFoundException("Игрок не найден"));
+        Player player = playerAccessor.getCurrentPlayer();
 
         WordOffer offer = WordOffer.builder()
                 .word(request.getWord().toLowerCase())
@@ -274,7 +264,7 @@ public class WordService {
                 : WordOfferStatus.CHECK;
     }
 
-    private void isAlreadyExist(CreateWordRequest wordRequest) {
+    private void isAlreadyExist(CreateWordOfferRequest wordRequest) {
         if (findByWordInTableWords(wordRequest.getWord(), wordRequest.getLanguageId())) {
             throw new WordAlreadyExists("Слово " + wordRequest.getWord() + " уже существует");
         }
@@ -283,11 +273,39 @@ public class WordService {
         }
     }
 
-    public boolean findByWordInTableWords(String word, Long languageId) {
+    private boolean findByWordInTableWords(String word, Long languageId) {
         return wordRepository.findWordByWordAndLanguageId(word, languageId).isPresent();
     }
 
-    public boolean findByWordInTableWordsOffer(String word, Long playerId) {
+    private boolean findByWordInTableWordsOffer(String word, Long playerId) {
         return wordOfferRepository.findOfferByWordAndPlayerId(word, playerId).isPresent();
+    }
+
+    @Transactional
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
+    public void changeStatus(WordOfferChangeStatus request) {
+        if (request.getStatus() == WordOfferStatus.APPROVED) {
+            if (wordRepository.findWordByWordAndLanguageId(request.getWord(), request.getLanguageId()).isEmpty()) {
+                throw new InvalidConditionException("Запись не найдена");
+            }
+        }
+        wordOfferRepository.updateStatus(request.getWord(), request.getLanguageId(), request.getStatus());
+        auditService.log(AuditActionType.DICTIONARY_OFFER_STATUS_CHANGED, request.getWord());
+    }
+
+    @Transactional
+    public List<OfferListResponse> getAllPlayerOffers() {
+        Player player = playerAccessor.getCurrentPlayer();
+
+        return wordOfferRepository
+                .findOfferedWordByPlayer(player.getId(), player.getLanguage().getId())
+                .stream()
+                .map(offer -> OfferListResponse.builder()
+                        .id(offer.getId())
+                        .word(offer.getWord())
+                        .createdAt(offer.getCreatedAt())
+                        .status(offer.getStatus())
+                        .build())
+                .toList();
     }
 }

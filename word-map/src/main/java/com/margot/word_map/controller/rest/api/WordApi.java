@@ -3,6 +3,7 @@ package com.margot.word_map.controller.rest.api;
 import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.response.OfferListResponse;
 import com.margot.word_map.dto.response.OfferResponse;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
 
 @Tag(
         name = "WordController",
@@ -171,4 +174,14 @@ public interface WordApi {
             )
     )
     void changeStatus(@RequestBody WordOfferChangeStatus status);
+
+    @Operation(
+            summary = "Метод получения списка предложенных пользователем слов с их статусами.",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/308609031" +
+                                    "/GET+dictionary+offer+list"
+            )
+    )
+    List<OfferListResponse> getAllPlayerOffers();
 }
