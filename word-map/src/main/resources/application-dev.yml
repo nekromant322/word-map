@@ -4,8 +4,8 @@ spring:
       client:
         registration:
           yandex:
-            client-id: ${YANDEX_CLIENT_ID}
-            client-secret: ${YANDEX_CLIENT_SECRET}
+            client-id: ${YANDEX_CLIENT_ID:default}
+            client-secret: ${YANDEX_CLIENT_SECRET:default}
             scope:
               - login:email
               - login:info
@@ -19,7 +19,7 @@ spring:
             user-info-uri: https://login.yandex.ru/info
             user-name-attribute: default_email
 jwt:
-  secret: "test-secret-123"
+  secret: lEQoPvm8IucH/zFadJbAjJz9J1fNrW77TOFZCrQNo9Q=
   expiration:
-    access-token-expiration: 15m
+    access-token-expiration: 1d
     refresh-token-expiration: 14d

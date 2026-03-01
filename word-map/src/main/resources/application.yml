@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/word-map}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
@@ -22,8 +22,8 @@ spring:
   mail:
     host: mail.hosting.reg.ru
     port: 587
-    username: ${AUTH_EMAIL_USERNAME}
-    password: ${AUTH_EMAIL_PASSWORD}
+    username: ${AUTH_EMAIL_USERNAME:default}
+    password: ${AUTH_EMAIL_PASSWORD:default}
     properties:
       mail:
         transport:
@@ -52,6 +52,8 @@ spring:
             token-uri: https://oauth.yandex.ru/token
             user-info-uri: https://login.yandex.ru/info
             user-name-attribute: default_email
+  profiles:
+    default: dev
 jwt:
   secret: ${JWT_SECRET}
   expiration:
