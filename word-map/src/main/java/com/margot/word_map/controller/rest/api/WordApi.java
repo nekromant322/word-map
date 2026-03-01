@@ -1,8 +1,6 @@
 package com.margot.word_map.controller.rest.api;
 
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.OfferResponse;
@@ -163,5 +161,14 @@ public interface WordApi {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
             }
     )
-    OfferResponse offerWord(@RequestBody CreateWordRequest word);
+    OfferResponse offerWord(@RequestBody CreateWordOfferRequest word);
+
+    @Operation(
+            summary = "Метод для изменения статусов слов",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/209813505/POST+offer+status"
+            )
+    )
+    void changeStatus(@RequestBody WordOfferChangeStatus status);
 }

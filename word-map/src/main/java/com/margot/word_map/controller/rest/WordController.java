@@ -1,15 +1,13 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.WordApi;
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.UpdateWordRequest;
+import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.OfferResponse;
 import com.margot.word_map.service.word.WordService;
-import com.margot.word_map.service.word_offer.WordOfferService;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,8 +22,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class WordController implements WordApi {
 
     private final WordService wordService;
-
-    private final WordOfferService wordOfferService;
 
     @PostMapping("/search")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
@@ -69,7 +65,12 @@ public class WordController implements WordApi {
     }
 
     @PostMapping("/offer")
-    public OfferResponse offerWord(@RequestBody CreateWordRequest word) {
+    public OfferResponse offerWord(@RequestBody CreateWordOfferRequest word) {
         return wordService.processWordOffer(word);
+    }
+
+    @PutMapping("offer/status")
+    public void changeStatus(@RequestBody @Valid WordOfferChangeStatus status) {
+        wordService.changeStatus(status);
     }
 }

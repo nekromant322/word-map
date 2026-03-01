@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Schema(description = "Запрос на создание нового слова в словаре")
-public class CreateWordRequest {
+@Schema(description = "Запрос на создание нового слова в предложке")
+public class CreateWordOfferRequest {
 
     @NotBlank(message = "Слово не может быть пустым")
     @Schema(description = "Слово, добавляемое в словарь", example = "лопата")
@@ -27,4 +27,8 @@ public class CreateWordRequest {
     @NotNull(message = "Id языка не может быть пустым")
     @Schema(description = "Id языка", example = "1")
     private Long languageId;
+
+    @NotNull(message = "Id игрока не может быть пустым")
+    @Schema(description = "Id игрока", example = "1")
+    private Long playerId;
 }
