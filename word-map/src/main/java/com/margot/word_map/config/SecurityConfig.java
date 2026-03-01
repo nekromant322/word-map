@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/dictionary/**").authenticated()
                         .anyRequest().hasRole("MODERATOR")
                 )
                 .oauth2Login(oauth2 -> oauth2

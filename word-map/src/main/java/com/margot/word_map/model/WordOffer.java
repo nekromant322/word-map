@@ -25,8 +25,8 @@ public class WordOffer {
     @Column(name = "language_id", nullable = false)
     private Long languageId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "player_id", nullable = false)
+    private Long playerId;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

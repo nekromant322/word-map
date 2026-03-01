@@ -5,6 +5,7 @@ import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.response.OfferResponse;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -146,4 +147,21 @@ public interface WordApi {
     ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
                                                       @PathVariable Long languageId
     );
+
+    @Operation(
+            summary = "Метод для предложения слова",
+            externalDocs = @ExternalDocumentation(
+                    description = "https://override-platform.atlassian.net/wiki/spaces/W/pages/209715201/POST+offer"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Слово предложено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже предложено"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
+    )
+    OfferResponse offerWord(@RequestBody CreateWordRequest word);
 }

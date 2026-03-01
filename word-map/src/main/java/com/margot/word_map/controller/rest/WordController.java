@@ -6,7 +6,9 @@ import com.margot.word_map.dto.request.DictionaryListRequest;
 import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.response.OfferResponse;
 import com.margot.word_map.service.word.WordService;
+import com.margot.word_map.service.word_offer.WordOfferService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +24,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class WordController implements WordApi {
 
     private final WordService wordService;
+
+    private final WordOfferService wordOfferService;
 
     @PostMapping("/search")
     public DictionaryListResponse findWordsByFilter(@RequestBody @Validated DictionaryListRequest request) {
@@ -62,5 +66,10 @@ public class WordController implements WordApi {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
                 .body(wordService.getAllWordsByLanguageId(languageId));
+    }
+
+    @PostMapping("/offer")
+    public OfferResponse offerWord(@RequestBody CreateWordRequest word) {
+        return wordService.processWordOffer(word);
     }
 }

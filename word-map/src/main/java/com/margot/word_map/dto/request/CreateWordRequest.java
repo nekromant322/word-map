@@ -27,4 +27,8 @@ public class CreateWordRequest {
     @NotNull(message = "Id языка не может быть пустым")
     @Schema(description = "Id языка", example = "1")
     private Long languageId;
+
+    @NotNull(message = "Id игрока не может быть пустым")
+    @Schema(description = "Id игрока", example = "1")
+    private Long playerId;
 }

@@ -9,13 +9,14 @@ import com.margot.word_map.dto.request.UpdateWordRequest;
 import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
 import com.margot.word_map.dto.response.DictionaryListResponse;
 import com.margot.word_map.dto.response.DictionaryWordResponse;
+import com.margot.word_map.dto.response.OfferResponse;
 import com.margot.word_map.exception.FormatErrorException;
+import com.margot.word_map.exception.UserNotFoundException;
 import com.margot.word_map.exception.WordAlreadyExists;
-import com.margot.word_map.exception.WordNotFoundException;
+import com.margot.word_map.exception.WordOfferAlreadyExistsException;
 import com.margot.word_map.mapper.WordMapper;
-import com.margot.word_map.model.Admin;
-import com.margot.word_map.model.Language;
-import com.margot.word_map.model.Word;
+import com.margot.word_map.model.*;
+import com.margot.word_map.repository.PlayerRepository;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
 import com.margot.word_map.service.audit.AuditActionType;
@@ -23,6 +24,7 @@ import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
 import com.margot.word_map.service.map.LetterService;
 import com.margot.word_map.utils.security.SecurityAdminAccessor;
+import com.margot.word_map.utils.security.SecurityPlayerAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -48,13 +50,15 @@ public class WordService {
     private final SecurityAdminAccessor adminAccessor;
     private final AuditService auditService;
     private final LetterService letterService;
-    private final WordOfferRepository offerRepository;
+    private final WordOfferRepository wordOfferRepository;
     private final WordSpecs wordSpecs;
+    private final SecurityPlayerAccessor playerAccessor;
+    private final PlayerRepository playerRepository;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
         return wordMapper.toDictionaryDetailedWordResponse(wordRepository.findWordByWordAndLanguageId(word, languageId)
-                .orElseThrow(() -> new WordNotFoundException("Слово не найдено")));
+                .orElseThrow(() -> new WordOfferAlreadyExistsException("Слово не найдено")));
     }
 
     @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
@@ -86,8 +90,8 @@ public class WordService {
                             .build();
 
                     wordRepository.save(word);
-                    log.info("Пользователь {} добавил новое слово {}", admin.getEmail(), request.getWord());
-                    offerRepository.updateStatus(request.getWord(), request.getLanguageId());
+                    WordOfferStatus status = WordOfferStatus.APPROVED;
+                    wordOfferRepository.updateStatus(request.getWord(), request.getLanguageId(), status);
                     auditService.log(AuditActionType.DICTIONARY_WORD_ADDED, request.getWord());
                 }
         );
@@ -99,7 +103,7 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word wordToUpdate = wordRepository.findById(wordId).orElseThrow(() ->
-                new WordNotFoundException("Слово с id " + wordId + " не найдено"));
+                new WordOfferAlreadyExistsException("Слово с id " + wordId + " не найдено"));
 
         adminAccessor.checkLanguageAccess(wordToUpdate.getLanguage());
 
@@ -116,7 +120,7 @@ public class WordService {
         Admin admin = adminAccessor.getCurrentAdmin();
 
         Word word = wordRepository.findById(id)
-                .orElseThrow(() -> new WordNotFoundException("Слово не найдено"));
+                .orElseThrow(() -> new WordOfferAlreadyExistsException("Слово не найдено"));
 
         adminAccessor.checkLanguageAccess(word.getLanguage());
 
@@ -230,5 +234,60 @@ public class WordService {
                 }
             }
         }
+    }
+
+    @Transactional
+    public OfferResponse processWordOffer(CreateWordRequest request) {
+        isAlreadyExist(request);
+
+        List<WordOfferStatus> statuses = wordOfferRepository.
+                findDistinctStatusByWordAndLanguageId(request.getWord(), request.getLanguageId());
+        WordOfferStatus status = getWordOfferStatus(statuses);
+        wordOfferRepository.updateStatus(request.getWord(), request.getLanguageId(), status);
+        Player player = playerRepository.findById(playerAccessor.getCurrentPlayerId())
+                .orElseThrow(() -> new UserNotFoundException("Игрок не найден"));
+
+        WordOffer offer = WordOffer.builder()
+                .word(request.getWord().toLowerCase())
+                .languageId(player.getLanguage().getId())
+                .playerId(player.getId())
+                .status(status)
+                .createdAt(LocalDateTime.now())
+                .build();
+        wordOfferRepository.save(offer);
+
+        return OfferResponse.builder()
+                .id(offer.getId())
+                .word(offer.getWord())
+                .build();
+    }
+
+    private static WordOfferStatus getWordOfferStatus(List<WordOfferStatus> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
+            return WordOfferStatus.CHECK;
+        } else if (statuses.size() == 1) {
+            WordOfferStatus found = statuses.getFirst();
+            return (found == WordOfferStatus.APPROVED) ? WordOfferStatus.CHECK : found;
+        }
+        return statuses.contains(WordOfferStatus.REJECTED)
+                ? WordOfferStatus.REJECTED
+                : WordOfferStatus.CHECK;
+    }
+
+    private void isAlreadyExist(CreateWordRequest wordRequest) {
+        if (findByWordInTableWords(wordRequest.getWord(), wordRequest.getLanguageId())) {
+            throw new WordAlreadyExists("Слово " + wordRequest.getWord() + " уже существует");
+        }
+        if (findByWordInTableWordsOffer(wordRequest.getWord(), playerAccessor.getCurrentPlayerId())) {
+            throw new WordOfferAlreadyExistsException("Слово уже на рассмотрении " + wordRequest.getWord());
+        }
+    }
+
+    public boolean findByWordInTableWords(String word, Long languageId) {
+        return wordRepository.findWordByWordAndLanguageId(word, languageId).isPresent();
+    }
+
+    public boolean findByWordInTableWordsOffer(String word, Long playerId) {
+        return wordOfferRepository.findOfferByWordAndPlayerId(word, playerId).isPresent();
     }
 }
