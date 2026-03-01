@@ -1,8 +1,8 @@
 package com.margot.word_map.service.auth;
 
 import com.margot.word_map.dto.security.PlayerDetails;
-import com.margot.word_map.model.User;
-import com.margot.word_map.repository.UserRepository;
+import com.margot.word_map.model.Player;
+import com.margot.word_map.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,20 +15,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlayerDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final PlayerRepository playerRepository;
 
     @Override
     public PlayerDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+        return playerRepository.findByEmail(email)
                 .map(this::from)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Игрок не найден " + email));
     }
 
-    public PlayerDetails from(User user) {
+    public PlayerDetails from(Player player) {
         return PlayerDetails.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .accessGranted(user.getAccess())
+                .id(player.getId())
+                .email(player.getEmail())
+                .accessGranted(player.getAccess())
                 .authorities(List.of(new SimpleGrantedAuthority("USER")))
                 .build();
     }

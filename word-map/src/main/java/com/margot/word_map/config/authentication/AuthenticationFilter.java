@@ -18,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
@@ -43,11 +42,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             byte[] body = StreamUtils.copyToByteArray(request.getInputStream());
-            String json = new String(body, StandardCharsets.UTF_8);
 
             CachedBodyHttpServletRequest requestWrapper = new CachedBodyHttpServletRequest(request, body);
 
-            strategyManager.authenticate(requestWrapper, json);
+            strategyManager.authenticate(requestWrapper);
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null) {
