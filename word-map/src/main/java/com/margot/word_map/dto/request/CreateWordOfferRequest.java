@@ -1,0 +1,34 @@
+package com.margot.word_map.dto.request;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Schema(description = "Запрос на создание нового слова в предложке")
+public class CreateWordOfferRequest {
+
+    @NotBlank(message = "Слово не может быть пустым")
+    @Schema(description = "Слово, добавляемое в словарь", example = "лопата")
+    @Size(max = 50, message = "Слово слишком длинное")
+    private String word;
+
+    @Schema(description = "Описание слова", example = "Инструмент для копания земли")
+    private String description;
+
+    @NotNull(message = "Id языка не может быть пустым")
+    @Schema(description = "Id языка", example = "1")
+    private Long languageId;
+
+    @NotNull(message = "Id игрока не может быть пустым")
+    @Schema(description = "Id игрока", example = "1")
+    private Long playerId;
+}

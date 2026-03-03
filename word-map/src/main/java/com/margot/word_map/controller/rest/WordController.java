@@ -1,20 +1,21 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.WordApi;
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.UpdateWordRequest;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.request.*;
+import com.margot.word_map.dto.response.*;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,5 +63,26 @@ public class WordController implements WordApi {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
                 .body(wordService.getAllWordsByLanguageId(languageId));
+    }
+
+    @PostMapping("/offer")
+    public OfferResponse offerWord(@RequestBody CreateWordOfferRequest word) {
+        return wordService.processWordOffer(word);
+    }
+
+    @PutMapping("offer/status")
+    public void changeStatus(@RequestBody @Valid WordOfferChangeStatus status) {
+        wordService.changeStatus(status);
+    }
+
+    @GetMapping("/offer/list")
+    public List<OfferListResponse> getAllPlayerOffers() {
+        return wordService.getAllPlayerOffers();
+    }
+
+    @PostMapping("/offer/list")
+    public WordOfferAdminResponse getAllAdminOffers(@RequestBody @Valid WordOfferAdminRequest request,
+                                                    Pageable pageable) {
+        return wordService.getAllAdminOffers(request, pageable);
     }
 }
