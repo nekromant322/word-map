@@ -27,7 +27,7 @@ public class Word {
     @Column(name = "word_length", nullable = false)
     private Integer wordLength;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "language_id")
     private Language language;
 
@@ -37,11 +37,11 @@ public class Word {
     @Column(name = "edited_at", nullable = false)
     private LocalDateTime editedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_id", nullable = false)
     private Admin createdBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "edited_id", nullable = false)
     private Admin editedBy;
 }
