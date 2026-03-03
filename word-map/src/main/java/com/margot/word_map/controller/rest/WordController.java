@@ -2,14 +2,12 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.WordApi;
 import com.margot.word_map.dto.request.*;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
-import com.margot.word_map.dto.response.OfferListResponse;
-import com.margot.word_map.dto.response.OfferResponse;
+import com.margot.word_map.dto.response.*;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +78,11 @@ public class WordController implements WordApi {
     @GetMapping("/offer/list")
     public List<OfferListResponse> getAllPlayerOffers() {
         return wordService.getAllPlayerOffers();
+    }
+
+    @PostMapping("/offer/list")
+    public WordOfferAdminResponse getAllAdminOffers(@RequestBody @Valid WordOfferAdminRequest request,
+                                                    Pageable pageable) {
+        return wordService.getAllAdminOffers(request, pageable);
     }
 }

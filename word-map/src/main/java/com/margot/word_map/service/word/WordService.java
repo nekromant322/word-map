@@ -2,14 +2,16 @@ package com.margot.word_map.service.word;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.margot.word_map.dto.PageDto;
+import com.margot.word_map.dto.WordOfferPage;
 import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.*;
 import com.margot.word_map.exception.*;
 import com.margot.word_map.mapper.WordMapper;
 import com.margot.word_map.model.*;
-import com.margot.word_map.repository.PlayerRepository;
 import com.margot.word_map.repository.WordOfferRepository;
 import com.margot.word_map.repository.WordRepository;
+import com.margot.word_map.repository.specification.WordOfferSpecification;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -44,7 +47,7 @@ public class WordService {
     private final WordOfferRepository wordOfferRepository;
     private final WordSpecs wordSpecs;
     private final SecurityPlayerAccessor playerAccessor;
-    private final PlayerRepository playerRepository;
+    private final WordOfferSpecification wordOfferSpecification;
 
     @Transactional(readOnly = true)
     public DictionaryDetailedWordResponse getWordByLanguageId(Long languageId, String word) {
@@ -307,5 +310,41 @@ public class WordService {
                         .status(offer.getStatus())
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    @PreAuthorize("hasPermission(null, 'MANAGE_DICTIONARY')")
+    public WordOfferAdminResponse getAllAdminOffers(WordOfferAdminRequest request, Pageable pageable) {
+        Set<Character> alphabet = letterService.getAllowedLetters(request.getLanguageId());
+        languageService.findById(request.getLanguageId())
+                .orElseThrow(() -> new FormatErrorException("Нет такого языка"));
+
+        if (request.getSearch() != null &&
+                !letterService.validateAlphabet(request.getSearch(), alphabet)) {
+            throw new FormatErrorException("'search' содержит некорректные символы");
+        }
+
+        Page<WordOfferPage> page =
+                wordOfferSpecification.findAll(
+                        request.getLanguageId(),
+                        request.getSearch(),
+                        request.getFilterStatus(),
+                        request.getSortingType(),
+                        pageable);
+
+        int numberPage = pageable.getPageNumber() + 1;
+        int pageSize = pageable.getPageSize();
+        if (numberPage > page.getTotalPages() && page.getTotalElements() > 0) {
+            throw new PageOutOfRangeException("Запрошенная страница не существует");
+        }
+        return WordOfferAdminResponse.builder()
+                .content(page.getContent())
+                .pageable(PageDto.builder()
+                        .numberPage(numberPage)
+                        .pageSize(pageSize)
+                        .build())
+                .totalPages(page.getTotalPages())
+                .totalElements((int) page.getTotalElements())
+                .build();
     }
 }

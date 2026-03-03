@@ -1,10 +1,7 @@
 package com.margot.word_map.controller.rest.api;
 
 import com.margot.word_map.dto.request.*;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
-import com.margot.word_map.dto.response.OfferListResponse;
-import com.margot.word_map.dto.response.OfferResponse;
+import com.margot.word_map.dto.response.*;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -183,5 +182,33 @@ public interface WordApi {
                                     "/GET+dictionary+offer+list"
             )
     )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
     List<OfferListResponse> getAllPlayerOffers();
+
+    @Operation(
+            summary = "Метод получения списка предложенных слов для административной панели.",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/207945769" +
+                                    "/POST+dictionary+offer+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат ввода"),
+                    @ApiResponse(responseCode = "400", description = "Запрошенная страница" +
+                            " превышает доступный диапазон"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    WordOfferAdminResponse getAllAdminOffers(@RequestBody @Valid WordOfferAdminRequest request,
+                                             Pageable pageable);
 }
