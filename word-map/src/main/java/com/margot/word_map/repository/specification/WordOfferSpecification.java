@@ -1,6 +1,6 @@
 package com.margot.word_map.repository.specification;
 
-import com.margot.word_map.dto.request.SortingType;
+import com.margot.word_map.dto.request.WordSortingType;
 import com.margot.word_map.dto.WordOfferPage;
 import com.margot.word_map.model.WordOffer;
 import com.margot.word_map.model.WordOfferStatus;
@@ -25,7 +25,7 @@ public class WordOfferSpecification {
     public Page<WordOfferPage> findAll(Long languageId,
                                        String search,
                                        WordOfferStatus status,
-                                       SortingType sortingType,
+                                       WordSortingType wordSortingType,
                                        Pageable pageable) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<WordOfferPage> cq = cb.createQuery(WordOfferPage.class);
@@ -42,7 +42,7 @@ public class WordOfferSpecification {
 
         cq.where(predicates.toArray(new Predicate[0]));
         cq.groupBy(root.get("word"), root.get("status"));
-        applySorting(cq, cb, root, sortingType);
+        applySorting(cq, cb, root, wordSortingType);
 
         List<WordOfferPage> responses = em.createQuery(cq)
                 .setFirstResult((int) pageable.getOffset())
@@ -80,12 +80,15 @@ public class WordOfferSpecification {
         return predicates;
     }
 
-    private void applySorting(CriteriaQuery<?> cq, CriteriaBuilder cb, Root<WordOffer> root, SortingType sortingType) {
-        if (sortingType == null) {
+    private void applySorting(CriteriaQuery<?> cq,
+                              CriteriaBuilder cb,
+                              Root<WordOffer> root,
+                              WordSortingType wordSortingType) {
+        if (wordSortingType == null) {
             cq.orderBy(cb.asc(root.get("word")));
             return;
         }
-        Order order = switch (sortingType) {
+        Order order = switch (wordSortingType) {
             case DATE_LATE -> cb.desc(cb.greatest(root.<LocalDateTime>get("createdAt")));
             case DATE_EARLY -> cb.asc(cb.greatest(root.<LocalDateTime>get("createdAt")));
             case RATING_HIGH -> cb.desc(cb.count(root));

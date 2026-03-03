@@ -26,5 +26,5 @@ public class WordOfferAdminRequest {
     private WordOfferStatus filterStatus;
 
     @Schema(description = "Тип сортировки", example = "RATING_LOW")
-    private SortingType sortingType;
+    private WordSortingType sortingType;
 }
