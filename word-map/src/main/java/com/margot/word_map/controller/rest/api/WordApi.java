@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
 
@@ -144,9 +143,8 @@ public interface WordApi {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
-                                                      @PathVariable Long languageId
-    );
+    ResponseEntity<List<DictionaryWordResponse>>  getAllWords(@Parameter(description = "id языка", example = "12")
+                                                             @PathVariable Long languageId);
 
     @Operation(
             summary = "Метод для предложения слова",

@@ -1,7 +1,5 @@
 package com.margot.word_map.service.word;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.margot.word_map.dto.PageDto;
 import com.margot.word_map.dto.WordOfferPage;
 import com.margot.word_map.dto.request.*;
@@ -21,13 +19,11 @@ import com.margot.word_map.utils.security.SecurityPlayerAccessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -124,30 +120,17 @@ public class WordService {
     }
 
     @Transactional(readOnly = true)
-    public StreamingResponseBody getAllWordsByLanguageId(Long languageId) {
-        return outputStream -> {
-            try (JsonGenerator generator = new ObjectMapper().getFactory().createGenerator(outputStream)) {
-                generator.writeStartArray();
+    public List<DictionaryWordResponse> getAllWordsByLanguageId(Long languageId) {
+        languageService.findById(languageId)
+                .orElseThrow(() -> new FormatErrorException("Нет такого языка"));
 
-                int page = 0;
-                int pageSize = 1000;
-
-                Page<Word> wordPage;
-                do {
-                    wordPage = wordRepository.findAllByLanguageId(languageId, PageRequest.of(page, pageSize));
-
-                    for (Word word : wordPage) {
-                        generator.writeObject(new DictionaryWordResponse(
-                                word.getId(),
-                                word.getWord(),
-                                word.getDescription()
-                        ));
-                    }
-                    page++;
-                } while (!wordPage.isLast());
-                generator.writeEndArray();
-            }
-        };
+        return wordRepository.findAllByLanguageId(languageId).stream()
+                .map(word -> new DictionaryWordResponse(
+                        word.getId(),
+                        word.getWord(),
+                        word.getDescription()
+                ))
+                .toList();
     }
 
     @Transactional(readOnly = true)
