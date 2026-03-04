@@ -23,6 +23,7 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}" >> .env
           echo "YANDEX_CLIENT_SECRET=${{ secrets.YANDEX_CLIENT_SECRET }}" >> .env
+          echo "SPRING_PROFILES_ACTIVE=prod" >> .env
           cat .env
 
       - name: Логин в Docker Hub

@@ -4,9 +4,9 @@ services:
     container_name: my_postgres
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_LOGIN}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-word-map}
+      POSTGRES_USER: ${DB_LOGIN:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
     ports:
       - "5120:5432"
     volumes:
@@ -21,15 +21,15 @@ services:
     depends_on:
       - database
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: ${DB_LOGIN}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      AUTH_EMAIL_USERNAME: ${AUTH_EMAIL_USERNAME}
-      AUTH_EMAIL_PASSWORD: ${AUTH_EMAIL_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID}
-      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET}
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME:-word-map}
+      SPRING_DATASOURCE_USERNAME: ${DB_LOGIN:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
+      AUTH_EMAIL_USERNAME: ${AUTH_EMAIL_USERNAME:-default}
+      AUTH_EMAIL_PASSWORD: ${AUTH_EMAIL_PASSWORD:-default}
+      JWT_SECRET: ${JWT_SECRET:-lEQoPvm8IucH/zFadJbAjJz9J1fNrW77TOFZCrQNo9Q=}
+      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID:-default}
+      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET:-default}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
     ports:
       - "2507:8080"
     mem_limit: 400m

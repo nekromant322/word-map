@@ -8,6 +8,4 @@ WORKDIR /app
 COPY --from=build /app/target/word-map-0.0.1-SNAPSHOT.jar /app/word-map-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
-ENV SPRING_PROFILES_ACTIVE=prod
-
 ENTRYPOINT ["java", "-jar", "/app/word-map-0.0.1-SNAPSHOT.jar"]
