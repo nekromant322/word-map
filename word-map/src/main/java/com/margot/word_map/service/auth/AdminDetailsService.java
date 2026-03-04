@@ -23,7 +23,8 @@ public class AdminDetailsService implements UserDetailsService {
     public AdminDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return adminRepository.findByEmail(email)
                 .map(this::from)
-                .orElseThrow(() -> new UserNotFoundException("admin not found" + email));
+                .orElseThrow(() -> new UserNotFoundException(
+                        "Администратор с электронной почтой " + email + " не найден"));
     }
 
     public AdminDetails from(Admin admin) {

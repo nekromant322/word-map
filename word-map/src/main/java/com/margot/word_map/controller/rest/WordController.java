@@ -1,20 +1,19 @@
 package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.WordApi;
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.UpdateWordRequest;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.request.*;
+import com.margot.word_map.dto.response.*;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,11 +55,33 @@ public class WordController implements WordApi {
     }
 
     @GetMapping("/download/{languageId}")
-    public ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
-                                                             @PathVariable Long languageId) {
+    public ResponseEntity<List<DictionaryWordResponse>> getAllWords(@Parameter(description = "id языка", example = "12")
+                                                                    @PathVariable Long languageId) {
+        List<DictionaryWordResponse> words = wordService.getAllWordsByLanguageId(languageId);
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"words.json\"")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
-                .body(wordService.getAllWordsByLanguageId(languageId));
+                .body(words);
+    }
+
+    @PostMapping("/offer")
+    public OfferResponse offerWord(@RequestBody @Validated CreateWordOfferRequest word) {
+        return wordService.processWordOffer(word);
+    }
+
+    @PutMapping("offer/status")
+    public void changeStatus(@RequestBody @Validated WordOfferChangeStatus status) {
+        wordService.changeStatus(status);
+    }
+
+    @GetMapping("/offer/list")
+    public List<OfferListResponse> getAllPlayerOffers() {
+        return wordService.getAllPlayerOffers();
+    }
+
+    @PostMapping("/offer/list")
+    public WordOfferAdminResponse getAllAdminOffers(@RequestBody @Validated WordOfferAdminRequest request,
+                                                    Pageable pageable) {
+        return wordService.getAllAdminOffers(request, pageable);
     }
 }

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-users-table
+      author: Inger2
+      preConditions:
+        - onFail: MARK_RAN
+          tableExists:
+            tableName: users
+      changes:
+        - dropTable:
+            tableName: users
+            cascadeConstraints: true

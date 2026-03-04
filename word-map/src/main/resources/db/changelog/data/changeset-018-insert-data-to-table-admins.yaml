@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-admins
+      author: Vlad
+      changes:
+        - insert:
+            tableName: admins
+            columns:
+              - column:
+                  name: email
+                  value: vladk274@gmail.com
+              - column:
+                  name: date_active
+                  valueDate: 2026-02-25T14:53:00
+              - column:
+                  name: role
+                  value: ADMIN
+              - column:
+                  name: access
+                  valueBoolean: true

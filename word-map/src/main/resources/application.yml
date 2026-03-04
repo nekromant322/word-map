@@ -54,6 +54,10 @@ spring:
             user-name-attribute: default_email
   profiles:
     default: dev
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
 jwt:
   secret: ${JWT_SECRET}
   expiration:

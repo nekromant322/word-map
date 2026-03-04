@@ -35,7 +35,7 @@ public class RuleService {
         Set<Rule> rules = ruleRepository.findAllByIds(ids);
 
         if (rules.size() != ids.size()) {
-            throw new InvalidRuleException("wrong rule provided");
+            throw new InvalidRuleException("Передано некорректное правило");
         }
         return rules;
     }

@@ -3,7 +3,7 @@ package com.margot.word_map.exception;
 public class RefreshTokenException extends BusinessException {
 
     public RefreshTokenException() {
-        this("Invalid refresh token");
+        this("Сессия не найдена или истекла");
     }
 
     public RefreshTokenException(String message) {

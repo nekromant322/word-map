@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
             ConstraintViolationException ex,
             HandlerMethod handlerMethod,
             Locale locale) {
-        log.warn("Fields validation error: ", ex);
+        log.warn("Ошибка валидации полей: ", ex);
 
         if (isControllerValidation(handlerMethod)) {
             return buildResponse(ErrorCode.FORMAT_ERROR, locale);
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUncaught(Exception ex, Locale locale) {
-        log.error("Unhandled exception occurred: ", ex);
+        log.error("Непроверяемое исключение: ", ex);
 
         return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR, locale);
     }

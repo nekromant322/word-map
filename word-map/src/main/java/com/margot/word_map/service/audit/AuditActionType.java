@@ -42,7 +42,8 @@ public enum AuditActionType {
 
     public String render(Object... args) {
         if (args.length != requiredKeys.size()) {
-            throw new IllegalArgumentException("this audit action requires " + requiredKeys.size() + " entries");
+            throw new IllegalArgumentException(
+                    "Для этого действия аудита требуется " + requiredKeys.size() + " элементов");
         }
 
         String template = value;

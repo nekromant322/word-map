@@ -1,10 +1,7 @@
 package com.margot.word_map.controller.rest.api;
 
-import com.margot.word_map.dto.request.CreateWordRequest;
-import com.margot.word_map.dto.request.DictionaryListRequest;
-import com.margot.word_map.dto.request.UpdateWordRequest;
-import com.margot.word_map.dto.response.DictionaryDetailedWordResponse;
-import com.margot.word_map.dto.response.DictionaryListResponse;
+import com.margot.word_map.dto.request.*;
+import com.margot.word_map.dto.response.*;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,10 +10,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
 
 @Tag(
         name = "WordController",
@@ -143,7 +143,70 @@ public interface WordApi {
                     @ApiResponse(responseCode = "403", description = "Ошибка авторизации", content = @Content)
             }
     )
-    ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
-                                                      @PathVariable Long languageId
-    );
+    ResponseEntity<List<DictionaryWordResponse>>  getAllWords(@Parameter(description = "id языка", example = "12")
+                                                             @PathVariable Long languageId);
+
+    @Operation(
+            summary = "Метод для предложения слова",
+            externalDocs = @ExternalDocumentation(
+                    description = "https://override-platform.atlassian.net/wiki/spaces/W/pages/209715201/POST+offer"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Слово предложено успешно"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже предложено"),
+                    @ApiResponse(responseCode = "400", description = "Слово уже существует"),
+                    @ApiResponse(responseCode = "401", description = "Устаревший токен"),
+                    @ApiResponse(responseCode = "403", description = "Ошибка авторизации")
+            }
+    )
+    OfferResponse offerWord(@RequestBody CreateWordOfferRequest word);
+
+    @Operation(
+            summary = "Метод для изменения статусов слов",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/209813505/POST+offer+status"
+            )
+    )
+    void changeStatus(@RequestBody WordOfferChangeStatus status);
+
+    @Operation(
+            summary = "Метод получения списка предложенных пользователем слов с их статусами.",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/308609031" +
+                                    "/GET+dictionary+offer+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    List<OfferListResponse> getAllPlayerOffers();
+
+    @Operation(
+            summary = "Метод получения списка предложенных слов для административной панели.",
+            externalDocs = @ExternalDocumentation(
+                    description =
+                            "https://override-platform.atlassian.net/wiki/spaces/W/pages/207945769" +
+                                    "/POST+dictionary+offer+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат ввода"),
+                    @ApiResponse(responseCode = "400", description = "Запрошенная страница" +
+                            " превышает доступный диапазон"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден")
+            }
+    )
+    WordOfferAdminResponse getAllAdminOffers(@RequestBody @Valid WordOfferAdminRequest request,
+                                             Pageable pageable);
 }

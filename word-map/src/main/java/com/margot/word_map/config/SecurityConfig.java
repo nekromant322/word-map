@@ -1,7 +1,7 @@
 package com.margot.word_map.config;
 
+import com.margot.word_map.config.authentication.AuthenticationFilter;
 import com.margot.word_map.config.filter.AdminCacheCleanupFilter;
-import com.margot.word_map.config.jwt.JwtFilter;
 import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.security.SecureRandom;
 
@@ -32,7 +33,7 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final AuthenticationFilter authenticationFilter;
     private final AdminCacheCleanupFilter adminCacheCleanupFilter;
     private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
@@ -40,19 +41,23 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/admin/logout").hasRole("MODERATOR")
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/pattern/**").hasRole("ADMIN")
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/dictionary/**").authenticated()
                         .anyRequest().hasRole("MODERATOR")
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -66,7 +71,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(adminCacheCleanupFilter, SecurityContextHolderFilter.class);
 
         return http.build();
@@ -91,9 +96,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUserDetailsService);
         provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-        provider.setUserDetailsService(myUserDetailsService);
         return provider;
     }
 

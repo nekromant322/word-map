@@ -23,7 +23,7 @@ public class AuditActionTypeTest {
         assertThatThrownBy(() -> type.render(args))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(
-                        "this audit action requires " + type.getRequiredKeys().size() + " entries");
+                        "Для этого действия аудита требуется " + type.getRequiredKeys().size() + " элементов");
     }
 
     static Stream<Arguments> getRenderTestValues() {

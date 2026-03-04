@@ -60,14 +60,14 @@ public class LanguageService {
 
     public LanguageDto getLanguageByPrefix(String prefix) {
         return languageMapper.toDto(languageRepository.getLanguageByPrefix(prefix).orElseThrow(() -> {
-            log.info("language with prefix {} not found", prefix);
-            return new LanguageNotFoundException("language with prefix " + prefix + " not found");
+            log.info("Язык с префиксом {} не найден", prefix);
+            return new LanguageNotFoundException("Язык с префиксом " + prefix + " не найден");
         }));
     }
 
     public Language getLanguageById(Long id) {
         return languageRepository.findById(id)
-                .orElseThrow(() -> new LanguageNotFoundException("language with id " + id + " not found"));
+                .orElseThrow(() -> new LanguageNotFoundException("Язык с id " + id + " не найден"));
     }
 
     public Optional<Language> findById(Long id) {

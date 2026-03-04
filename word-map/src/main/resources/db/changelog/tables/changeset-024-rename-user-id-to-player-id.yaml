@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename-user-id-to-player-id
+      author: Inger2
+      changes:
+        - renameColumn:
+            tableName: grid
+            oldColumnName: user_id
+            newColumnName: player_id
+            columnDataType: bigint
+
+        - dropForeignKeyConstraint:
+            baseTableName: grid
+            constraintName: fk_grid_users
+
+        - addForeignKeyConstraint:
+            baseTableName: grid
+            baseColumnNames: player_id
+            referencedTableName: players
+            referencedColumnNames: id
+            constraintName: fk_grid_players
+            onDelete: SET NULL

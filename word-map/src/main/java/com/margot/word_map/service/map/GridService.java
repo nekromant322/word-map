@@ -2,7 +2,7 @@ package com.margot.word_map.service.map;
 
 import com.margot.word_map.dto.request.WordAndLettersWithCoordinates;
 import com.margot.word_map.exception.BadAttemptToMakeTheWord;
-import com.margot.word_map.model.User;
+import com.margot.word_map.model.Player;
 import com.margot.word_map.model.map.Grid;
 import com.margot.word_map.repository.map.GridRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +23,14 @@ public class GridService {
     private final GridRepository gridRepository;
 
     @Transactional
-    public void save(WordAndLettersWithCoordinates word, User user) {
+    public void save(WordAndLettersWithCoordinates word, Player player) {
         List<Grid> titles = new ArrayList<>();
         for (int i = 0; i < word.getWord().length(); i++) {
             Grid mapTitle = Grid.builder()
                     .point(convertToPoint(word.getLettersWithCoordinates().get(i).getPosition().getX(),
                             word.getLettersWithCoordinates().get(i).getPosition().getY()))
                     .letter(word.getLettersWithCoordinates().get(i).getLetter())
-                    .user(user)
+                    .player(player)
                     .build();
             titles.add(mapTitle);
         }

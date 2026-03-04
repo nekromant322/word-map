@@ -83,7 +83,7 @@ public class AuditServiceTest {
     public void testLogThrowsWhenAdminIsNull() {
         assertThatThrownBy(() -> auditService.log((Admin) null, AuditActionType.ADMIN_LOGGED_IN))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("admin cannot be null");
+                .hasMessageContaining("Администратор не может быть null");
     }
 
     @Test
@@ -92,7 +92,7 @@ public class AuditServiceTest {
 
         assertThatThrownBy(() -> auditService.log(admin, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("audit type cannot be null");
+                .hasMessageContaining("Тип аудита не может быть null");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class AuditServiceTest {
 
         assertThatThrownBy(() -> auditService.log(admin, AuditActionType.ADMIN_LOGGED_IN))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("admin must have email and role");
+                .hasMessageContaining("У администратора должны быть указаны email и роль");
     }
 
     @Test
@@ -112,7 +112,7 @@ public class AuditServiceTest {
 
         assertThatThrownBy(() -> auditService.log(admin, AuditActionType.ADMIN_LOGGED_IN))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("admin must have email and role");
+                .hasMessageContaining("У администратора должны быть указаны email и роль");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AuditServiceTest {
 
         assertThatThrownBy(() -> auditService.log(admin, actionType, args))
                 .isInstanceOf(AuditSaveException.class)
-                .hasMessageContaining("failed to save audit with action: %s", actionType)
+                .hasMessageContaining("Не удалось сохранить запись аудита для действия: %s", actionType)
                 .hasCause(ex);
     }
 
