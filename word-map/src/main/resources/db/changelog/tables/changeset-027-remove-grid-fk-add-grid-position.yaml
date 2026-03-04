@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove-grid-fk-add-grid-position
+      author: Inger2
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: players
+            constraintName: fk_players_grid
+        - dropColumn:
+            tableName: players
+            columnName: grid_id
+        - addColumn:
+            tableName: players
+            columns:
+              - column:
+                  name: grid_position
+                  type: geometry(Point, 0)
+                  constraints:
+                    nullable: false
