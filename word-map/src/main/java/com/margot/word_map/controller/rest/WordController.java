@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
 
@@ -57,12 +56,13 @@ public class WordController implements WordApi {
     }
 
     @GetMapping("/download/{languageId}")
-    public ResponseEntity<StreamingResponseBody> getAllWords(@Parameter(description = "id языка", example = "12")
-                                                             @PathVariable Long languageId) {
+    public ResponseEntity<List<DictionaryWordResponse>> getAllWords(@Parameter(description = "id языка", example = "12")
+                                                                    @PathVariable Long languageId) {
+        List<DictionaryWordResponse> words = wordService.getAllWordsByLanguageId(languageId);
         return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"words.json\"")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=words.json")
-                .body(wordService.getAllWordsByLanguageId(languageId));
+                .body(words);
     }
 
     @PostMapping("/offer")

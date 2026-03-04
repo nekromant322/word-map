@@ -1,8 +1,6 @@
 package com.margot.word_map.repository;
 
 import com.margot.word_map.model.Word;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +15,7 @@ public interface WordRepository extends JpaRepository<Word, Long>, JpaSpecificat
 
     Optional<Word> findWordByWord(String word);
 
-    Page<Word> findAllByLanguageId(Long languageId, PageRequest pageRequest);
+    List<Word> findAllByLanguageId(Long languageId);
 
     Optional<Word> findWordByWordAndLanguageId(String word, Long languageId);
 
