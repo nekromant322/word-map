@@ -1,0 +1,2 @@
+email,name,platform_id,language_id,created_at,active_at,score,access,grid_position
+test@gmail.com,Player,1,1,2025-04-26T12:00:00,2025-04-26T12:00:00,100,true,POINT(0 0)
