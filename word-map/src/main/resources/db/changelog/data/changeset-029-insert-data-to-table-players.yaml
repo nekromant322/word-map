@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-player
+      author: Inger2
+      changes:
+        - loadData:
+            file: data/players.csv
+            separator: ","
+            tableName: players
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-players-id-sequence
+      author: Inger2
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval(pg_get_serial_sequence('players', 'id'), coalesce(max(id), 1)) from players;

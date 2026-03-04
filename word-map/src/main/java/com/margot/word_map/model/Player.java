@@ -1,8 +1,8 @@
 package com.margot.word_map.model;
 
-import com.margot.word_map.model.map.Grid;
 import jakarta.persistence.*;
 import lombok.*;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 
@@ -40,9 +40,8 @@ public class Player {
     @Column(name = "active_at", nullable = false)
     private LocalDateTime activeAt = LocalDateTime.now();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "grid_id", nullable = false)
-    private Grid grid;
+    @Column(columnDefinition = "geometry(Point,0)", nullable = false)
+    private Point gridPosition;
 
     @Column(name = "score", nullable = false)
     private Integer score = 0;

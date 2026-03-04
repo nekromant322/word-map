@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-platforms
+      author: Inger2
+      changes:
+        - loadData:
+            file: data/platforms.csv
+            separator: ","
+            tableName: platforms
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-platforms-id-sequence
+      author: Inger2
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval(pg_get_serial_sequence('platforms', 'id'), coalesce(max(id), 1)) from platforms;
