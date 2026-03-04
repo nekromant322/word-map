@@ -5,7 +5,6 @@ import com.margot.word_map.dto.request.*;
 import com.margot.word_map.dto.response.*;
 import com.margot.word_map.service.word.WordService;
 import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -66,12 +65,12 @@ public class WordController implements WordApi {
     }
 
     @PostMapping("/offer")
-    public OfferResponse offerWord(@RequestBody CreateWordOfferRequest word) {
+    public OfferResponse offerWord(@RequestBody @Validated CreateWordOfferRequest word) {
         return wordService.processWordOffer(word);
     }
 
     @PutMapping("offer/status")
-    public void changeStatus(@RequestBody @Valid WordOfferChangeStatus status) {
+    public void changeStatus(@RequestBody @Validated WordOfferChangeStatus status) {
         wordService.changeStatus(status);
     }
 
@@ -81,7 +80,7 @@ public class WordController implements WordApi {
     }
 
     @PostMapping("/offer/list")
-    public WordOfferAdminResponse getAllAdminOffers(@RequestBody @Valid WordOfferAdminRequest request,
+    public WordOfferAdminResponse getAllAdminOffers(@RequestBody @Validated WordOfferAdminRequest request,
                                                     Pageable pageable) {
         return wordService.getAllAdminOffers(request, pageable);
     }

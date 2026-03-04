@@ -215,13 +215,13 @@ public class WordService {
 
     @Transactional
     public OfferResponse processWordOffer(CreateWordOfferRequest request) {
-        isAlreadyExist(request);
+        Player player = playerAccessor.getCurrentPlayer();
+        isAlreadyExist(request, player);
 
         List<WordOfferStatus> statuses = wordOfferRepository.
-                findDistinctStatusByWordAndLanguageId(request.getWord(), request.getLanguageId());
+                findDistinctStatusByWordAndLanguageId(request.getWord(), player.getLanguage().getId());
         WordOfferStatus status = getWordOfferStatus(statuses);
-        wordOfferRepository.updateStatus(request.getWord(), request.getLanguageId(), status);
-        Player player = playerAccessor.getCurrentPlayer();
+        wordOfferRepository.updateStatus(request.getWord(), player.getLanguage().getId(), status);
 
         WordOffer offer = WordOffer.builder()
                 .word(request.getWord().toLowerCase())
@@ -250,8 +250,8 @@ public class WordService {
                 : WordOfferStatus.CHECK;
     }
 
-    private void isAlreadyExist(CreateWordOfferRequest wordRequest) {
-        if (findByWordInTableWords(wordRequest.getWord(), wordRequest.getLanguageId())) {
+    private void isAlreadyExist(CreateWordOfferRequest wordRequest, Player player) {
+        if (findByWordInTableWords(wordRequest.getWord(), player.getLanguage().getId())) {
             throw new WordAlreadyExists("Слово " + wordRequest.getWord() + " уже существует");
         }
         if (findByWordInTableWordsOffer(wordRequest.getWord(), playerAccessor.getCurrentPlayerId())) {
