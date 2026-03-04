@@ -1,6 +1,5 @@
 package com.margot.word_map.config.authentication;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.margot.word_map.service.auth.PlayerDetailsService;
 import com.margot.word_map.service.signature.PlayerSignatureService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +29,7 @@ public class YandexStrategy implements AuthenticationStrategy {
 
     @Override
     public void authenticate(HttpServletRequest request)
-            throws NoSuchAlgorithmException, InvalidKeyException, JsonProcessingException {
+            throws NoSuchAlgorithmException, InvalidKeyException, JacksonException {
         String header = request.getHeader("player_signature");
         validatePlayerSignature(header);
         String username = playerSignatureService.extractEmail(header);
