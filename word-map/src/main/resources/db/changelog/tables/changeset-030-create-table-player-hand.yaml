@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-player-hand-table
+      author: Vlad
+      changes:
+        - createTable:
+            tableName: player_hand
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: player_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: letter_id
+                  type: BIGINT
+              - column:
+                  name: priority
+                  type: TINYINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_premium
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_at
+                  type: TIMESTAMP
+
+        - addForeignKeyConstraint:
+            baseTableName: player_hand
+            baseColumnNames: player_id
+            constraintName: fk_player_hand_player
+            referencedTableName: players
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: player_hand
+            baseColumnNames: letter_id
+            constraintName: fk_player_hand_letter
+            referencedTableName: letters
+            referencedColumnNames: id
+
+        - addUniqueConstraint:
+            tableName: player_hand
+            columnNames: player_id, priority
+            constraintName: unique_player_slot
