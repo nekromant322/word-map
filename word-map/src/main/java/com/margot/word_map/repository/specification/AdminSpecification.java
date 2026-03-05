@@ -5,11 +5,11 @@ import com.margot.word_map.model.Admin;
 import com.margot.word_map.model.enums.Role;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Nulls;
 import jakarta.persistence.criteria.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,12 +58,7 @@ public class AdminSpecification {
                 String entityField = field.getEntityFieldName();
 
                 if (field == AdminSortField.DATE) {
-                    // TODO WM-232 после перехода на spring boot 4
-                    Expression<LocalDateTime> farPast = cb.literal(
-                            LocalDateTime.of(1900, 1, 1, 0, 0));
-                    Expression<LocalDateTime> coalesce = cb.coalesce(root.get("dateActive"), farPast);
-
-                    orders.add(cb.desc(coalesce));
+                    orders.add(cb.desc(root.get("dateActive"), Nulls.LAST));
                 } else {
                     orders.add(asc ? cb.asc(root.get(entityField)) : cb.desc(root.get(entityField)));
                 }
