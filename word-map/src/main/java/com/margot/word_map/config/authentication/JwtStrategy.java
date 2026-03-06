@@ -1,7 +1,5 @@
 package com.margot.word_map.config.authentication;
 
-import com.margot.word_map.exception.UserNotAccessException;
-import com.margot.word_map.service.auth.AdminDetailsService;
 import com.margot.word_map.service.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.annotation.Order;
@@ -17,12 +15,8 @@ import org.springframework.stereotype.Component;
 public class JwtStrategy implements AuthenticationStrategy {
     private final JwtService jwtService;
 
-    private final AdminDetailsService adminDetailsService;
-
-    public JwtStrategy(JwtService jwtService,
-                       AdminDetailsService adminDetailsService) {
+    public JwtStrategy(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.adminDetailsService = adminDetailsService;
     }
 
     @Override
@@ -36,11 +30,7 @@ public class JwtStrategy implements AuthenticationStrategy {
         String token = request.getHeader("Authorization").substring(7);
         String username = jwtService.extractUserName(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails details = adminDetailsService.loadUserByUsername(username);
-            if (!details.isAccountNonLocked()) {
-                throw new UserNotAccessException("Аккаунт заблокирован : " + details.getUsername());
-            }
-
+            UserDetails details = jwtService.extractPrincipal(token);
             if (jwtService.validateToken(token, details)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());

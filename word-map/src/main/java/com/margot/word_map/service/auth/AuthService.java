@@ -63,6 +63,10 @@ public class AuthService {
         }
 
         Admin admin = storedToken.getAdmin();
+        if (!admin.isAccessGranted()) {
+            refreshTokenService.deleteBlockedTokens(admin.getId());
+            throw new UserNotAccessException("Аккаунт заблокирован");
+        }
         refreshTokenService.deleteRefreshToken(storedToken);
 
         return generateTokens(admin, device);

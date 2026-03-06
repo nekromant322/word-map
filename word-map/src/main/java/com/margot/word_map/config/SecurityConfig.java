@@ -2,7 +2,6 @@ package com.margot.word_map.config;
 
 import com.margot.word_map.config.authentication.AuthenticationFilter;
 import com.margot.word_map.config.filter.AdminCacheCleanupFilter;
-import com.margot.word_map.service.auth.AdminDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,14 +11,11 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -35,7 +31,6 @@ public class SecurityConfig {
 
     private final AuthenticationFilter authenticationFilter;
     private final AdminCacheCleanupFilter adminCacheCleanupFilter;
-    private final AdminDetailsService myUserDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomAuthenticationEntryPoint customEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
@@ -92,13 +87,6 @@ public class SecurityConfig {
         handler.setRoleHierarchy(roleHierarchy);
         handler.setPermissionEvaluator(evaluator);
         return handler;
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUserDetailsService);
-        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
-        return provider;
     }
 
     @Bean
