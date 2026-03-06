@@ -1,6 +1,7 @@
 package com.margot.word_map.service.jwt;
 
 import com.margot.word_map.dto.AdminJwtInfo;
+import com.margot.word_map.dto.security.AdminPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -28,6 +29,7 @@ public class JwtService {
     public String generateToken(AdminJwtInfo jwtInfo, Duration expiration) {
         return Jwts.builder()
                 .subject(jwtInfo.email())
+                .claim("id", jwtInfo.id())
                 .claim("role", jwtInfo.role())
                 .claim("rules", jwtInfo.rules())
                 .issuedAt(new Date())
@@ -41,7 +43,7 @@ public class JwtService {
     }
 
     public String generateRefreshToken(String email) {
-        return generateToken(new AdminJwtInfo(email, null, null), refreshTokenExpiration);
+        return generateToken(new AdminJwtInfo(null, email, null, null), refreshTokenExpiration);
     }
 
     private SecretKey getKey() {
@@ -51,6 +53,16 @@ public class JwtService {
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public AdminPrincipal extractPrincipal(String token) {
+        final Claims claims = extractAllClaims(token);
+        return AdminPrincipal.builder()
+                .email(claims.getSubject())
+                .id(claims.get("id", Long.class))
+                .role(claims.get("role", String.class))
+                .rule(claims.get("rules", String.class))
+                .build();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
