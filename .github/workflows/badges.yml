@@ -30,7 +30,7 @@ jobs:
         uses: cicirello/jacoco-badge-generator@v2
         with:
           jacoco-csv-file: word-map/target/site/jacoco/jacoco.csv
-          coverage-badge-filename: .github/badges/jacoco_word_map.svg
+          coverage-badge-filename: jacoco_word_map.svg
           coverage-label: coverage (Word Map)
 
       - name: Commit and push the badge(if changed)
