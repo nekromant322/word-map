@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-player-actions-partitioned
+      author: Vlad
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE TABLE player_actions (
+                  id BIGINT GENERATED ALWAYS AS IDENTITY,
+                  server_id BIGINT NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
+                  player_id BIGINT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+                  score SMALLINT NOT NULL CHECK (score > 0),
+                  words TEXT NOT NULL,
+                  created_at TIMESTAMP DEFAULT NOW() NOT NULL,
+                  PRIMARY KEY (id, server_id)
+              ) PARTITION BY LIST (server_id);
