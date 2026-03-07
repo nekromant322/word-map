@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-leaderboards-partitioned
+      author: Vlad
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE TABLE leaderboards (
+                  id BIGINT GENERATED ALWAYS AS IDENTITY,
+                  server_id BIGINT NOT NULL,
+                  player_id BIGINT NOT NULL,
+                  score BIGINT NOT NULL CHECK (score > 0),
+                  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                  FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+                  FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
+                  PRIMARY KEY (id, server_id)
+              ) PARTITION BY LIST (server_id);
