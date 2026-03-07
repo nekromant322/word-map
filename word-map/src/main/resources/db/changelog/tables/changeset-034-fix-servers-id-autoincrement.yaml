@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: fix-servers-id-autoincrement
+      author: Vlad
+      changes:
+        - addAutoIncrement:
+            tableName: servers
+            columnName: id
+            columnDataType: BIGINT
