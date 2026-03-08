@@ -1,8 +1,7 @@
 package com.margot.word_map.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +9,9 @@ import java.time.LocalDateTime;
 @Table(name = "refresh_tokens")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(exclude = {"admin"})
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

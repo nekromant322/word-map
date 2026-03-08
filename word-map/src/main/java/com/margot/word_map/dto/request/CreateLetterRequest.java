@@ -36,10 +36,10 @@ public class CreateLetterRequest {
     @NotNull
     @Min(1) @Max(10)
     @Schema(description = "Множитель бонуса за букву", example = "1")
-    private Short multiplier;
+    private Integer multiplier;
 
     @NotNull
     @Min(1) @Max(50)
     @Schema(description = "Вес буквы (частота выпадения)", example = "6")
-    private Short weight;
+    private Integer weight;
 }

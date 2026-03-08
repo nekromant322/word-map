@@ -35,7 +35,7 @@ public class Server {
     private String name;
 
     @Column(name = "wipe_count", nullable = false)
-    private Short wipeCount = 0;
+    private Integer wipeCount = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: fix-all-table
+      author: Vlad
+      changes:
+        - modifyDataType:
+            tableName: letters
+            columnName: letter
+            newDataType: char(1)
+        - modifyDataType:
+            tableName: player_hand
+            columnName: priority
+            newDataType: integer
+        - modifyDataType:
+            tableName: servers
+            columnName: wipe_count
+            newDataType: integer
+        - modifyDataType:
+            tableName: player_actions
+            columnName: score
+            newDataType: integer
+        - modifyDataType:
+            tableName: letters
+            columnName: multiplier
+            newDataType: integer
+        - modifyDataType:
+            tableName: letters
+            columnName: weight
+            newDataType: integer
+        - modifyDataType:
+            tableName: tiles
+            columnName: multiplier
+            newDataType: integer
+
+

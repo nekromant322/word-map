@@ -32,10 +32,10 @@ public class Letter {
     private LetterType type;
 
     @Column(name = "multiplier", nullable = false)
-    private Short multiplier;
+    private Integer multiplier;
 
     @Column(name = "weight", nullable = false)
-    private Short weight;
+    private Integer weight;
 
     @OneToMany(mappedBy = "letterObj")
     private List<Grid> grids;

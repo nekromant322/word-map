@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString(exclude = {"player", "tile", "letterObj"})
 public class Grid {
 
     @Id
