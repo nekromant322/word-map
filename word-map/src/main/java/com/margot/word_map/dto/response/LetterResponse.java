@@ -24,8 +24,8 @@ public class LetterResponse {
     private LetterType type;
 
     @Schema(description = "Множитель бонуса за букву", example = "1")
-    private Short multiplier;
+    private Integer multiplier;
 
     @Schema(description = "Вес буквы (частота выпадения)", example = "6")
-    private Short weight;
+    private Integer weight;
 }

@@ -4,17 +4,17 @@ import com.margot.word_map.model.map.Letter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "player_hand")
-@ToString(exclude = {"player", "letter"})
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(exclude = {"player", "letter"})
 public class PlayerHand {
 
     @Id

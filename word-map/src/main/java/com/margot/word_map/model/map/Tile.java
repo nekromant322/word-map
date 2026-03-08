@@ -14,12 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(name = "tiles")
+@ToString(exclude = {"grids"})
 public class Tile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "bonus", nullable = false, length = 10)
     private BonusType bonus;
 
@@ -27,7 +29,7 @@ public class Tile {
     private LetterType letter;
 
     @Column(name = "multiplier", nullable = false)
-    private Short multiplier;
+    private Integer multiplier;
 
     @OneToMany(mappedBy = "tile")
     private List<Grid> grids;

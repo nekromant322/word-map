@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"platform", "language"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

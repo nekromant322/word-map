@@ -3,10 +3,7 @@ package com.margot.word_map.model;
 import com.margot.word_map.model.enums.PatternType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
@@ -14,10 +11,12 @@ import java.util.List;
 
 @Entity
 @Table(name = "patterns")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Pattern {
 
     @Id

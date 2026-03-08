@@ -62,8 +62,8 @@ public class LetterServiceTest {
                 .languageId(langId)
                 .letter(letter)
                 .type(LetterType.VOWEL)
-                .multiplier((short) 10)
-                .weight((short) 1)
+                .multiplier(10)
+                .weight(1)
                 .build();
         Language language = Language.builder()
                 .id(langId)
@@ -126,8 +126,8 @@ public class LetterServiceTest {
         Long letterId = 1L;
         UpdateLetterRequest request = UpdateLetterRequest.builder()
                 .type(LetterType.VOWEL)
-                .multiplier((short) 1)
-                .weight((short) 10)
+                .multiplier(1)
+                .weight(10)
                 .build();
         Language language = Language.builder()
                 .id(1L)
@@ -154,8 +154,8 @@ public class LetterServiceTest {
     public void testUpdateLetterThrowsWhenNoLetterFound() {
         UpdateLetterRequest request = UpdateLetterRequest.builder()
                 .type(LetterType.VOWEL)
-                .multiplier((short) 1)
-                .weight((short) 10)
+                .multiplier(1)
+                .weight(10)
                 .build();
 
         when(letterRepository.findByIdWithLanguage(1L)).thenReturn(Optional.empty());

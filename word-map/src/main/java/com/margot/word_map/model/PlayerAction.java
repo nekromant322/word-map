@@ -32,7 +32,7 @@ public class PlayerAction {
     private Player player;
 
     @Column(name = "score", nullable = false)
-    private Short score;
+    private Integer score;
 
     @Column(name = "words", nullable = false)
     private String words;

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "words")
+@ToString(exclude = {"language", "createdBy", "editedBy"})
 public class Word {
 
     @Id
