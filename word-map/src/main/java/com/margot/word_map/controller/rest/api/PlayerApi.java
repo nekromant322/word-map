@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-        name = "PlatformController",
+        name = "PlayerController",
         description = "Контроллер для работы с игроками"
 )
 @SecurityRequirement(name = "JWT")
