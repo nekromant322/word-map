@@ -17,11 +17,5 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build with Maven
-        run: mvn -B package -f word-map/pom.xml -Dspring.liquibase.enabled=false -Dspring.profiles.active=dev
-
-      - name: Run tests with H2
-        run: mvn test -f word-map/pom.xml -Dspring.datasource.url=jdbc:h2:mem:testdb -Dspring.datasource.driver-class-name=org.h2.Driver -Dspring.profiles.active=dev
-
-      - name: Verify checkstyle
-        run: mvn verify -f word-map/pom.xml -DskipTests -Dspring.profiles.active=dev
+      - name: Build, test and verify
+        run: mvn -B verify -f word-map/pom.xml -Dspring.profiles.active=test
