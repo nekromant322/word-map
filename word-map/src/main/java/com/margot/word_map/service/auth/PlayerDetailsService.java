@@ -18,16 +18,16 @@ public class PlayerDetailsService implements UserDetailsService {
     private final PlayerRepository playerRepository;
 
     @Override
-    public PlayerDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return playerRepository.findByEmail(email)
+    public PlayerDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
+        return playerRepository.findByUuid(uuid)
                 .map(this::from)
-                .orElseThrow(() -> new UsernameNotFoundException("Игрок не найден " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Игрок не найден " + uuid));
     }
 
     public PlayerDetails from(Player player) {
         return PlayerDetails.builder()
                 .id(player.getId())
-                .email(player.getEmail())
+                .email(player.getUuid())
                 .accessGranted(player.getAccess())
                 .authorities(List.of(new SimpleGrantedAuthority("USER")))
                 .build();

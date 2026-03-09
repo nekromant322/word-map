@@ -20,8 +20,8 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", nullable = false)
-    private String email;
+    @Column(name = "uuid", nullable = false)
+    private String uuid;
 
     @Column(name = "name", nullable = false)
     private String name;

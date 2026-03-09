@@ -18,8 +18,8 @@ public class PlayerDetailedResponse {
     @Schema(description = "Уникальный идентификатор записи таблицы ")
     private Long id;
 
-    @Schema(description = "Уникальный идентификатор игрока на площадке, с которой он пришел. (Временно email)")
-    private String email;
+    @Schema(description = "Уникальный идентификатор игрока на площадке, с которой он пришел.")
+    private String uuid;
 
     @Schema(description = "Никнейм игрока")
     private String name;

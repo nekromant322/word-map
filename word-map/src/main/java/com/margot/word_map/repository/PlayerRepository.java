@@ -10,14 +10,12 @@ import java.util.Optional;
 
 public interface PlayerRepository extends JpaRepository<Player, Long> {
 
-    Optional<Player> findByEmail(String email);
-
-    Optional<Player> findById(Long id);
+    Optional<Player> findByUuid(String uuid);
 
     @Query("""
     SELECT new com.margot.word_map.dto.response.PlayerDetailedResponse(
         p.id, 
-        p.email, 
+        p.uuid, 
         p.name, 
         p.platform.name, 
         p.language.prefix, 
