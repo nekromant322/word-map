@@ -22,7 +22,7 @@ public class AdminPrincipal implements UserDetails {
 
     private String role;
 
-    private String rule;
+    private List<String> rules;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
