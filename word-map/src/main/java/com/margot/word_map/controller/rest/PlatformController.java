@@ -35,4 +35,9 @@ public class PlatformController implements PlatformApi {
     public List<OptionDto> getPlatformOptions() {
         return platformService.getPlatformOptions();
     }
+
+    @DeleteMapping("/{id}")
+    public PlatformDto deletePlatform(@PathVariable("id") Long id) {
+        return platformService.deletePlatform(id);
+    }
 }

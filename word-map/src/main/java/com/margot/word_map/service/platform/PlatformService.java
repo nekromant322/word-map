@@ -4,12 +4,16 @@ import com.margot.word_map.dto.OptionDto;
 import com.margot.word_map.dto.PlatformDto;
 import com.margot.word_map.dto.request.CreateUpdatePlatformRequest;
 import com.margot.word_map.exception.DuplicateNameException;
+import com.margot.word_map.exception.PlatformAssignedToPlayersException;
+import com.margot.word_map.exception.PlatformInActiveWorldException;
 import com.margot.word_map.exception.PlatformNotFoundException;
 import com.margot.word_map.mapper.PlatformMapper;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.repository.PlatformRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
+import com.margot.word_map.service.map.GridService;
+import com.margot.word_map.service.player.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -22,8 +26,14 @@ import java.util.List;
 public class PlatformService {
 
     private final PlatformRepository platformRepository;
+
     private final AuditService auditService;
+
     private final PlatformMapper platformMapper;
+
+    private final PlayerService playerService;
+
+    private final GridService gridService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -56,6 +66,28 @@ public class PlatformService {
 
         platformRepository.save(platform);
         auditService.log(AuditActionType.PLATFORM_UPDATED, request.getName());
+
+        return platformMapper.toDto(platform);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public PlatformDto deletePlatform(Long platformId) {
+        if (gridService.countByPlatformId(platformId) > 0) {
+            throw new PlatformInActiveWorldException("Платформа используется в активном игровом мире");
+        }
+
+        if (playerService.countByPlatformId(platformId) > 0) {
+            throw new PlatformAssignedToPlayersException("Платформа назначена игрокам и не может быть удалена");
+        }
+
+        Platform platform = platformRepository.findById(platformId)
+                .orElseThrow(() -> new PlatformNotFoundException("Платформа не найдена по идентификатору: " +
+                        platformId));
+
+        platformRepository.delete(platform);
+
+        auditService.log(AuditActionType.PLATFORM_DELETED, platform.getName());
 
         return platformMapper.toDto(platform);
     }

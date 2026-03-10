@@ -3,12 +3,16 @@ package com.margot.word_map.service.platform;
 import com.margot.word_map.dto.PlatformDto;
 import com.margot.word_map.dto.request.CreateUpdatePlatformRequest;
 import com.margot.word_map.exception.DuplicateNameException;
+import com.margot.word_map.exception.PlatformAssignedToPlayersException;
+import com.margot.word_map.exception.PlatformInActiveWorldException;
 import com.margot.word_map.exception.PlatformNotFoundException;
 import com.margot.word_map.mapper.PlatformMapper;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.repository.PlatformRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
+import com.margot.word_map.service.map.GridService;
+import com.margot.word_map.service.player.PlayerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,6 +39,12 @@ public class PlatformServiceTest {
 
     @Mock
     private AuditService auditService;
+
+    @Mock
+    GridService gridService;
+
+    @Mock
+    PlayerService playerService;
 
     @InjectMocks
     private PlatformService platformService;
@@ -121,5 +131,54 @@ public class PlatformServiceTest {
         assertThatThrownBy(() -> platformService.updatePlatform(id, request))
                 .isInstanceOf(PlatformNotFoundException.class)
                 .hasMessageContaining("Платформа не найдена по идентификатору: 1");
+    }
+
+    @Test
+    public void testDeletePlatformDeletesAndLogs() {
+        Long platformId = 1L;
+        String name = "test";
+
+        Platform platform = new Platform(platformId, name);
+
+        when(platformRepository.findById(platformId)).thenReturn(Optional.of(platform));
+        when(gridService.countByPlatformId(platformId)).thenReturn(0L);
+        when(playerService.countByPlatformId(platformId)).thenReturn(0L);
+
+        platformService.deletePlatform(platformId);
+
+        verify(platformRepository).delete(platform);
+        verify(auditService).log(eq(AuditActionType.PLATFORM_DELETED), eq(name));
+    }
+
+    @Test
+    public void testDeletePlatformPlatformInActiveWorld() {
+        Long platformId = 1L;
+
+        when(gridService.countByPlatformId(platformId)).thenReturn(1L);
+
+        assertThatThrownBy(() -> platformService.deletePlatform(platformId))
+                .isInstanceOf(PlatformInActiveWorldException.class)
+                .hasMessageContaining("Платформа используется в активном игровом мире");
+    }
+    @Test
+    public void testDeletePlatformAssignedToPlayers() {
+        Long platformId = 1L;
+
+        when(playerService.countByPlatformId(platformId)).thenReturn(1L);
+
+        assertThatThrownBy(() -> platformService.deletePlatform(platformId))
+                .isInstanceOf(PlatformAssignedToPlayersException.class)
+                .hasMessageContaining("Платформа назначена игрокам и не может быть удалена");
+    }
+
+    @Test
+    public void testDeletePlatformThrowsWhenNotFound() {
+        Long platformId = 1L;
+
+        when(platformRepository.findById(platformId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> platformService.deletePlatform(platformId))
+                .isInstanceOf(PlatformNotFoundException.class)
+                .hasMessageContaining("Платформа не найдена по идентификатору: " + platformId);
     }
 }

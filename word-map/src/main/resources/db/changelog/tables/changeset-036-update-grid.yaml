@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: update-grid
+      author: Inger2
+      changes:
+        - addColumn:
+            tableName: grid
+            columns:
+              - column:
+                  name: server_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: grid
+            columns:
+              - column:
+                  name: pattern_type
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: grid
+            baseColumnNames: server_id
+            constraintName: fk_grid_server
+            referencedTableName: servers
+            referencedColumnNames: id
