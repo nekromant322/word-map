@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "servers")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"platform", "language"})

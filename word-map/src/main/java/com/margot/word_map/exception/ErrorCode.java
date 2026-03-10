@@ -36,6 +36,7 @@ public enum ErrorCode {
     DUPLICATE_NAME(HttpStatus.CONFLICT, "error.duplicate.name"),
     DUPLICATE_OFFER(HttpStatus.CONFLICT, "error.duplicate.offer"),
     DUPLICATE_LETTER(HttpStatus.CONFLICT, "error.duplicate.letter"),
+    DUPLICATE_SERVER(HttpStatus.CONFLICT, "error.duplicate.server"),
 
     INVALID_CONDITION(HttpStatus.CONFLICT, "error.condition.invalid"),
     LINE_IN_USE(HttpStatus.CONFLICT, "error.line.in_use"),

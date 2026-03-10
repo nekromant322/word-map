@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -65,5 +66,10 @@ public class PlatformService {
         return platformRepository.findAll().stream()
                 .map(platformMapper::toOptionDto)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Platform> findById(Long id) {
+        return platformRepository.findById(id);
     }
 }
