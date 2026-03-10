@@ -1,6 +1,6 @@
 package com.margot.word_map.utils.security;
 
-import com.margot.word_map.dto.security.AdminPrincipal;
+import com.margot.word_map.dto.security.AdminDetails;
 import com.margot.word_map.exception.UserNotFoundException;
 import com.margot.word_map.exception.UserNotPermissionsException;
 import com.margot.word_map.model.Admin;
@@ -59,8 +59,8 @@ public class SecurityAdminAccessor {
 
     public Long getCurrentAdminId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof AdminPrincipal adminPrincipal) {
-            return adminPrincipal.getId();
+        if (auth != null && auth.getPrincipal() instanceof AdminDetails adminDetails) {
+            return adminDetails.getId();
         }
 
         throw new UserNotFoundException();
@@ -80,6 +80,7 @@ public class SecurityAdminAccessor {
         Admin admin = adminRepository.findWithLangById(getCurrentAdminId())
                 .orElseThrow(UserNotFoundException::new);
         adminCache.setAdmin(admin);
+
         return admin;
     }
 

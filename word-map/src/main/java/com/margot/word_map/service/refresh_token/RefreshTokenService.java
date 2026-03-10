@@ -54,11 +54,6 @@ public class RefreshTokenService {
         refreshTokenRepository.delete(refreshToken);
     }
 
-    @Transactional
-    public void deleteBlockedTokens(Long adminId) {
-        refreshTokenRepository.deleteByAdminId(adminId);
-    }
-
     private String createRandomToken() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomBytes = new byte[32];
