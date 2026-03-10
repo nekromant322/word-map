@@ -10,4 +10,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     Optional<Player> findByEmail(String email);
 
     Optional<Player> findById(Long id);
+
+    Long countByPlatformId(Long platformId);
 }

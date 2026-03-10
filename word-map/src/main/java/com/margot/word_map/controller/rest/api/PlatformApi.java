@@ -79,4 +79,26 @@ public interface PlatformApi {
             }
     )
     List<OptionDto> getPlatformOptions();
+
+    @Operation(
+            summary = "Удаление платформы",
+            description = "Метод удаления платформы.",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/412385303/DELETE+platform+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Платформа не найдена"),
+                    @ApiResponse(responseCode = "409", description = "Платформа используется в активном игровом мире"),
+                    @ApiResponse(responseCode = "409",
+                            description = "Платформа назначена игрокам и не может быть удалена")
+            }
+    )
+    PlatformDto deletePlatform(Long id);
 }
