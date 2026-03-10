@@ -14,6 +14,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Service
@@ -61,7 +62,7 @@ public class JwtService {
                 .email(claims.getSubject())
                 .id(claims.get("id", Long.class))
                 .role(claims.get("role", String.class))
-                .rule(claims.get("rules", String.class))
+                .rules(claims.get("rules", List.class))
                 .build();
     }
 
