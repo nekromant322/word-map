@@ -1,9 +1,11 @@
 package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.exception.DuplicateServerException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.PlatformNotFoundException;
+import com.margot.word_map.exception.ServerNotFoundException;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.model.Server;
@@ -54,5 +56,14 @@ public class ServerService {
 
         // ToDo: Проработка алгоритма генерации игрового мира.
         auditService.log(AuditActionType.SERVER_CREATED, server.getId());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void updateServerName(UpdateServerRequest request, Long serverId) {
+        Server serverToUpdate = serverRepository.findById(serverId).orElseThrow(()
+                -> new ServerNotFoundException("Сервер не найден"));
+        serverToUpdate.setName(request.getName());
+        serverRepository.save(serverToUpdate);
     }
 }

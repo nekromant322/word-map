@@ -1,9 +1,11 @@
 package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.exception.DuplicateServerException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.exception.PlatformNotFoundException;
+import com.margot.word_map.exception.ServerNotFoundException;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.model.Server;
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -116,5 +119,34 @@ public class ServerServiceTest {
                 .createServer(request))
                 .isInstanceOf(DuplicateServerException.class)
                 .hasMessageContaining("Сервер уже существует");
+    }
+
+    @Test
+    public void testUpdateServerUpdates() {
+        Long id = 1L;
+        String oldName = "old";
+        String newName = "new";
+        UpdateServerRequest request = new UpdateServerRequest(newName);
+        Server server = Server.builder().id(id).name(oldName).build();
+
+        when(serverRepository.findById(id)).thenReturn(Optional.of(server));
+
+        serverService.updateServerName(request, id);
+        assertThat(server.getName()).isEqualTo(newName);
+
+        verify(serverRepository).save(server);
+    }
+
+    @Test
+    public void testUpdateServerThrowsServerNotFound() {
+        Long id = 1L;
+        UpdateServerRequest request = new UpdateServerRequest();
+
+        when(serverRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> serverService
+                .updateServerName(request, id))
+                .isInstanceOf(ServerNotFoundException.class)
+                .hasMessageContaining("Сервер не найден");
     }
 }

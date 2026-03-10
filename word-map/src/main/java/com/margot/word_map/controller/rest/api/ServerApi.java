@@ -1,6 +1,7 @@
 package com.margot.word_map.controller.rest.api;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.UpdateServerRequest;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,4 +39,23 @@ public interface ServerApi {
             }
     )
     void createServer(CreateServerRequest request);
+
+    @Operation(
+            summary = "Метод обновления данных о сервере.",
+            externalDocs = @ExternalDocumentation(
+                    description = "Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/500826203/PATCH+server+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "400", description = "Некорректный формат ввода", content = @Content),
+                    @ApiResponse(responseCode = "401",
+                            description = "Токен доступа недействителен", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден", content = @Content),
+            }
+    )
+    void updateServerName(UpdateServerRequest request, Long id);
 }

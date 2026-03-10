@@ -2,13 +2,13 @@ package com.margot.word_map.controller.rest;
 
 import com.margot.word_map.controller.rest.api.ServerApi;
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.service.server.ServerService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +20,12 @@ public class ServerController implements ServerApi {
     @PostMapping
     public void createServer(@RequestBody @Valid CreateServerRequest createServerRequest) {
         serverService.createServer(createServerRequest);
+    }
+
+    @PatchMapping("/{id}")
+    public void updateServerName(@RequestBody @Validated UpdateServerRequest request,
+                                 @Parameter(description = "id сервера", example = "10")
+                                 @PathVariable Long id) {
+        serverService.updateServerName(request, id);
     }
 }
