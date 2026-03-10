@@ -50,4 +50,7 @@ public class Server {
 
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen = true;
+
+    @Column(name = "cleanup_in_progress", nullable = false)
+    private Boolean cleanupInProgress;
 }

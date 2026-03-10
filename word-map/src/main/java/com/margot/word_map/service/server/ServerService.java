@@ -2,10 +2,8 @@ package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
 import com.margot.word_map.dto.request.UpdateServerRequest;
-import com.margot.word_map.exception.DuplicateServerException;
-import com.margot.word_map.exception.LanguageNotFoundException;
-import com.margot.word_map.exception.PlatformNotFoundException;
-import com.margot.word_map.exception.ServerNotFoundException;
+import com.margot.word_map.dto.response.DeleteServerResponse;
+import com.margot.word_map.exception.*;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.model.Server;
@@ -13,11 +11,16 @@ import com.margot.word_map.repository.ServerRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
+import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.platform.PlatformService;
+import com.margot.word_map.service.player.PlayerService;
+import com.margot.word_map.service.word.WordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,14 @@ public class ServerService {
     private final ServerRepository serverRepository;
 
     private final AuditService auditService;
+
+    private final GridService gridService;
+
+    private final PlayerService playerService;
+
+    private final WordService wordService;
+
+    private final ServerLockService serverLockService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -65,5 +76,73 @@ public class ServerService {
                 -> new ServerNotFoundException("Сервер не найден"));
         serverToUpdate.setName(request.getName());
         serverRepository.save(serverToUpdate);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void closeServer(Long serverId) {
+        int updatedRows = serverLockService.acquireLock(serverId);
+        if (updatedRows == 0) {
+            throw new InvalidConditionException();
+        }
+        Server serverToClose = serverRepository.findById(serverId).orElseThrow(()
+                -> new ServerNotFoundException("Сервер не найден"));
+        try {
+            serverToClose.setIsOpen(false);
+
+            serverToClose.setClosedAt(LocalDateTime.now());
+
+            gridService.deleteByServerId(serverId);
+            wordService.deleteByServerId(serverId);
+            playerService.deleteByServerId(serverId);
+            auditService.log(AuditActionType.SERVER_CLOSED, serverId);
+        } finally {
+            serverToClose.setCleanupInProgress(false);
+            serverRepository.save(serverToClose);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public void wipeServer(Long serverId) {
+        int updatedRows = serverLockService.acquireLock(serverId);
+        if (updatedRows == 0) {
+            throw new InvalidConditionException();
+        }
+        Server serverToWipe = serverRepository.findById(serverId).orElseThrow(()
+                -> new ServerNotFoundException("Сервер не найден"));
+        try {
+
+            serverToWipe.setWipedAt(LocalDateTime.now());
+            serverToWipe.setWipeCount(serverToWipe.getWipeCount() + 1);
+            gridService.deleteByServerId(serverId);
+            // ToDo: Проработка алгоритма генерации игрового мира.
+            auditService.log(AuditActionType.SERVER_WIPED, serverId);
+        }  finally {
+            serverToWipe.setCleanupInProgress(false);
+            serverRepository.save(serverToWipe);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public DeleteServerResponse deleteServer(Long serverId) {
+        Server serverToDelete = serverRepository.findById(serverId).orElseThrow(()
+                -> new ServerNotFoundException("Сервер не найден"));
+        String languageName = serverToDelete.getLanguage().getName();
+        String platformName = serverToDelete.getPlatform().getName();
+        if (serverToDelete.getCleanupInProgress() && serverToDelete.getIsOpen()) {
+            throw new ServerCleanupInProgressException("Выполняется очистка");
+        }
+        if (serverToDelete.getIsOpen()) {
+            throw new InvalidConditionException();
+        }
+        serverRepository.deleteById(serverId);
+        auditService.log(AuditActionType.SERVER_DELETED, serverId, languageName, platformName);
+        return DeleteServerResponse.builder().
+                id(serverToDelete.getId())
+                .language(languageName)
+                .platform(platformName)
+                .build();
     }
 }

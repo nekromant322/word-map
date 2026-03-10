@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: update-player-server-id
+      author: Inger2
+      preConditions:
+        - onFail: MARK_RAN
+          sqlCheck:
+            expectedResult: 1
+            sql: SELECT COUNT(*) FROM servers WHERE id = 1
+      changes:
+        - update:
+            tableName: players
+            columns:
+              - column:
+                  name: server_id
+                  valueNumeric: 1
+            where: email = 'test@gmail.com'

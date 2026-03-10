@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-servers
+      author: Inger2
+      changes:
+        - loadData:
+            file: data/servers.csv
+            separator: ","
+            tableName: servers
+            encoding: UTF-8
+
+  - changeSet:
+      id: reset-servers-id-sequence
+      author: Inger2
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              SELECT setval(pg_get_serial_sequence('servers', 'id'), coalesce(max(id), 1)) from servers;

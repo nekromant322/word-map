@@ -45,6 +45,7 @@ public enum ErrorCode {
     LANGUAGE_ASSIGNED_TO_PLAYERS(HttpStatus.CONFLICT, "error.language.assigned_to_players"),
     PLATFORM_IN_ACTIVE_WORLD(HttpStatus.CONFLICT, "error.platform.in_active_world"),
     PLATFORM_ASSIGNED_TO_PLAYERS(HttpStatus.CONFLICT, "error.platform.assigned_to_players"),
+    SERVER_CLEANUP_IN_PROGRESS(HttpStatus.CONFLICT, "error.server.cleanup.in_progress"),
 
     CODE_SPOILED(HttpStatus.GONE, "error.code.spoiled"),
     ACTIVE_CODE_EXISTS(HttpStatus.TOO_MANY_REQUESTS, "error.code.active_exists"),

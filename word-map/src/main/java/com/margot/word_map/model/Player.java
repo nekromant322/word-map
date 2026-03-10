@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@ToString(exclude = {"platform", "language"})
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -48,4 +48,8 @@ public class Player {
 
     @Column(name = "access", nullable = false)
     private Boolean access = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "server_id", nullable = false)
+    private Server server;
 }
