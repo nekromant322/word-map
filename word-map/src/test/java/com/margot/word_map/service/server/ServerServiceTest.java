@@ -15,7 +15,6 @@ import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.platform.PlatformService;
 import com.margot.word_map.service.player.PlayerService;
 import com.margot.word_map.service.word.WordService;
-import org.apache.commons.codec.language.bm.Lang;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -171,17 +170,15 @@ public class ServerServiceTest {
         boolean isOpen = true;
         Server server = Server.builder().id(id).isOpen(isOpen).build();
 
-        when(serverLockService.acquireLock(id)).thenReturn(1);
+        when(serverLockService.startWipe(id)).thenReturn(1);
         when(serverRepository.findById(id)).thenReturn(Optional.of(server));
         serverService.closeServer(server.getId());
 
-        assertThat(server.getIsOpen()).isEqualTo(false);
 
         verify(gridService).deleteByServerId(server.getId());
         verify(wordService).deleteByServerId(server.getId());
         verify(playerService).deleteByServerId(server.getId());
 
-        verify(serverRepository).save(server);
         verify(auditService).log(AuditActionType.SERVER_CLOSED, server.getId());
     }
 
@@ -189,7 +186,7 @@ public class ServerServiceTest {
     public void testCloseServerThrowsServerNotFound() {
         Long id = 1L;
 
-        when(serverLockService.acquireLock(id)).thenReturn(1);
+        when(serverLockService.startWipe(id)).thenReturn(1);
         when(serverRepository.findById(id)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> serverService
                 .closeServer(id))
@@ -198,47 +195,24 @@ public class ServerServiceTest {
     }
 
     @Test
-    public void testCloseServerThrowsInvalidCondition() {
-        Long id = 1L;
-
-        when(serverLockService.acquireLock(id)).thenReturn(0);
-
-        assertThatThrownBy(() -> serverService
-                .closeServer(id))
-                .isInstanceOf(InvalidConditionException.class);
-    }
-
-    @Test
     public void testWipeServer() {
         Long id = 1L;
         boolean isOpen = true;
         Server server = Server.builder().id(id).isOpen(isOpen).wipeCount(0).build();
 
-        when(serverLockService.acquireLock(id)).thenReturn(1);
+        when(serverLockService.startWipe(id)).thenReturn(1);
         when(serverRepository.findById(id)).thenReturn(Optional.of(server));
         serverService.wipeServer(server.getId());
 
         verify(gridService).deleteByServerId(server.getId());
-        verify(serverRepository).save(server);
         verify(auditService).log(AuditActionType.SERVER_WIPED, server.getId());
-    }
-
-    @Test
-    public void testWipeServerThrowsInvalidCondition() {
-        Long id = 1L;
-
-        when(serverLockService.acquireLock(id)).thenReturn(0);
-
-        assertThatThrownBy(() -> serverService
-                .wipeServer(id))
-                .isInstanceOf(InvalidConditionException.class);
     }
 
     @Test
     public void testWipeServerThrowsServerNotFound() {
         Long id = 1L;
 
-        when(serverLockService.acquireLock(id)).thenReturn(1);
+        when(serverLockService.startWipe(id)).thenReturn(1);
         when(serverRepository.findById(id)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> serverService
                 .wipeServer(id))

@@ -65,7 +65,9 @@ public class ServerService {
                 .build();
         serverRepository.save(server);
 
-        // ToDo: Проработка алгоритма генерации игрового мира.
+        /* ToDo: Проработка алгоритма генерации игрового мира.
+        https://override-platform.atlassian.net/wiki/spaces/W/pages/500826193/POST+server
+         */
         auditService.log(AuditActionType.SERVER_CREATED, server.getId());
     }
 
@@ -79,48 +81,34 @@ public class ServerService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
     public void closeServer(Long serverId) {
-        int updatedRows = serverLockService.acquireLock(serverId);
-        if (updatedRows == 0) {
-            throw new InvalidConditionException();
-        }
-        Server serverToClose = serverRepository.findById(serverId).orElseThrow(()
+        serverLockService.startWipe(serverId);
+        serverRepository.findById(serverId).orElseThrow(()
                 -> new ServerNotFoundException("Сервер не найден"));
         try {
-            serverToClose.setIsOpen(false);
-
-            serverToClose.setClosedAt(LocalDateTime.now());
-
             gridService.deleteByServerId(serverId);
             wordService.deleteByServerId(serverId);
             playerService.deleteByServerId(serverId);
             auditService.log(AuditActionType.SERVER_CLOSED, serverId);
         } finally {
-            serverToClose.setCleanupInProgress(false);
-            serverRepository.save(serverToClose);
+            serverLockService.completeClosing(serverId, LocalDateTime.now(), false);
         }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
     public void wipeServer(Long serverId) {
-        int updatedRows = serverLockService.acquireLock(serverId);
-        if (updatedRows == 0) {
-            throw new InvalidConditionException();
-        }
+        serverLockService.startWipe(serverId);
         Server serverToWipe = serverRepository.findById(serverId).orElseThrow(()
                 -> new ServerNotFoundException("Сервер не найден"));
         try {
 
-            serverToWipe.setWipedAt(LocalDateTime.now());
-            serverToWipe.setWipeCount(serverToWipe.getWipeCount() + 1);
             gridService.deleteByServerId(serverId);
-            // ToDo: Проработка алгоритма генерации игрового мира.
+            /* ToDo: Проработка алгоритма генерации игрового мира.
+            https://override-platform.atlassian.net/wiki/spaces/W/pages/500826213/DELETE+server+id+wipe
+             */
             auditService.log(AuditActionType.SERVER_WIPED, serverId);
-        }  finally {
-            serverToWipe.setCleanupInProgress(false);
-            serverRepository.save(serverToWipe);
+        } finally {
+            serverLockService.completeWipe(serverId, LocalDateTime.now(), serverToWipe.getWipeCount() + 1);
         }
     }
 
