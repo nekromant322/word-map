@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "servers")
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = {"platform", "language"})
@@ -49,4 +50,7 @@ public class Server {
 
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen = true;
+
+    @Column(name = "cleanup_in_progress", nullable = false)
+    private Boolean cleanupInProgress;
 }

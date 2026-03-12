@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,11 @@ public interface WordOfferRepository extends JpaRepository<WordOffer, Long>, Jpa
             "AND wo.languageId = :languageId " +
             "ORDER BY wo.createdAt DESC")
     List<WordOffer> findOfferedWordByPlayer(@Param("playerId") Long playerId, @Param("languageId") Long languageId);
+
+    @Modifying
+    @Transactional
+    @Query("""
+            DELETE FROM WordOffer w WHERE w.playerId IN (SELECT p.id FROM Player p WHERE p.server.id = :serverId)
+            """)
+    void deleteByServerId(Long serverId);
 }

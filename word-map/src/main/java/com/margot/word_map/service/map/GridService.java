@@ -56,4 +56,8 @@ public class GridService {
         GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 0);
         return geometryFactory.createPoint(new Coordinate(x, y));
     }
+
+    public void deleteByServerId(Long serverId) {
+        gridRepository.deleteByServerId(serverId);
+    }
 }

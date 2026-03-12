@@ -30,7 +30,12 @@ public enum AuditActionType {
 
     PATTERN_CREATED("Создан паттерн {id}", "id"),
     PATTERN_UPDATED("Отредактирован паттерн {id}", "id"),
-    PATTERN_DELETED("Удален паттерн {id}", "id");
+    PATTERN_DELETED("Удален паттерн {id}", "id"),
+
+    SERVER_CREATED("Создан сервер {id}", "id"),
+    SERVER_CLOSED("Закрыт сервер {id}", "id"),
+    SERVER_WIPED("Вайп сервера {id}", "id"),
+    SERVER_DELETED("Удален сервер {id}: {language} - {platform}", "id", "language", "platform");
 
     private final String value;
     private final List<String> requiredKeys;

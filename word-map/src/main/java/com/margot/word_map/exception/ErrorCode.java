@@ -28,6 +28,7 @@ public enum ErrorCode {
     LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "error.letter.not_found"),
     WORD_NOT_FOUND(HttpStatus.NOT_FOUND, "error.word.not_found"),
     PATTERN_NOT_FOUND(HttpStatus.NOT_FOUND, "error.pattern.not_found"),
+    SERVER_NOT_FOUND(HttpStatus.NOT_FOUND, "error.server.not_found"),
     INVALID_RULE(HttpStatus.NOT_FOUND, "error.rule.invalid"),
 
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "error.duplicate.email"),
@@ -36,6 +37,7 @@ public enum ErrorCode {
     DUPLICATE_NAME(HttpStatus.CONFLICT, "error.duplicate.name"),
     DUPLICATE_OFFER(HttpStatus.CONFLICT, "error.duplicate.offer"),
     DUPLICATE_LETTER(HttpStatus.CONFLICT, "error.duplicate.letter"),
+    DUPLICATE_SERVER(HttpStatus.CONFLICT, "error.duplicate.server"),
 
     INVALID_CONDITION(HttpStatus.CONFLICT, "error.condition.invalid"),
     LINE_IN_USE(HttpStatus.CONFLICT, "error.line.in_use"),
@@ -43,6 +45,7 @@ public enum ErrorCode {
     LANGUAGE_ASSIGNED_TO_PLAYERS(HttpStatus.CONFLICT, "error.language.assigned_to_players"),
     PLATFORM_IN_ACTIVE_WORLD(HttpStatus.CONFLICT, "error.platform.in_active_world"),
     PLATFORM_ASSIGNED_TO_PLAYERS(HttpStatus.CONFLICT, "error.platform.assigned_to_players"),
+    SERVER_CLEANUP_IN_PROGRESS(HttpStatus.CONFLICT, "error.server.cleanup.in_progress"),
 
     CODE_SPOILED(HttpStatus.GONE, "error.code.spoiled"),
     ACTIVE_CODE_EXISTS(HttpStatus.TOO_MANY_REQUESTS, "error.code.active_exists"),

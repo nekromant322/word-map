@@ -1,6 +1,8 @@
 package com.margot.word_map.model.map;
 
 import com.margot.word_map.model.Player;
+import com.margot.word_map.model.Server;
+import com.margot.word_map.model.enums.GridPatternType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
@@ -11,7 +13,6 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString(exclude = {"player", "tile", "letterObj"})
 public class Grid {
 
     @Id
@@ -23,15 +24,23 @@ public class Grid {
 
     private Character letter;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", referencedColumnName = "id")
     private Player player;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tile_id", referencedColumnName = "id", nullable = false)
     private Tile tile;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "letter_id", referencedColumnName = "id")
     private Letter letterObj;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pattern_type", nullable = false)
+    private GridPatternType patternType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "server_id", nullable = false)
+    private Server server;
 }

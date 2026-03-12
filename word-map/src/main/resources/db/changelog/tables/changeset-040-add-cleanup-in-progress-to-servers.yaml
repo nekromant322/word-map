@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-cleanup-in-progress-to-servers
+      author: Inger2
+      changes:
+        - addColumn:
+            tableName: servers
+            columns:
+              - column:
+                  name: cleanup_in_progress
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

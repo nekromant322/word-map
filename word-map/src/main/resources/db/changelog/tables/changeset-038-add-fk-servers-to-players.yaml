@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-fk-servers-to-players
+      author: Inger2
+      changes:
+        - addColumn:
+            tableName: players
+            columns:
+              - column:
+                  name: server_id
+                  type: bigint
+                  defaultValueNumeric: '1'
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: players
+            baseColumnNames: server_id
+            constraintName: fk_player_server
+            referencedTableName: servers
+            referencedColumnNames: id

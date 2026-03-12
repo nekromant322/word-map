@@ -330,4 +330,8 @@ public class WordService {
                 .totalElements((int) page.getTotalElements())
                 .build();
     }
+
+    public void deleteByServerId(Long playerId) {
+        wordOfferRepository.deleteByServerId(playerId);
+    }
 }

@@ -2,6 +2,13 @@ databaseChangeLog:
   - changeSet:
       id: insert-data-to-table-player
       author: Inger2
+
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 1
+            sql: "SELECT COUNT(*) FROM servers WHERE id = 1"
+
       changes:
         - loadData:
             file: data/players.csv
