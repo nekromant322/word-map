@@ -16,20 +16,21 @@ public class SecurityPlayerAccessor {
     private final PlayerRepository playerRepository;
 
     public boolean isUser(Authentication authentication) {
-        return  authentication != null && authentication.getAuthorities()
+        return authentication != null && authentication.getAuthorities()
                 .stream()
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"));
     }
 
-    public long getCurrentPlayerId() {
+    public PlayerDetails getCurrentPlayerDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof PlayerDetails playerDetails) {
-            return playerDetails.getId();
+            return playerDetails;
         }
         throw new UserNotFoundException();
     }
 
     public Player getCurrentPlayer() {
-        return playerRepository.findById(getCurrentPlayerId()).orElseThrow(UserNotFoundException::new);
+        PlayerDetails details = getCurrentPlayerDetails();
+        return playerRepository.findByUuid(details.getUuid()).orElseThrow(UserNotFoundException::new);
     }
 }

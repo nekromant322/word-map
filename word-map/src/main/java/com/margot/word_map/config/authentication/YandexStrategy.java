@@ -1,6 +1,8 @@
 package com.margot.word_map.config.authentication;
 
-import com.margot.word_map.service.auth.PlayerDetailsService;
+import com.fasterxml.jackson.core.JacksonException;
+import com.margot.word_map.dto.security.PlayerDetails;
+import com.margot.word_map.mapper.PlayerMapper;
 import com.margot.word_map.service.signature.PlayerSignatureService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -8,9 +10,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import tools.jackson.core.JacksonException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -19,8 +19,7 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 public class YandexStrategy implements AuthenticationStrategy {
     private final PlayerSignatureService playerSignatureService;
-
-    private final PlayerDetailsService playerService;
+    private final PlayerMapper playerMapper;
 
     @Override
     public boolean supports(HttpServletRequest request, Authentication auth) {
@@ -32,8 +31,8 @@ public class YandexStrategy implements AuthenticationStrategy {
             throws NoSuchAlgorithmException, InvalidKeyException, JacksonException {
         String header = request.getHeader("player_signature");
         validatePlayerSignature(header);
-        String username = playerSignatureService.extractEmail(header);
-        UserDetails details = playerService.loadUserByUsername(username);
+        String uuid = playerSignatureService.extractUuid(header);
+        PlayerDetails details = playerMapper.buildPlayerDetails(uuid);
         UsernamePasswordAuthenticationToken authToken
                 = new UsernamePasswordAuthenticationToken(details, null, details.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);

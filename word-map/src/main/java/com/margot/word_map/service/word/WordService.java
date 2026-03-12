@@ -254,7 +254,7 @@ public class WordService {
         if (findByWordInTableWords(wordRequest.getWord(), player.getLanguage().getId())) {
             throw new WordAlreadyExists("Слово " + wordRequest.getWord() + " уже существует");
         }
-        if (findByWordInTableWordsOffer(wordRequest.getWord(), playerAccessor.getCurrentPlayerId())) {
+        if (findByWordInTableWordsOffer(wordRequest.getWord(), player.getId())) {
             throw new WordOfferAlreadyExistsException("Слово уже на рассмотрении " + wordRequest.getWord());
         }
     }

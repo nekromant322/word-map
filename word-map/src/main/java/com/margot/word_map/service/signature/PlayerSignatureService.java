@@ -1,40 +1,34 @@
 package com.margot.word_map.service.signature;
 
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
-import tools.jackson.core.JacksonException;
 
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Service
+@RequiredArgsConstructor
 public class PlayerSignatureService {
-    private String hmacSecret;
+    private final ObjectMapper objectMapper;
 
-    public String extractEmail(String header) throws JacksonException {
+    public String extractUuid(String header) throws JacksonException {
         String payload = header.split("\\.")[1];
-        byte [] decodedPayload = Base64.getDecoder().decode(payload);
+        byte[] decodedPayload = Base64.getDecoder().decode(payload);
         String json = new String(decodedPayload, StandardCharsets.UTF_8);
-        JsonNode node = new ObjectMapper().readTree(json);
-        String email = node.path("email").asString();
-        if (email == null || email.isBlank()) {
-            throw new BadCredentialsException("Email отсутсвует");
+        JsonNode node = objectMapper.readTree(json);
+        String uuid = node.path("data").path("id").asText();
+        if (uuid == null || uuid.isBlank()) {
+            throw new BadCredentialsException("Uuid отсутствует");
         }
-        return email;
+        return uuid;
     }
 
-    public boolean isValid(String signature) throws NoSuchAlgorithmException, InvalidKeyException {
-//        SecretKeySpec signingKey = new SecretKeySpec(hmacSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-//        Mac mac = Mac.getInstance("HmacSHA256");
-//        mac.init(signingKey);
-//        byte[] hashPayload = mac.doFinal(payload.trim().getBytes(StandardCharsets.UTF_8));
-//        byte[] signatureBytes = Base64.getDecoder().decode(signature.trim());
-//
-//        return MessageDigest.isEqual(signatureBytes, hashPayload);
+    public boolean isValid(String signature) {
+        // проверка подписи игрока
         return true; // временно
     }
 }
