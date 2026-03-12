@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-to-table-players
+      author: Vlad
+      changes:
+        - update:
+            tableName: players
+            columns:
+              - column:
+                  name: uuid
+                  value: "Uz7x7pKFtZKYKG0Pu9Ltul0UmHkNEdECysr4UjYHs1c="
+            where: "id = 1"

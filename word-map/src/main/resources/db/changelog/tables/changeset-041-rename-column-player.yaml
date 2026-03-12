@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: rename-email-to-uuid-in-players
+      author: Vlad
+      changes:
+        - renameColumn:
+            tableName: players
+            oldColumnName: email
+            newColumnName: uuid
+            columnDataType: varchar(255)
