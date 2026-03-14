@@ -12,4 +12,8 @@ public class PlayerService {
     public void deleteByServerId(Long serverId) {
         playerRepository.deleteByServerId(serverId);
     }
+
+    public boolean existsByLanguageId(Long languageId) {
+        return playerRepository.existsByLanguage_Id(languageId);
+    }
 }

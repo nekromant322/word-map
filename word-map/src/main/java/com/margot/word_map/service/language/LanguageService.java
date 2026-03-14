@@ -6,6 +6,8 @@ import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
 import com.margot.word_map.dto.response.LetterResponse;
 import com.margot.word_map.exception.DuplicateNameException;
 import com.margot.word_map.exception.DuplicatePrefixException;
+import com.margot.word_map.exception.LanguageAssignedToPlayersException;
+import com.margot.word_map.exception.LanguageInActiveWorldException;
 import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
 import com.margot.word_map.mapper.LetterMapper;
@@ -17,6 +19,8 @@ import com.margot.word_map.repository.AdminRepository;
 import com.margot.word_map.repository.LanguageRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
+import com.margot.word_map.service.map.GridService;
+import com.margot.word_map.service.player.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +40,8 @@ public class LanguageService {
     private final AdminLanguageRepository adminLanguageRepository;
     private final AdminRepository adminRepository;
     private final AuditService auditService;
+    private final GridService gridService;
+    private final PlayerService playerService;
 
     private final LanguageMapper languageMapper;
     private final LetterMapper letterMapper;
@@ -127,9 +133,24 @@ public class LanguageService {
         return languageMapper.toDto(language);
     }
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteLanguage() {
+    public LanguageDto deleteLanguage(Long languageId) {
+        if (gridService.existsByLanguageId(languageId)) {
+            throw new LanguageInActiveWorldException("Язык используется в активном игровом мире");
+        }
 
+        if (playerService.existsByLanguageId(languageId)) {
+            throw new LanguageAssignedToPlayersException("Язык назначен игрокам и не может быть удален");
+        }
+
+        Language language = languageRepository.findById(languageId)
+                .orElseThrow(() -> new LanguageNotFoundException("Язык по идентификатору не найден: " + languageId));
+
+        languageRepository.deleteById(languageId);
+        auditService.log(AuditActionType.LANGUAGE_DELETED, language.getName());
+
+        return languageMapper.toDto(language);
     }
 
     @Transactional(readOnly = true)
