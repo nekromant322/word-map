@@ -14,11 +14,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Builder
 public class PlayerDetails implements UserDetails {
-    private Long id;
-
-    private String email;
-
-    private boolean accessGranted;
+    private String uuid;
 
     private Collection<? extends GrantedAuthority> authorities;
 
@@ -34,11 +30,6 @@ public class PlayerDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return accessGranted;
+        return uuid;
     }
 }
