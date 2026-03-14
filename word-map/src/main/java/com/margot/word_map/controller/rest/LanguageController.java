@@ -53,4 +53,10 @@ public class LanguageController implements LanguageApi {
     public List<LetterResponse> getAlphabet(@PathVariable("id") Long id) {
         return languageService.getAlphabet(id);
     }
+
+    @DeleteMapping("/{id}")
+    @Override
+    public LanguageDto deleteLanguage(@PathVariable("id") Long id) {
+        return languageService.deleteLanguage(id);
+    }
 }
