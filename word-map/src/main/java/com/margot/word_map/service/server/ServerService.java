@@ -1,13 +1,17 @@
 package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.ListServerRequest;
 import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.dto.response.DeleteServerResponse;
+import com.margot.word_map.dto.response.ListServerResponse;
 import com.margot.word_map.exception.*;
+import com.margot.word_map.mapper.ServerMapper;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.model.Server;
 import com.margot.word_map.repository.ServerRepository;
+import com.margot.word_map.repository.specification.ServerSpecification;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
@@ -21,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +45,13 @@ public class ServerService {
     private final WordService wordService;
 
     private final ServerLockService serverLockService;
+
+    private final ServerSpecification serverSpecification;
+
+    private final ServerMapper serverMapper;
+
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_PAGE_NUMBER = 1;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -132,5 +144,28 @@ public class ServerService {
                 .language(languageName)
                 .platform(platformName)
                 .build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public ListServerResponse getServers(Integer page, Integer size, ListServerRequest request) {
+        Long totalElement = serverSpecification.countServers(
+                request.getFilterStatus(), request.getFilterPlatform(),
+                request.getFilterLanguage(), request.getSearch());
+
+        int pageSize = (size != null && size > 0) ? size : DEFAULT_PAGE_SIZE;
+        int totalPages = (int) Math.ceil((double) totalElement / pageSize);
+        int numberPage;
+        if (page != null && page > 0) {
+            numberPage = totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE_NUMBER;
+        } else {
+            numberPage = DEFAULT_PAGE_NUMBER;
+        }
+
+        List<Server> servers = serverSpecification.findServers(
+                request.getFilterStatus(), request.getFilterPlatform(),
+                request.getFilterLanguage(), request.getSearch(),
+                request.getSortingType(), numberPage, pageSize);
+
+        return serverMapper.toResponse(servers, numberPage, pageSize, totalPages, totalElement);
     }
 }
