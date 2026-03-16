@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface GridRepository extends JpaRepository<Grid, Long> {
     Optional<Grid> findByPoint(Point point);
 
+    boolean existsByServer_Language_Id(Long languageId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Grid g WHERE g.server.id = :serverId")

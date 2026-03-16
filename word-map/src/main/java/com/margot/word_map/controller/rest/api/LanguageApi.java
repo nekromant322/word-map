@@ -107,5 +107,27 @@ public interface LanguageApi {
 
     @GetMapping("/{id}/alphabet")
     List<LetterResponse> getAlphabet(@PathVariable("id") Long id);
+
+    @Operation(
+            summary = "Удаление языка",
+            description = "Метод удаления языка",
+            externalDocs = @ExternalDocumentation(
+                    description = "документация запроса в Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/395902978/DELETE+language+id"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Язык успешно удалён"),
+                    @ApiResponse(responseCode = "401", description = "Токен доступа недействителен"),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован"),
+                    @ApiResponse(responseCode = "403", description = "Недостаточно прав"),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден"),
+                    @ApiResponse(responseCode = "404", description = "Язык не найден"),
+                    @ApiResponse(responseCode = "409", description = "Язык используется в активном игровом мире"),
+                    @ApiResponse(responseCode = "409", description = "Язык назначен игрокам и не может быть удален")
+            }
+    )
+    LanguageDto deleteLanguage(Long id);
 }
 

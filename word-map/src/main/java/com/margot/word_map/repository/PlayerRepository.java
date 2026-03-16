@@ -12,6 +12,8 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     Optional<Player> findByUuid(String uuid);
 
+    boolean existsByLanguage_Id(Long languageId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Player p WHERE p.server.id = :serverId")

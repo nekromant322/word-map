@@ -5,6 +5,9 @@ import com.margot.word_map.dto.request.CreateUpdateLanguageRequest;
 import com.margot.word_map.dto.response.LetterResponse;
 import com.margot.word_map.exception.DuplicateNameException;
 import com.margot.word_map.exception.DuplicatePrefixException;
+import com.margot.word_map.exception.LanguageAssignedToPlayersException;
+import com.margot.word_map.exception.LanguageInActiveWorldException;
+import com.margot.word_map.exception.LanguageNotFoundException;
 import com.margot.word_map.mapper.LanguageMapper;
 import com.margot.word_map.mapper.LetterMapper;
 import com.margot.word_map.model.Language;
@@ -12,6 +15,8 @@ import com.margot.word_map.model.map.Letter;
 import com.margot.word_map.repository.LanguageRepository;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
+import com.margot.word_map.service.map.GridService;
+import com.margot.word_map.service.player.PlayerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -42,6 +48,12 @@ public class LanguageTest {
 
     @Mock
     private LetterMapper letterMapper;
+
+    @Mock
+    private GridService gridService;
+
+    @Mock
+    private PlayerService playerService;
 
     @InjectMocks
     private LanguageService languageService;
@@ -213,5 +225,69 @@ public class LanguageTest {
         assertThat(result).isEmpty();
         verifyNoInteractions(letterMapper);
 
+    }
+
+    @Test
+    void testDeleteLanguageDeletesAndLogs() {
+        Long languageId = 1L;
+        String prefix = "ts";
+        String name = "test";
+
+        Language language = Language.builder()
+                .id(languageId)
+                .prefix(prefix)
+                .name(name)
+                .build();
+
+        LanguageDto languageDto = LanguageDto.builder()
+                .id(languageId)
+                .prefix(prefix)
+                .name(name)
+                .build();
+
+        when(gridService.existsByLanguageId(languageId)).thenReturn(false);
+        when(playerService.existsByLanguageId(languageId)).thenReturn(false);
+        when(languageRepository.findById(languageId)).thenReturn(Optional.of(language));
+        when(languageMapper.toDto(language)).thenReturn(languageDto);
+
+        LanguageDto result = languageService.deleteLanguage(languageId);
+
+        verify(languageRepository).deleteById(languageId);
+        verify(auditService).log(eq(AuditActionType.LANGUAGE_DELETED), eq(name));
+
+        assertEquals(languageDto, result);
+    }
+
+    @Test
+    void testThrowExceptionLanguageUserInWorld() {
+        Long languageId = 1L;
+
+        when(gridService.existsByLanguageId(languageId)).thenReturn(true);
+
+        assertThatThrownBy(() -> languageService.deleteLanguage(languageId))
+                .isInstanceOf(LanguageInActiveWorldException.class)
+                .hasMessageContaining("Язык используется в активном игровом мире");
+    }
+
+    @Test
+    void testThrowExceptionLanguageAssignedToPlayers() {
+        Long languageId = 1L;
+
+        when(playerService.existsByLanguageId(languageId)).thenReturn(true);
+
+        assertThatThrownBy(() -> languageService.deleteLanguage(languageId))
+                .isInstanceOf(LanguageAssignedToPlayersException.class)
+                .hasMessageContaining("Язык назначен игрокам и не может быть удален");
+    }
+
+    @Test
+    void testThrowExceptionLanguageNotFoundException() {
+        Long languageId = 1L;
+
+        when(languageRepository.findById(languageId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> languageService.deleteLanguage(languageId))
+                .isInstanceOf(LanguageNotFoundException.class)
+                .hasMessageContaining("Язык по идентификатору не найден: ");
     }
 }

@@ -60,4 +60,8 @@ public class GridService {
     public void deleteByServerId(Long serverId) {
         gridRepository.deleteByServerId(serverId);
     }
+
+    public boolean existsByLanguageId(Long languageId) {
+        return gridRepository.existsByServer_Language_Id(languageId);
+    }
 }
