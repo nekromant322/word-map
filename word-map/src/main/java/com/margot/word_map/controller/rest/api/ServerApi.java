@@ -1,8 +1,10 @@
 package com.margot.word_map.controller.rest.api;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.ListServerRequest;
 import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.dto.response.DeleteServerResponse;
+import com.margot.word_map.dto.response.ListServerResponse;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -120,4 +122,21 @@ public interface ServerApi {
             }
     )
     DeleteServerResponse deleteServer(Long id);
+
+    @Operation(
+            summary = "Метод получения списка существующих серверов.",
+            externalDocs = @ExternalDocumentation(
+                    description = "Confluence",
+                    url = "https://override-platform.atlassian.net/wiki/spaces/W/pages/500826223/POST+server+list"
+            )
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "401",
+                            description = "Токен доступа недействителен", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Аккаунт заблокирован", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Аккаунт не найден", content = @Content),
+            }
+    )
+    ListServerResponse getServers(Integer page, Integer size, ListServerRequest request);
 }
