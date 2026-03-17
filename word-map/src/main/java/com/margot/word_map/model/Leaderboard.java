@@ -32,7 +32,7 @@ public class Leaderboard {
     private Player player;
 
     @Column(name = "score", nullable = false)
-    private Integer score;
+    private Long score;
 
     @CreationTimestamp
     @Column(name = "updated_at", nullable = false)
