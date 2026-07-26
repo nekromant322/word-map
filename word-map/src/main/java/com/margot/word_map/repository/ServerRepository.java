@@ -1,14 +1,18 @@
 package com.margot.word_map.repository;
 
 import com.margot.word_map.model.Server;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 
-public interface ServerRepository extends JpaRepository<Server, Long> {
+public interface ServerRepository extends JpaRepository<Server, Long>, JpaSpecificationExecutor<Server> {
 
     boolean existsByPlatformIdAndLanguageIdAndIsOpenTrue(Long platformId, Long languageId);
 
@@ -41,4 +45,8 @@ public interface ServerRepository extends JpaRepository<Server, Long> {
                 where s.id = :id
             """)
     void completeClosing(Long id, LocalDateTime wipedAt, boolean isOpen);
+
+    Page<Server> findAll(Specification<Server> spec, Pageable pageable);
+
+    long count(Specification<Server> spec);
 }

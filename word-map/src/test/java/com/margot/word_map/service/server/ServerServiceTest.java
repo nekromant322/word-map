@@ -20,13 +20,19 @@ import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.platform.PlatformService;
 import com.margot.word_map.service.player.PlayerService;
 import com.margot.word_map.service.word.WordService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +43,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +82,8 @@ public class ServerServiceTest {
 
     @InjectMocks
     private ServerService serverService;
+
+    private ListServerRequest request;
 
     @Test
     public void testCreateServerSaves() {
@@ -321,74 +330,90 @@ public class ServerServiceTest {
 
         @BeforeEach
         void setUp() {
-            request = ListServerRequest.builder()
-                    .filterStatus(true)
-                    .filterPlatform(1)
-                    .filterLanguage(2)
-                    .search("тест")
-                    .sortingType(ServerSortingType.DATE_LATE)
-                    .build();
+            request = new ListServerRequest();
+            request.setFilterStatus(true);
+            request.setFilterPlatform(1);
+            request.setFilterLanguage(2);
+            request.setSearch("тест");
+            request.setSortingType(ServerSortingType.DATE_LATE);
         }
 
         @Test
         void testPageDefaultsToOne() {
-            Long totalElements = 50L;
-
-            when(serverSpecification.countServers(any(), any(), any(), any())).thenReturn(totalElements);
-            when(serverSpecification.findServers(any(), any(), any(), any(), any(), anyInt(), anyInt()))
-                    .thenReturn(Collections.emptyList());
+            Specification<Server> specification = mock(Specification.class);
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(50L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
             when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
                     .thenReturn(ListServerResponse.builder().build());
-
-            ListServerResponse response = serverService.getServers(null, null, request);
-
-            verify(serverSpecification).findServers(any(), any(), any(), any(), any(), eq(1), eq(20));
+            serverService.getServers(null, null, request);
+            ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+            verify(serverRepository).findAll(eq(specification), pageableCaptor.capture());
+            Pageable pageable = pageableCaptor.getValue();
+            assertEquals(0, pageable.getPageNumber());
+            assertEquals(20, pageable.getPageSize());
         }
 
         @Test
         void testFiltersAreApplied() {
+            Specification<Server> specification = mock(Specification.class);
             List<Server> servers = List.of(new Server());
-            when(serverSpecification.countServers(true, 1, 2, "тест")).thenReturn(1L);
-            when(serverSpecification.findServers(true, 1, 2, "тест",
-                    ServerSortingType.DATE_LATE, 1, 20)).thenReturn(servers);
+            Page<Server> page = new PageImpl<>(servers);
+            when(serverSpecification.filter(true, 1, 2, "тест"))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(1L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(page);
             when(serverMapper.toResponse(servers, 1, 20, 1, 1L))
                     .thenReturn(ListServerResponse.builder().content(Collections.emptyList()).build());
-
             serverService.getServers(1, 20, request);
-
-            verify(serverSpecification).findServers(true, 1, 2, "тест",
-                    ServerSortingType.DATE_LATE, 1, 20);
+            verify(serverSpecification).filter(true, 1, 2, "тест");
+            verify(serverRepository).count(specification);
+            verify(serverRepository).findAll(eq(specification), any(Pageable.class));
         }
 
         @Test
         void testEmptyContent() {
-            when(serverSpecification.countServers(any(), any(), any(), any())).thenReturn(0L);
-            when(serverSpecification.findServers(any(), any(), any(), any(), any(), anyInt(), anyInt()))
-                    .thenReturn(Collections.emptyList());
+            Specification<Server> specification = mock(Specification.class);
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(0L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
             when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
-                    .thenReturn(ListServerResponse.builder().content(Collections.emptyList()).build());
-
+                    .thenReturn(ListServerResponse.builder()
+                            .content(Collections.emptyList()).build());
             ListServerResponse response = serverService.getServers(3, 20, request);
-
-            verify(serverSpecification).findServers(any(), any(), any(), any(), any(), eq(1), eq(20));
+            verify(serverRepository).findAll(eq(specification), any(Pageable.class));
             assertEquals(0, response.getContent().size());
         }
 
         @Test
         void testPageGreaterThanTotalPages() {
-            Long totalElements = 35L;
+            Specification<Server> specification = mock(Specification.class);
+            long totalElements = 35L;
             int pageSize = 10;
-            int totalPages = (int) Math.ceil((double) totalElements / pageSize);
-
-            when(serverSpecification.countServers(any(), any(), any(), any())).thenReturn(totalElements);
-            when(serverSpecification.findServers(any(), any(), any(), any(), any(), anyInt(), anyInt()))
-                    .thenReturn(Collections.emptyList());
+            int totalPages = 4;
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(totalElements);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
             when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
                     .thenReturn(ListServerResponse.builder().build());
-
-            ListServerResponse response = serverService.getServers(10, pageSize, request);
-
-            verify(serverSpecification).findServers(any(), any(), any(), any(), any(), eq(totalPages), eq(pageSize));
+            serverService.getServers(10, pageSize, request);
+            ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+            verify(serverRepository).findAll(
+                    eq(specification), pageableCaptor.capture());
+            Pageable pageable = pageableCaptor.getValue();
+            assertEquals(totalPages - 1, pageable.getPageNumber());
+            assertEquals(pageSize, pageable.getPageSize());
         }
     }
 }

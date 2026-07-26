@@ -2,6 +2,7 @@ package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
 import com.margot.word_map.dto.request.ListServerRequest;
+import com.margot.word_map.dto.request.ServerSortingType;
 import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.dto.response.DeleteServerResponse;
 import com.margot.word_map.dto.response.ListServerResponse;
@@ -20,12 +21,16 @@ import com.margot.word_map.service.platform.PlatformService;
 import com.margot.word_map.service.player.PlayerService;
 import com.margot.word_map.service.word.WordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,12 +51,10 @@ public class ServerService {
 
     private final ServerLockService serverLockService;
 
-    private final ServerSpecification serverSpecification;
-
-    private final ServerMapper serverMapper;
-
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int DEFAULT_PAGE_NUMBER = 1;
+    private final ServerSpecification serverSpecification;
+    private final ServerMapper serverMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -148,24 +151,26 @@ public class ServerService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public ListServerResponse getServers(Integer page, Integer size, ListServerRequest request) {
-        Long totalElement = serverSpecification.countServers(
-                request.getFilterStatus(), request.getFilterPlatform(),
-                request.getFilterLanguage(), request.getSearch());
-
+        Specification<Server> specification = serverSpecification.filter(request.getFilterStatus(),
+                request.getFilterPlatform(), request.getFilterLanguage(), request.getSearch());
+        long totalElements = serverRepository.count(specification);
         int pageSize = (size != null && size > 0) ? size : DEFAULT_PAGE_SIZE;
-        int totalPages = (int) Math.ceil((double) totalElement / pageSize);
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
         int numberPage;
         if (page != null && page > 0) {
-            numberPage = totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE_NUMBER;
+            if (totalPages > 0) {
+                numberPage = Math.min(page, totalPages);
+            } else {
+                numberPage = DEFAULT_PAGE_NUMBER;
+            }
         } else {
             numberPage = DEFAULT_PAGE_NUMBER;
         }
-
-        List<Server> servers = serverSpecification.findServers(
-                request.getFilterStatus(), request.getFilterPlatform(),
-                request.getFilterLanguage(), request.getSearch(),
-                request.getSortingType(), numberPage, pageSize);
-
-        return serverMapper.toResponse(servers, numberPage, pageSize, totalPages, totalElement);
+        Sort sort = request.getSortingType() != null
+                ? request.getSortingType().toSort() : ServerSortingType.DATE_LATE.toSort();
+        Pageable pageable = PageRequest.of(numberPage - 1, pageSize, sort);
+        Page<Server> serverPage = serverRepository.findAll(specification, pageable);
+        return serverMapper.toResponse(serverPage.getContent(), numberPage,
+                pageSize, totalPages, totalElements);
     }
 }
