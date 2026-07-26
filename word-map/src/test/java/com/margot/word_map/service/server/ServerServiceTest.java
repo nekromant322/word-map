@@ -1,13 +1,18 @@
 package com.margot.word_map.service.server;
 
 import com.margot.word_map.dto.request.CreateServerRequest;
+import com.margot.word_map.dto.request.ListServerRequest;
+import com.margot.word_map.dto.request.ServerSortingType;
 import com.margot.word_map.dto.request.UpdateServerRequest;
 import com.margot.word_map.dto.response.DeleteServerResponse;
+import com.margot.word_map.dto.response.ListServerResponse;
 import com.margot.word_map.exception.*;
+import com.margot.word_map.mapper.ServerMapper;
 import com.margot.word_map.model.Language;
 import com.margot.word_map.model.Platform;
 import com.margot.word_map.model.Server;
 import com.margot.word_map.repository.ServerRepository;
+import com.margot.word_map.repository.specification.ServerSpecification;
 import com.margot.word_map.service.audit.AuditActionType;
 import com.margot.word_map.service.audit.AuditService;
 import com.margot.word_map.service.language.LanguageService;
@@ -15,12 +20,22 @@ import com.margot.word_map.service.map.GridService;
 import com.margot.word_map.service.platform.PlatformService;
 import com.margot.word_map.service.player.PlayerService;
 import com.margot.word_map.service.word.WordService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,6 +43,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,8 +74,16 @@ public class ServerServiceTest {
     @Mock
     private ServerLockService serverLockService;
 
+    @Mock
+    private ServerMapper serverMapper;
+
+    @Mock
+    private ServerSpecification serverSpecification;
+
     @InjectMocks
     private ServerService serverService;
+
+    private ListServerRequest request;
 
     @Test
     public void testCreateServerSaves() {
@@ -278,6 +302,7 @@ public class ServerServiceTest {
                 .isInstanceOf(ServerCleanupInProgressException.class)
                 .hasMessageContaining("Выполняется очистка");
     }
+
     @Test
     public void testDeleteServerThrowsInvalidConditionWhenIsOpen() {
         Long serverId = 1L;
@@ -296,5 +321,99 @@ public class ServerServiceTest {
         assertThatThrownBy(() -> serverService
                 .deleteServer(serverId))
                 .isInstanceOf(InvalidConditionException.class);
+    }
+
+    @Nested
+    class GetServersTests {
+
+        private ListServerRequest request;
+
+        @BeforeEach
+        void setUp() {
+            request = new ListServerRequest();
+            request.setFilterStatus(true);
+            request.setFilterPlatform(1);
+            request.setFilterLanguage(2);
+            request.setSearch("тест");
+            request.setSortingType(ServerSortingType.DATE_LATE);
+        }
+
+        @Test
+        void testPageDefaultsToOne() {
+            Specification<Server> specification = mock(Specification.class);
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(50L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
+            when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
+                    .thenReturn(ListServerResponse.builder().build());
+            serverService.getServers(null, null, request);
+            ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+            verify(serverRepository).findAll(eq(specification), pageableCaptor.capture());
+            Pageable pageable = pageableCaptor.getValue();
+            assertEquals(0, pageable.getPageNumber());
+            assertEquals(20, pageable.getPageSize());
+        }
+
+        @Test
+        void testFiltersAreApplied() {
+            Specification<Server> specification = mock(Specification.class);
+            List<Server> servers = List.of(new Server());
+            Page<Server> page = new PageImpl<>(servers);
+            when(serverSpecification.filter(true, 1, 2, "тест"))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(1L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(page);
+            when(serverMapper.toResponse(servers, 1, 20, 1, 1L))
+                    .thenReturn(ListServerResponse.builder().content(Collections.emptyList()).build());
+            serverService.getServers(1, 20, request);
+            verify(serverSpecification).filter(true, 1, 2, "тест");
+            verify(serverRepository).count(specification);
+            verify(serverRepository).findAll(eq(specification), any(Pageable.class));
+        }
+
+        @Test
+        void testEmptyContent() {
+            Specification<Server> specification = mock(Specification.class);
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(0L);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
+            when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
+                    .thenReturn(ListServerResponse.builder()
+                            .content(Collections.emptyList()).build());
+            ListServerResponse response = serverService.getServers(3, 20, request);
+            verify(serverRepository).findAll(eq(specification), any(Pageable.class));
+            assertEquals(0, response.getContent().size());
+        }
+
+        @Test
+        void testPageGreaterThanTotalPages() {
+            Specification<Server> specification = mock(Specification.class);
+            long totalElements = 35L;
+            int pageSize = 10;
+            int totalPages = 4;
+            when(serverSpecification.filter(any(), any(), any(), any()))
+                    .thenReturn(specification);
+            when(serverRepository.count(specification))
+                    .thenReturn(totalElements);
+            when(serverRepository.findAll(eq(specification), any(Pageable.class)))
+                    .thenReturn(Page.empty());
+            when(serverMapper.toResponse(anyList(), anyInt(), anyInt(), anyInt(), anyLong()))
+                    .thenReturn(ListServerResponse.builder().build());
+            serverService.getServers(10, pageSize, request);
+            ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+            verify(serverRepository).findAll(
+                    eq(specification), pageableCaptor.capture());
+            Pageable pageable = pageableCaptor.getValue();
+            assertEquals(totalPages - 1, pageable.getPageNumber());
+            assertEquals(pageSize, pageable.getPageSize());
+        }
     }
 }
